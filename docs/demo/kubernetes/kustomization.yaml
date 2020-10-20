@@ -1,0 +1,12 @@
+namespace: kcr-demo
+resources:
+- namespace.yaml
+- zookeeper/statefulset.yaml
+- zookeeper/service.yaml
+- kafka-broker/statefulset.yaml
+- kafka-broker/service.yaml
+- kafka-connect/deployment.yaml
+- kafka-connect/service.yaml
+- redis/statefulset.yaml
+- redis/service.yaml
+- redis/secret.yaml
