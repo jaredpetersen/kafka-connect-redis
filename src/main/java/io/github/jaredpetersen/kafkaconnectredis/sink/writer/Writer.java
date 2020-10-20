@@ -6,17 +6,27 @@ import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisSaddCom
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisSetCommand;
 import io.lettuce.core.SetArgs;
 import io.lettuce.core.api.reactive.RedisReactiveCommands;
+import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
-import java.util.List;
 
 public class Writer {
-  private final RedisReactiveCommands<String, String> redisCommands;
+  private final RedisReactiveCommands<String, String> redisStandaloneCommands;
+  private final RedisClusterReactiveCommands<String, String> redisClusterCommands;
+  private final boolean clusterEnabled;
 
-  public Writer(RedisReactiveCommands<String, String> redisCommands) {
-    this.redisCommands = redisCommands;
+  public Writer(RedisReactiveCommands<String, String> redisStandaloneCommands) {
+    this.redisStandaloneCommands = redisStandaloneCommands;
+    this.redisClusterCommands = null;
+    this.clusterEnabled = false;
+  }
+
+  public Writer(RedisClusterReactiveCommands<String, String> redisClusterCommands) {
+    this.redisStandaloneCommands = null;
+    this.redisClusterCommands = redisClusterCommands;
+    this.clusterEnabled = true;
   }
 
   public Mono<Void> write(RedisCommand redisCommand) {
@@ -78,7 +88,9 @@ public class Writer {
         final RedisSetCommand.Payload payload = tuple.getT1();
         final SetArgs setArgs = tuple.getT2();
 
-        return this.redisCommands.set(payload.getKey(), payload.getValue(), setArgs);
+        return (this.clusterEnabled)
+          ? this.redisClusterCommands.set(payload.getKey(), payload.getValue(), setArgs)
+          : this.redisStandaloneCommands.set(payload.getKey(), payload.getValue(), setArgs);
       })
       .then();
   }
@@ -86,27 +98,31 @@ public class Writer {
   private Mono<Void> sadd(RedisSaddCommand saddCommand) {
     return Mono
       .just(saddCommand.getPayload())
-      .flatMap(payload -> this.redisCommands.sadd(payload.getKey(), payload.getValues().toArray(new String[0])))
+      .flatMap(payload -> {
+        final String[] members = payload.getValues().toArray(new String[0]);
+        return (this.clusterEnabled)
+            ? this.redisClusterCommands.sadd(payload.getKey(), members)
+            : this.redisStandaloneCommands.sadd(payload.getKey(), members);
+      })
       .then();
   }
 
   private Mono<Void> geoadd(RedisGeoaddCommand geoaddCommand) {
-    final Mono<RedisGeoaddCommand.Payload> payloadMono = Mono.just(geoaddCommand.getPayload());
-
-    final Flux<Object> geoLocationFlux = payloadMono
-      .flatMapIterable(RedisGeoaddCommand.Payload::getValues)
+    final Flux<Object> geoLocationFlux = Flux
+      .fromIterable(geoaddCommand.getPayload().getValues())
       .flatMapIterable(geoLocation ->
         (geoLocation.getLongitude() != null && geoLocation.getLatitude() != null && geoLocation.getMember() != null)
           ? Arrays.asList(geoLocation.getLongitude(), geoLocation.getLatitude(), geoLocation.getMember())
           : null);
 
     return Mono
-      .zip(payloadMono, geoLocationFlux.collectList())
+      .zip(Mono.just(geoaddCommand.getPayload().getKey()), geoLocationFlux.collectList())
       .flatMap(tuple -> {
-        final RedisGeoaddCommand.Payload payload = tuple.getT1();
-        final List<Object> latitudeLongitudeMembers = tuple.getT2();
-
-        return this.redisCommands.geoadd(payload.getKey(), latitudeLongitudeMembers.toArray(new Object[0]));
+        final String key = tuple.getT1();
+        final Object[] latitudeLongitudeMembers = tuple.getT2().toArray(new Object[0]);
+        return (this.clusterEnabled)
+          ? this.redisClusterCommands.geoadd(key, latitudeLongitudeMembers)
+          : this.redisStandaloneCommands.geoadd(key, latitudeLongitudeMembers);
       })
       .then();
   }

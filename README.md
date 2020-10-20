@@ -152,5 +152,5 @@ Sample value:
 ### Connector Properties
 | Name                    | Description                         | Type     | Default | Importance |
 | ----------------------- | ----------------------------------- | -------- | ------- | ---------- |
-| `redis.uri`             | Redis UR.                           | string   |         | high       |
-| `redis.cluster.enabled` | Redis cluster mode enabled.         | int      |         | high       |
+| `redis.uri`             | Redis URI                           | string   |         | high       |
+| `redis.cluster.enabled` | Target Redis instance is a cluster  | boolean  | false   | high       |

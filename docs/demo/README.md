@@ -61,12 +61,13 @@ curl --request POST \
     --url "$(minikube -n kcr-demo service kafka-connect --url)/connectors" \
     --header 'content-type: application/json' \
     --data '{
-        "name": "demo-redis-connector2",
+        "name": "demo-redis-connector",
         "config": {
             "connector.class": "io.github.jaredpetersen.kafkaconnectredis.sink.RedisSinkConnector",
             "tasks.max": "1",
-            "topics": "rediscommands2",
-            "redis.uri": "redis://IEPfIr0eLF7UsfwrIlzy80yUaBG258j9@redis-cluster"
+            "topics": "rediscommands",
+            "redis.uri": "redis://IEPfIr0eLF7UsfwrIlzy80yUaBG258j9@redis-cluster",
+            "redis.cluster.enabled": true
         }
     }'
 ```
@@ -79,9 +80,9 @@ kubectl -n kcr-demo run -it --rm kafka-write-records --image confluentinc/cp-kaf
 
 Write records to the `rediscommands` topic:
 ```bash
-kafka-console-producer --broker-list kafka-broker-0.kafka-broker:9092 --topic rediscommands2
+kafka-console-producer --broker-list kafka-broker-0.kafka-broker:9092 --topic rediscommands
 >{ "payload": { "command": "SET", "payload": { "key": "{user.1}.username", "value": "jetpackmelon22" } }, "schema": { "type": "struct", "fields": [ { "field": "command", "type": "string", "optional": false }, { "field": "payload", "type": "struct", "fields": [ { "field": "key", "type": "string", "optional": false }, { "field": "value", "type": "string", "optional": false }, { "field": "expiration", "type": "struct", "fields": [ { "field": "type", "type": "string", "optional": false }, { "field": "time", "type": "int64", "optional": false } ], "optional": true }, { "field": "condition", "type": "string", "optional": true } ], "optional": false } ], "optional": false } }
->{ "payload": { "operation": "SET", "payload": { "key": "{user.2}.username", "value": "anchorgoat74", "expiration": { "type": "EX", "time": 2100 }, "condition": "NX" } }, "schema": { "type": "struct", "fields": [ { "field": "operation", "type": "string", "optional": false }, { "field": "payload", "type": { "type": "struct", "fields": [ { "field": "key", "type": "string", "optional": false }, { "field": "value", "type": "string", "optional": false }, { "field": "expiration", "type": "struct", "fields": [ { "field": "type", "type": "string", "optional": false }, { "field": "time", "type": "int64", "optional": false } ], "optional": true }, { "field": "condition", "type": "string", "optional": true } ], "optional": false } } ] } }
+>{ "payload": { "command": "SET", "payload": { "key": "{user.2}.username", "value": "anchorgoat74", "expiration": { "type": "EX", "time": 2100 }, "condition": "NX" } }, "schema": { "type": "struct", "fields": [ { "field": "command", "type": "string", "optional": false }, { "field": "payload", "type": "struct", "fields": [ { "field": "key", "type": "string", "optional": false }, { "field": "value", "type": "string", "optional": false }, { "field": "expiration", "type": "struct", "fields": [ { "field": "type", "type": "string", "optional": false }, { "field": "time", "type": "int64", "optional": false } ], "optional": true }, { "field": "condition", "type": "string", "optional": true } ], "optional": false } ], "optional": false } }
 ```
 
 ### Redis

@@ -11,6 +11,7 @@ import java.util.Map;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.reactive.RedisReactiveCommands;
 import io.lettuce.core.cluster.RedisClusterClient;
+import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.sink.SinkTask;
 import org.slf4j.Logger;
@@ -25,7 +26,8 @@ public class RedisSinkTask extends SinkTask {
 
   private static final RecordConverter RECORD_CONVERTER = new RecordConverter();
 
-  private RedisClient redisClient;
+  private RedisClusterClient redisClusterClient;
+  private RedisClient redisStandaloneClient;
   private Writer writer;
 
   @Override
@@ -40,10 +42,18 @@ public class RedisSinkTask extends SinkTask {
     // Map the task properties to config object
     final RedisSinkConfig config = new RedisSinkConfig(props);
 
-    this.redisClient = RedisClient.create(config.getRedisUri());
-    final RedisReactiveCommands<String, String> redisCommands = this.redisClient.connect().reactive();
+    if (config.isRedisClusterEnabled()) {
+      this.redisClusterClient = RedisClusterClient.create(config.getRedisUri());
 
-    this.writer = new Writer(redisCommands);
+      final RedisClusterReactiveCommands<String, String> redisClusterCommands = this.redisClusterClient.connect().reactive();
+      this.writer = new Writer(redisClusterCommands);
+    }
+    else {
+      this.redisStandaloneClient = RedisClient.create(config.getRedisUri());
+
+      final RedisReactiveCommands<String, String> redisStandaloneCommands = this.redisStandaloneClient.connect().reactive();
+      this.writer = new Writer(redisStandaloneCommands);
+    }
   }
 
   @Override
@@ -66,6 +76,11 @@ public class RedisSinkTask extends SinkTask {
 
   @Override
   public void stop() {
-    this.redisClient.shutdown();
+    if (this.redisStandaloneClient != null) {
+      this.redisStandaloneClient.shutdown();
+    }
+    if (this.redisClusterClient != null) {
+      this.redisClusterClient.shutdown();
+    }
   }
 }
