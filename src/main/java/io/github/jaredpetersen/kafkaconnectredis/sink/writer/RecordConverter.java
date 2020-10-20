@@ -110,8 +110,8 @@ public class RecordConverter {
         final Struct rawGeolocationStruct = (Struct) rawGeolocation;
 
         return RedisGeoaddCommand.Payload.GeoLocation.builder()
-          .latitude(BigDecimal.valueOf(rawGeolocationStruct.getFloat64("latitude")))
-          .longitude(BigDecimal.valueOf(rawGeolocationStruct.getFloat64("longitudee")))
+          .latitude(new BigDecimal(rawGeolocationStruct.getString("latitude")))
+          .longitude(new BigDecimal(rawGeolocationStruct.getString("longitude")))
           .member(rawGeolocationStruct.getString("member"))
           .build();
       }));
