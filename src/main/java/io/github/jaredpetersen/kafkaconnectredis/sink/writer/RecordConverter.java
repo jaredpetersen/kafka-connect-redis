@@ -48,16 +48,7 @@ public class RecordConverter {
       });
   }
 
-  // TODO assert schema
-
   private Mono<RedisCommand> convertSet(Struct value) {
-//    value.schema().field("operation") == null;
-//    value.schema().field("operation").schema().type() == Schema.Type.STRING;
-//    value.schema().field("payload") == null;
-//    value.schema().field("payload").schema().type() == Schema.Type.STRUCT
-//    value.schema().field("payload").schema().field("key") == null;
-//    value.schema().field("payload").schema().field("key").schema().type() = Schema.Type.STRING;
-
     return Mono.fromCallable(() -> {
       final Struct rawPayload = value.getStruct("payload");
 
@@ -108,7 +99,6 @@ public class RecordConverter {
       .flatMapIterable(rawPayload -> rawPayload.getArray("values"))
       .flatMap(rawGeolocation -> Mono.fromCallable(() -> {
         final Struct rawGeolocationStruct = (Struct) rawGeolocation;
-
         return RedisGeoaddCommand.Payload.GeoLocation.builder()
           .latitude(new BigDecimal(rawGeolocationStruct.getString("latitude")))
           .longitude(new BigDecimal(rawGeolocationStruct.getString("longitude")))

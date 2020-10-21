@@ -119,10 +119,10 @@ public class Writer {
       .zip(Mono.just(geoaddCommand.getPayload().getKey()), geoLocationFlux.collectList())
       .flatMap(tuple -> {
         final String key = tuple.getT1();
-        final Object[] latitudeLongitudeMembers = tuple.getT2().toArray(new Object[0]);
+        final Object[] longitudeLatitudeMembers = tuple.getT2().toArray(new Object[0]);
         return (this.clusterEnabled)
-          ? this.redisClusterCommands.geoadd(key, latitudeLongitudeMembers)
-          : this.redisStandaloneCommands.geoadd(key, latitudeLongitudeMembers);
+          ? this.redisClusterCommands.geoadd(key, longitudeLatitudeMembers)
+          : this.redisStandaloneCommands.geoadd(key, longitudeLatitudeMembers);
       })
       .then();
   }
