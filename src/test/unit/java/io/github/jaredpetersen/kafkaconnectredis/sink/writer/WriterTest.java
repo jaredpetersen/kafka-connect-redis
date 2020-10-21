@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 
 public class WriterTest {
   @Test
-  public void writeRedisSetCommandAppliesCommandToStandalone() {
+  public void writePartialRedisSetCommandAppliesCommandToStandalone() {
     final RedisSetCommand redisCommand = RedisSetCommand.builder()
       .payload(RedisSetCommand.Payload.builder()
         .key("{user.1}.username")
@@ -38,12 +38,13 @@ public class WriterTest {
       .create(write)
       .verifyComplete();
 
+    // Cannot verify contents of SetArgs as there are not any getters
     verify(redisStandaloneCommandsMock)
       .set(eq(redisCommand.getPayload().getKey()), eq(redisCommand.getPayload().getValue()), any(SetArgs.class));
   }
 
   @Test
-  public void writeRedisSetCommandAppliesCommandToCluster() {
+  public void writePartialRedisSetCommandAppliesCommandToCluster() {
     final RedisSetCommand redisCommand = RedisSetCommand.builder()
         .payload(RedisSetCommand.Payload.builder()
             .key("{user.1}.username")
@@ -61,6 +62,64 @@ public class WriterTest {
         .create(write)
         .verifyComplete();
 
+    verify(redisClusterCommandsMock)
+        .set(eq(redisCommand.getPayload().getKey()), eq(redisCommand.getPayload().getValue()), any(SetArgs.class));
+  }
+
+  @Test
+  public void writeRedisSetCommandAppliesCommandToStandalone() {
+    final RedisSetCommand redisCommand = RedisSetCommand.builder()
+        .payload(RedisSetCommand.Payload.builder()
+            .key("{user.1}.username")
+            .value("jetpackmelon22")
+            .expiration(RedisSetCommand.Payload.Expiration.builder()
+                .type(RedisSetCommand.Payload.Expiration.Type.EX)
+                .time(2100L)
+                .build())
+            .condition(RedisSetCommand.Payload.Condition.NX)
+            .build())
+        .build();
+    final RedisReactiveCommands<String, String> redisStandaloneCommandsMock = mock(RedisReactiveCommands.class);
+    when(redisStandaloneCommandsMock.set(anyString(), anyString(), any(SetArgs.class)))
+        .thenReturn(Mono.empty());
+
+    final Writer writer = new Writer(redisStandaloneCommandsMock);
+    final Mono<Void> write = writer.write(redisCommand);
+
+    StepVerifier
+        .create(write)
+        .verifyComplete();
+
+    // Cannot verify contents of SetArgs as there are not any getters
+    verify(redisStandaloneCommandsMock)
+        .set(eq(redisCommand.getPayload().getKey()), eq(redisCommand.getPayload().getValue()), any(SetArgs.class));
+  }
+
+  @Test
+  public void writeRedisSetCommandAppliesCommandToCluster() {
+    final RedisSetCommand redisCommand = RedisSetCommand.builder()
+        .payload(RedisSetCommand.Payload.builder()
+            .key("{user.1}.username")
+            .value("jetpackmelon22")
+            .expiration(RedisSetCommand.Payload.Expiration.builder()
+                .type(RedisSetCommand.Payload.Expiration.Type.EX)
+                .time(2100L)
+                .build())
+            .condition(RedisSetCommand.Payload.Condition.NX)
+            .build())
+        .build();
+    final RedisClusterReactiveCommands<String, String> redisClusterCommandsMock = mock(RedisClusterReactiveCommands.class);
+    when(redisClusterCommandsMock.set(anyString(), anyString(), any(SetArgs.class)))
+        .thenReturn(Mono.empty());
+
+    final Writer writer = new Writer(redisClusterCommandsMock);
+    final Mono<Void> write = writer.write(redisCommand);
+
+    StepVerifier
+        .create(write)
+        .verifyComplete();
+
+    // Cannot verify contents of SetArgs as there are not any getters
     verify(redisClusterCommandsMock)
         .set(eq(redisCommand.getPayload().getKey()), eq(redisCommand.getPayload().getValue()), any(SetArgs.class));
   }

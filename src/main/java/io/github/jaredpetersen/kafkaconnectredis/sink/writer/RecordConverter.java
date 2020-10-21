@@ -14,10 +14,6 @@ import java.util.List;
 
 public class RecordConverter {
   public Mono<RedisCommand> convert(SinkRecord sinkRecord) {
-    if (sinkRecord.valueSchema() == null) {
-      return Mono.error(new IllegalArgumentException("schemaless data is not supported"));
-    }
-
     final Mono<Struct> valueMono = Mono.just((Struct) sinkRecord.value());
     final Mono<RedisCommand.Command> commandTypeMono = valueMono
       .flatMap(value -> Mono.just(RedisCommand.Command.valueOf(value.getString("command").toUpperCase())));
