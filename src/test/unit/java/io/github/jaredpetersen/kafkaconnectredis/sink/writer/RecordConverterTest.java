@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 
 public class RecordConverterTest {
@@ -185,13 +184,13 @@ public class RecordConverterTest {
         .key("sicily")
         .values(Arrays.asList(
           RedisGeoaddCommand.Payload.GeoLocation.builder()
-            .longitude(new BigDecimal("13.361389"))
-            .latitude(new BigDecimal("38.115556"))
+            .longitude(13.361389d)
+            .latitude(38.115556d)
             .member("Palermo")
             .build(),
           RedisGeoaddCommand.Payload.GeoLocation.builder()
-            .longitude(new BigDecimal("15.087269"))
-            .latitude(new BigDecimal("37.502669"))
+            .longitude(15.087269d)
+            .latitude(37.502669d)
             .member("Catania")
             .build()))
         .build())

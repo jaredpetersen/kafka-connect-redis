@@ -4,6 +4,8 @@
 
 Kafka Connect Sink Connector for Redis
 
+## TODO Move sink into its own README
+
 ## Usage
 Kafka Connect Redis is a Kafka Connector that takes data modification Redis commands and applies them to Redis. Only sinking data is supported at this time.
 

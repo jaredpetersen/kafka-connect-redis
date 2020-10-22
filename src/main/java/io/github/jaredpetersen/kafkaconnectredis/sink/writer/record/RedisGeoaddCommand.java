@@ -21,8 +21,8 @@ public class RedisGeoaddCommand implements RedisCommand {
     @Value
     @lombok.Builder(builderClassName = "Builder")
     public static class GeoLocation {
-      BigDecimal latitude;
-      BigDecimal longitude;
+      double latitude;
+      double longitude;
       String member;
     }
   }

@@ -111,7 +111,7 @@ public class Writer {
     final Flux<Object> geoLocationFlux = Flux
       .fromIterable(geoaddCommand.getPayload().getValues())
       .flatMapIterable(geoLocation ->
-        (geoLocation.getLongitude() != null && geoLocation.getLatitude() != null && geoLocation.getMember() != null)
+        (geoLocation.getMember() != null)
           ? Arrays.asList(geoLocation.getLongitude(), geoLocation.getLatitude(), geoLocation.getMember())
           : null);
 

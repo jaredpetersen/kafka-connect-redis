@@ -96,8 +96,8 @@ public class RecordConverter {
       .flatMap(rawGeolocation -> Mono.fromCallable(() -> {
         final Struct rawGeolocationStruct = (Struct) rawGeolocation;
         return RedisGeoaddCommand.Payload.GeoLocation.builder()
-          .latitude(new BigDecimal(rawGeolocationStruct.getString("latitude")))
-          .longitude(new BigDecimal(rawGeolocationStruct.getString("longitude")))
+          .latitude(Double.parseDouble(rawGeolocationStruct.getString("latitude")))
+          .longitude(Double.parseDouble(rawGeolocationStruct.getString("longitude")))
           .member(rawGeolocationStruct.getString("member"))
           .build();
       }));
