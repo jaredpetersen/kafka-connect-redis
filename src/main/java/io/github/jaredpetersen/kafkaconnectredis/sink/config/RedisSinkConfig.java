@@ -28,9 +28,7 @@ public class RedisSinkConfig extends AbstractConfig {
    * @param originals configurations.
    */
   public RedisSinkConfig(final Map<?, ?> originals) {
-    super(CONFIG_DEF, originals, false);
-
-    LOGGER.info("initial config: {}", originals);
+    super(CONFIG_DEF, originals, true);
 
     this.redisUri = getString(REDIS_URI);
     this.redisClusterEnabled = getBoolean(REDIS_CLUSTER_ENABLED) != null && getBoolean(REDIS_CLUSTER_ENABLED);
