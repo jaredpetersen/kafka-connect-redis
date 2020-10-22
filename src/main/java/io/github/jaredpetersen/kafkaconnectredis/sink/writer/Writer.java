@@ -59,10 +59,10 @@ public class Writer {
         if (payload.getExpiration() != null) {
           final RedisSetCommand.Payload.Expiration expiration = payload.getExpiration();
 
-          if (expiration.getType() == RedisSetCommand.Payload.Expiration.Type.EX && expiration.getTime() != null) {
+          if (expiration.getType() == RedisSetCommand.Payload.Expiration.Type.EX) {
             setArgs.ex(expiration.getTime());
           }
-          else if (expiration.getType() == RedisSetCommand.Payload.Expiration.Type.PX && expiration.getTime() != null) {
+          else if (expiration.getType() == RedisSetCommand.Payload.Expiration.Type.PX) {
             setArgs.px(expiration.getTime());
           }
           else if (expiration.getType() == RedisSetCommand.Payload.Expiration.Type.KEEPTTL) {

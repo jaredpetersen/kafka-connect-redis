@@ -9,7 +9,6 @@ import org.apache.kafka.connect.sink.SinkRecord;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 public class RecordConverter {

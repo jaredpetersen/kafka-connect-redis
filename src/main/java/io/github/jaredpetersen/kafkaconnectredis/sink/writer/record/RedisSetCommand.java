@@ -25,7 +25,7 @@ public class RedisSetCommand implements RedisCommand {
       public enum Type { EX, PX, KEEPTTL }
 
       Type type;
-      Long time;
+      long time;
     }
   }
 }
