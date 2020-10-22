@@ -63,7 +63,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writePartialRedisSetCommandAppliesCommandToStandalone() {
+  public void writeSetCommandAppliesCommandToStandalone() {
     final RedisSetCommand redisCommand = RedisSetCommand.builder()
         .payload(RedisSetCommand.Payload.builder()
             .key("{user.1}.username")
@@ -85,7 +85,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writePartialRedisSetCommandAppliesCommandToCluster() {
+  public void writeSetCommandAppliesCommandToCluster() {
     final RedisSetCommand redisCommand = RedisSetCommand.builder()
         .payload(RedisSetCommand.Payload.builder()
             .key("{user.1}.username")
@@ -107,7 +107,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeRedisSetCommandAppliesCommandToStandalone() {
+  public void writeSetWithExpireCommandAppliesCommandToStandalone() {
     final RedisSetCommand redisCommand = RedisSetCommand.builder()
         .payload(RedisSetCommand.Payload.builder()
             .key("{user.1}.username")
@@ -139,7 +139,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeRedisSetCommandAppliesCommandToCluster() {
+  public void writeSetWithExpireCommandAppliesCommandToCluster() {
     final RedisSetCommand redisCommand = RedisSetCommand.builder()
         .payload(RedisSetCommand.Payload.builder()
             .key("{user.1}.username")
@@ -166,11 +166,20 @@ public class WriterIT {
   }
 
   @Test
-  public void writeRedisSaddCommandAppliesCommandToStandalone() {
-    final RedisSaddCommand redisCommand = RedisSaddCommand.builder()
-        .payload(RedisSaddCommand.Payload.builder()
-            .key("boats")
-            .values(Arrays.asList("fishing", "sport", "tug"))
+  public void writeSetWithConditionCommandAppliesCommandToStandalone() {
+    final String key = "{user.1}.username";
+
+    final Mono<String> result = redisStandaloneCommands.set(key, "artistjanitor90");
+
+    final RedisSetCommand redisCommand = RedisSetCommand.builder()
+        .payload(RedisSetCommand.Payload.builder()
+            .key(key)
+            .value("jetpackmelon22")
+            .expiration(RedisSetCommand.Payload.Expiration.builder()
+                .type(RedisSetCommand.Payload.Expiration.Type.EX)
+                .time(2100L)
+                .build())
+            .condition(RedisSetCommand.Payload.Condition.NX)
             .build())
         .build();
 
@@ -178,17 +187,68 @@ public class WriterIT {
     final Mono<Void> write = writer.write(redisCommand);
 
     StepVerifier
+        .create(result)
+        .expectNext("OK")
+        .verifyComplete();
+
+    StepVerifier
         .create(write)
         .verifyComplete();
 
     StepVerifier
-        .create(redisStandaloneCommands.smembers(redisCommand.getPayload().getKey()))
-        .thenConsumeWhile(member -> redisCommand.getPayload().getValues().contains(member))
+        .create(redisStandaloneCommands.get(redisCommand.getPayload().getKey()))
+        .expectNext("artistjanitor90")
+        .verifyComplete();
+
+    StepVerifier
+        .create(redisStandaloneCommands.ttl(redisCommand.getPayload().getKey()))
+        .expectNext(-1L)
         .verifyComplete();
   }
 
   @Test
-  public void writeRedisSaddCommandAppliesCommandToCluster() {
+  public void writeSetWithConditionCommandAppliesCommandToCluster() {
+    final String key = "{user.1}.username";
+
+    final Mono<String> initialSetResult = redisClusterCommands.set(key, "artistjanitor90");
+
+    final RedisSetCommand redisCommand = RedisSetCommand.builder()
+        .payload(RedisSetCommand.Payload.builder()
+            .key(key)
+            .value("jetpackmelon22")
+            .expiration(RedisSetCommand.Payload.Expiration.builder()
+                .type(RedisSetCommand.Payload.Expiration.Type.EX)
+                .time(2100L)
+                .build())
+            .condition(RedisSetCommand.Payload.Condition.NX)
+            .build())
+        .build();
+
+    final Writer writer = new Writer(redisClusterCommands);
+    final Mono<Void> write = writer.write(redisCommand);
+
+    StepVerifier
+        .create(initialSetResult)
+        .expectNext("OK")
+        .verifyComplete();
+
+    StepVerifier
+        .create(write)
+        .verifyComplete();
+
+    StepVerifier
+        .create(redisClusterCommands.get(redisCommand.getPayload().getKey()))
+        .expectNext("artistjanitor90")
+        .verifyComplete();
+
+    StepVerifier
+        .create(redisClusterCommands.ttl(redisCommand.getPayload().getKey()))
+        .expectNext(-1L)
+        .verifyComplete();
+  }
+
+  @Test
+  public void writeSaddCommandAppliesCommandToCluster() {
     final RedisSaddCommand redisCommand = RedisSaddCommand.builder()
         .payload(RedisSaddCommand.Payload.builder()
             .key("boats")
@@ -210,7 +270,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeRedisGeoaddCommandAppliesCommandToStandalone() {
+  public void writeGeoaddCommandAppliesCommandToStandalone() {
     final RedisGeoaddCommand redisCommand = RedisGeoaddCommand.builder()
         .payload(RedisGeoaddCommand.Payload.builder()
             .key("Sicily")
@@ -255,7 +315,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeRedisGeoaddCommandAppliesCommandToCluster() {
+  public void writeGeoaddCommandAppliesCommandToCluster() {
     final RedisGeoaddCommand redisCommand = RedisGeoaddCommand.builder()
         .payload(RedisGeoaddCommand.Payload.builder()
             .key("Sicily")
