@@ -9,8 +9,10 @@ import java.util.Collection;
 import java.util.Map;
 
 import io.lettuce.core.RedisClient;
+import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.reactive.RedisReactiveCommands;
 import io.lettuce.core.cluster.RedisClusterClient;
+import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.sink.SinkTask;
@@ -26,8 +28,12 @@ public class RedisSinkTask extends SinkTask {
 
   private static final RecordConverter RECORD_CONVERTER = new RecordConverter();
 
-  private RedisClusterClient redisClusterClient;
   private RedisClient redisStandaloneClient;
+  private StatefulRedisConnection<String, String> redisStandaloneConnection;
+
+  private RedisClusterClient redisClusterClient;
+  private StatefulRedisClusterConnection<String, String> redisClusterConnection;
+
   private Writer writer;
 
   @Override
@@ -44,14 +50,16 @@ public class RedisSinkTask extends SinkTask {
 
     if (config.isRedisClusterEnabled()) {
       this.redisClusterClient = RedisClusterClient.create(config.getRedisUri());
+      this.redisClusterConnection = this.redisClusterClient.connect();
 
-      final RedisClusterReactiveCommands<String, String> redisClusterCommands = this.redisClusterClient.connect().reactive();
+      final RedisClusterReactiveCommands<String, String> redisClusterCommands = this.redisClusterConnection.reactive();
       this.writer = new Writer(redisClusterCommands);
     }
     else {
       this.redisStandaloneClient = RedisClient.create(config.getRedisUri());
+      this.redisStandaloneConnection = this.redisStandaloneClient.connect();
 
-      final RedisReactiveCommands<String, String> redisStandaloneCommands = this.redisStandaloneClient.connect().reactive();
+      final RedisReactiveCommands<String, String> redisStandaloneCommands = this.redisStandaloneConnection.reactive();
       this.writer = new Writer(redisStandaloneCommands);
     }
   }
@@ -76,8 +84,15 @@ public class RedisSinkTask extends SinkTask {
 
   @Override
   public void stop() {
+    if (this.redisStandaloneConnection != null) {
+      this.redisStandaloneConnection.close();
+    }
     if (this.redisStandaloneClient != null) {
       this.redisStandaloneClient.shutdown();
+    }
+
+    if (this.redisClusterConnection != null) {
+      this.redisClusterConnection.close();
     }
     if (this.redisClusterClient != null) {
       this.redisClusterClient.shutdown();

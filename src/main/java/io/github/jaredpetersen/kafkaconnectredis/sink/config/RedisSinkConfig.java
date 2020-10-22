@@ -31,7 +31,7 @@ public class RedisSinkConfig extends AbstractConfig {
     super(CONFIG_DEF, originals, true);
 
     this.redisUri = getString(REDIS_URI);
-    this.redisClusterEnabled = getBoolean(REDIS_CLUSTER_ENABLED) != null && getBoolean(REDIS_CLUSTER_ENABLED);
+    this.redisClusterEnabled = getBoolean(REDIS_CLUSTER_ENABLED);
   }
 
   public String getRedisUri() {

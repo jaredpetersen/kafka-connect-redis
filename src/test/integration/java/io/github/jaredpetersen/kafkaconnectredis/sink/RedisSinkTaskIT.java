@@ -1,6 +1,5 @@
-package io.github.jaredpetersen.kafkaconnectredis;
+package io.github.jaredpetersen.kafkaconnectredis.sink;
 
-import io.github.jaredpetersen.kafkaconnectredis.sink.RedisSinkTask;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.reactive.RedisReactiveCommands;
