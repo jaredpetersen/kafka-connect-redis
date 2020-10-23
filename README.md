@@ -11,7 +11,7 @@ Consumes Kafka records in a Redis command format (SET, SADD, etc.) and applies t
 For more information, see the [detailed documentation](/docs/connectors).
 
 ### Source (Future)
-Subscribes to Redis keyspace notifications and writes the received messages to Kafka.
+Subscribes to Redis [keyspace notifications](https://redis.io/topics/notifications) and writes the received messages to Kafka.
 
 This functionality does not yet exist but is on the roadmap.
 
