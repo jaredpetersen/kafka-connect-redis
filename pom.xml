@@ -316,7 +316,6 @@
                 <configuration>
                   <title>Kafka Connect Redis</title>
                   <documentationUrl>${project.url}/blob/master/README.md</documentationUrl>
-                  <logo>docs/logos/redis-logo.png</logo>
                   <ownerLogo>docs/logos/jaredpetersen-logo.png</ownerLogo>
                   <ownerUsername>jaredpetersen</ownerUsername>
                   <ownerType>user</ownerType>
