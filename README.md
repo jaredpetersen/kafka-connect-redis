@@ -6,7 +6,7 @@ Kafka Sink Connector for Redis. Source compatibility is in the works.
 
 ## Connectors
 ### Sink
-Consumes Kafka records in a Redis command format and applies them to Redis.
+Consumes Kafka records in a Redis command format (SET, SADD, etc.) and applies them to Redis.
 
 For more information, see the [detailed documentation](/docs/connectors).
 
