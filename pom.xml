@@ -139,7 +139,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.2.0</version>
         <executions>
           <execution>
             <id>add-test-source</id>
@@ -160,7 +160,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>3.1.0</version>
+        <version>3.1.1</version>
         <configuration>
           <configLocation>checkstyle.xml</configLocation>
           <encoding>UTF-8</encoding>
@@ -173,7 +173,7 @@
           <dependency>
             <groupId>com.puppycrawl.tools</groupId>
             <artifactId>checkstyle</artifactId>
-            <version>8.29</version>
+            <version>8.36.2</version>
           </dependency>
         </dependencies>
         <executions>
@@ -230,7 +230,7 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.5</version>
+        <version>0.8.6</version>
         <executions>
           <execution>
             <goals>
@@ -276,7 +276,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>3.2.0</version>
+        <version>3.3.0</version>
         <configuration>
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
@@ -306,7 +306,7 @@
           <plugin>
             <groupId>io.confluent</groupId>
             <artifactId>kafka-connect-maven-plugin</artifactId>
-            <version>0.11.2</version>
+            <version>0.11.3</version>
             <executions>
               <execution>
                 <phase>package</phase>
@@ -362,7 +362,10 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>3.1.1</version>
+            <version>3.2.0</version>
+            <configuration>
+              <source>${java.version}</source>
+            </configuration>
             <executions>
               <execution>
                 <id>attach-javadocs</id>
