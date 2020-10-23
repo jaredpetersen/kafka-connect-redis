@@ -14,6 +14,7 @@ import io.lettuce.core.api.reactive.RedisReactiveCommands;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
+import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.sink.SinkTask;
 import org.slf4j.Logger;
@@ -75,9 +76,9 @@ public class RedisSinkTask extends SinkTask {
     Flux
         .fromIterable(records)
         .flatMapSequential(RECORD_CONVERTER::convert)
-        .doOnError(error -> LOG.error("failed to convert record", error))
+        .onErrorMap(error -> new ConnectException("failed to convert record", error))
         .flatMapSequential(redisCommand -> this.writer.write(redisCommand))
-        .doOnError(error -> LOG.error("failed to write record", error))
+        .onErrorMap(error -> new ConnectException("failed to write record", error))
         .then()
         .block();
   }

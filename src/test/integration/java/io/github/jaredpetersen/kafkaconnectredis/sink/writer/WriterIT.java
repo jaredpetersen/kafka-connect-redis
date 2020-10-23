@@ -4,11 +4,13 @@ import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisGeoaddC
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisSaddCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisSetCommand;
 import io.lettuce.core.RedisClient;
+import io.lettuce.core.SetArgs;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.reactive.RedisReactiveCommands;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
+import org.apache.kafka.connect.errors.ConnectException;
 import org.junit.jupiter.api.*;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -144,7 +146,7 @@ public class WriterIT {
 
     StepVerifier
         .create(REDIS_STANDALONE_COMMANDS.ttl(redisCommand.getPayload().getKey()))
-        .expectNext(redisCommand.getPayload().getExpiration().getTime())
+        .expectNextMatches(ttl -> ttl <= redisCommand.getPayload().getExpiration().getTime())
         .verifyComplete();
   }
 
@@ -176,7 +178,7 @@ public class WriterIT {
 
     StepVerifier
         .create(REDIS_CLUSTER_COMMANDS.ttl(redisCommand.getPayload().getKey()))
-        .expectNext(redisCommand.getPayload().getExpiration().getTime())
+        .expectNextMatches(ttl -> ttl <= redisCommand.getPayload().getExpiration().getTime())
         .verifyComplete();
   }
 
@@ -245,7 +247,85 @@ public class WriterIT {
   }
 
   @Test
-  public void writeSetWithConditionCommandAppliesCommandToStandalone() {
+  public void writeSetWithExpireKeepTtlCommandAppliesCommandToStandalone() {
+    final String key = "{user.1}.username";
+
+    final Mono<String> result = REDIS_STANDALONE_COMMANDS.set(key, "artistjanitor90", new SetArgs().px(2100));
+
+    final RedisSetCommand redisCommand = RedisSetCommand.builder()
+        .payload(RedisSetCommand.Payload.builder()
+            .key(key)
+            .value("jetpackmelon22")
+            .expiration(RedisSetCommand.Payload.Expiration.builder()
+                .type(RedisSetCommand.Payload.Expiration.Type.KEEPTTL)
+                .build())
+            .build())
+        .build();
+
+    final Writer writer = new Writer(REDIS_STANDALONE_COMMANDS);
+    final Mono<Void> write = writer.write(redisCommand);
+
+    StepVerifier
+        .create(result)
+        .expectNext("OK")
+        .verifyComplete();
+
+    StepVerifier
+        .create(write)
+        .verifyComplete();
+
+    StepVerifier
+        .create(REDIS_STANDALONE_COMMANDS.get(redisCommand.getPayload().getKey()))
+        .expectNext("jetpackmelon22")
+        .verifyComplete();
+
+    StepVerifier
+        .create(REDIS_STANDALONE_COMMANDS.pttl(redisCommand.getPayload().getKey()))
+        .expectNextMatches(pttl -> pttl <= 2100)
+        .verifyComplete();
+  }
+
+  @Test
+  public void writeSetWithExpireKeepTtlCommandAppliesCommandToCluster() {
+    final String key = "{user.1}.username";
+
+    final Mono<String> result = REDIS_CLUSTER_COMMANDS.set(key, "artistjanitor90", new SetArgs().px(2100));
+
+    final RedisSetCommand redisCommand = RedisSetCommand.builder()
+        .payload(RedisSetCommand.Payload.builder()
+            .key(key)
+            .value("jetpackmelon22")
+            .expiration(RedisSetCommand.Payload.Expiration.builder()
+                .type(RedisSetCommand.Payload.Expiration.Type.KEEPTTL)
+                .build())
+            .build())
+        .build();
+
+    final Writer writer = new Writer(REDIS_CLUSTER_COMMANDS);
+    final Mono<Void> write = writer.write(redisCommand);
+
+    StepVerifier
+        .create(result)
+        .expectNext("OK")
+        .verifyComplete();
+
+    StepVerifier
+        .create(write)
+        .verifyComplete();
+
+    StepVerifier
+        .create(REDIS_CLUSTER_COMMANDS.get(redisCommand.getPayload().getKey()))
+        .expectNext("jetpackmelon22")
+        .verifyComplete();
+
+    StepVerifier
+        .create(REDIS_CLUSTER_COMMANDS.pttl(redisCommand.getPayload().getKey()))
+        .expectNextMatches(pttl -> pttl <= 2100)
+        .verifyComplete();
+  }
+
+  @Test
+  public void writeSetWithNXConditionCommandAppliesCommandToStandalone() {
     final String key = "{user.1}.username";
 
     final Mono<String> result = REDIS_STANDALONE_COMMANDS.set(key, "artistjanitor90");
@@ -286,7 +366,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeSetWithConditionCommandAppliesCommandToCluster() {
+  public void writeSetWithNXConditionCommandAppliesCommandToCluster() {
     final String key = "{user.1}.username";
 
     final Mono<String> initialSetResult = REDIS_CLUSTER_COMMANDS.set(key, "artistjanitor90");
@@ -323,6 +403,88 @@ public class WriterIT {
     StepVerifier
         .create(REDIS_CLUSTER_COMMANDS.ttl(redisCommand.getPayload().getKey()))
         .expectNext(-1L)
+        .verifyComplete();
+  }
+
+  @Test
+  public void writeSetWithXXConditionCommandAppliesCommandToStandalone() {
+    final String key = "{user.1}.username";
+
+    final Mono<String> result = REDIS_STANDALONE_COMMANDS.set(key, "artistjanitor90");
+
+    final RedisSetCommand redisCommand = RedisSetCommand.builder()
+        .payload(RedisSetCommand.Payload.builder()
+            .key(key)
+            .value("jetpackmelon22")
+            .expiration(RedisSetCommand.Payload.Expiration.builder()
+                .type(RedisSetCommand.Payload.Expiration.Type.EX)
+                .time(2100L)
+                .build())
+            .condition(RedisSetCommand.Payload.Condition.XX)
+            .build())
+        .build();
+
+    final Writer writer = new Writer(REDIS_STANDALONE_COMMANDS);
+    final Mono<Void> write = writer.write(redisCommand);
+
+    StepVerifier
+        .create(result)
+        .expectNext("OK")
+        .verifyComplete();
+
+    StepVerifier
+        .create(write)
+        .verifyComplete();
+
+    StepVerifier
+        .create(REDIS_STANDALONE_COMMANDS.get(redisCommand.getPayload().getKey()))
+        .expectNext("jetpackmelon22")
+        .verifyComplete();
+
+    StepVerifier
+        .create(REDIS_STANDALONE_COMMANDS.ttl(redisCommand.getPayload().getKey()))
+        .expectNextMatches(ttl -> ttl <= redisCommand.getPayload().getExpiration().getTime())
+        .verifyComplete();
+  }
+
+  @Test
+  public void writeSetWithXXConditionCommandAppliesCommandToCluster() {
+    final String key = "{user.1}.username";
+
+    final Mono<String> result = REDIS_CLUSTER_COMMANDS.set(key, "artistjanitor90");
+
+    final RedisSetCommand redisCommand = RedisSetCommand.builder()
+        .payload(RedisSetCommand.Payload.builder()
+            .key(key)
+            .value("jetpackmelon22")
+            .expiration(RedisSetCommand.Payload.Expiration.builder()
+                .type(RedisSetCommand.Payload.Expiration.Type.EX)
+                .time(2100L)
+                .build())
+            .condition(RedisSetCommand.Payload.Condition.XX)
+            .build())
+        .build();
+
+    final Writer writer = new Writer(REDIS_CLUSTER_COMMANDS);
+    final Mono<Void> write = writer.write(redisCommand);
+
+    StepVerifier
+        .create(result)
+        .expectNext("OK")
+        .verifyComplete();
+
+    StepVerifier
+        .create(write)
+        .verifyComplete();
+
+    StepVerifier
+        .create(REDIS_CLUSTER_COMMANDS.get(redisCommand.getPayload().getKey()))
+        .expectNext("jetpackmelon22")
+        .verifyComplete();
+
+    StepVerifier
+        .create(REDIS_CLUSTER_COMMANDS.ttl(redisCommand.getPayload().getKey()))
+        .expectNextMatches(ttl -> ttl <= redisCommand.getPayload().getExpiration().getTime())
         .verifyComplete();
   }
 
@@ -456,5 +618,35 @@ public class WriterIT {
               || (actualLongitude == 15.087267458438873 && actualLatitude == 37.50266842333162);
         })
         .verifyComplete();
+  }
+
+  @Test
+  public void writeGeoaddCommandRetunsErrorForMissingMember() {
+    final RedisGeoaddCommand redisCommand = RedisGeoaddCommand.builder()
+        .payload(RedisGeoaddCommand.Payload.builder()
+            .key("Sicily")
+            .values(Arrays.asList(
+                RedisGeoaddCommand.Payload.GeoLocation.builder()
+                    .longitude(13.361389d)
+                    .latitude(38.115556d)
+                    .build(),
+                RedisGeoaddCommand.Payload.GeoLocation.builder()
+                    .longitude(15.087269d)
+                    .latitude(37.502669d)
+                    .member("Catania")
+                    .build()
+            ))
+            .build())
+        .build();
+
+    final Writer writer = new Writer(REDIS_STANDALONE_COMMANDS);
+    final Mono<Void> write = writer.write(redisCommand);
+
+    StepVerifier
+        .create(write)
+        .expectErrorMatches(exception ->
+            exception instanceof ConnectException
+                && exception.getMessage().equals("geoadd command does not contain member"))
+        .verify();
   }
 }

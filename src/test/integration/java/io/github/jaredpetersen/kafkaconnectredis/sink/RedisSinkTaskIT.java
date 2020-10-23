@@ -1,5 +1,6 @@
 package io.github.jaredpetersen.kafkaconnectredis.sink;
 
+import io.github.jaredpetersen.kafkaconnectredis.util.VersionUtil;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.reactive.RedisReactiveCommands;
@@ -19,10 +20,10 @@ import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 import reactor.test.StepVerifier;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @Testcontainers
 public class RedisSinkTaskIT {
@@ -92,6 +93,13 @@ public class RedisSinkTaskIT {
   }
 
   @Test
+  public void versionReturnsVersion() {
+    final RedisSinkTask sinkTask = new RedisSinkTask();
+
+    assertEquals(VersionUtil.getVersion(), sinkTask.version());
+  }
+
+  @Test
   public void putRecordsAppliesCommandsToStandalone() {
     // Set up task config
     final Map<String, String> config = new HashMap<>();
@@ -157,5 +165,77 @@ public class RedisSinkTaskIT {
         .create(REDIS_CLUSTER_COMMANDS.get("{user.1}.username"))
         .expectNext("jetpackmelon22")
         .verifyComplete();
+  }
+
+  @Test
+  public void putEmptyRecordsDoesNothingToStandalone() {
+    // Set up task config
+    final Map<String, String> config = new HashMap<>();
+    config.put("redis.uri", REDIS_STANDALONE_URI);
+    config.put("redis.cluster.enabled", "false");
+
+    // Set up records to write
+    final List<SinkRecord> sinkRecords = Collections.emptyList();
+
+    // Configure task and write records
+    final RedisSinkTask sinkTask = new RedisSinkTask();
+    sinkTask.start(config);
+    sinkTask.put(sinkRecords);
+
+    StepVerifier
+        .create(REDIS_STANDALONE_COMMANDS.dbsize())
+        .expectNext(0L)
+        .verifyComplete();
+  }
+
+  @Test
+  public void putEmptyRecordsDoesNothingToCluster() {
+    // Set up task config
+    final Map<String, String> config = new HashMap<>();
+    config.put("redis.uri", REDIS_CLUSTER_URI);
+    config.put("redis.cluster.enabled", "true");
+
+    // Set up records to write
+    final List<SinkRecord> sinkRecords = Collections.emptyList();
+
+    // Configure task and write records
+    final RedisSinkTask sinkTask = new RedisSinkTask();
+    sinkTask.start(config);
+    sinkTask.put(sinkRecords);
+
+    StepVerifier
+        .create(REDIS_CLUSTER_COMMANDS.dbsize())
+        .expectNext(0L)
+        .verifyComplete();
+  }
+
+  @Test
+  public void stopClosesStandalone() {
+    // Set up task config
+    final Map<String, String> config = new HashMap<>();
+    config.put("redis.uri", REDIS_STANDALONE_URI);
+    config.put("redis.cluster.enabled", "false");
+
+    // Configure task and write records
+    final RedisSinkTask sinkTask = new RedisSinkTask();
+    sinkTask.start(config);
+    sinkTask.stop();
+
+    // Can't actually verify connections are closed since lettuce does what it wants
+  }
+
+  @Test
+  public void stopClosesCluster() {
+    // Set up task config
+    final Map<String, String> config = new HashMap<>();
+    config.put("redis.uri", REDIS_CLUSTER_URI);
+    config.put("redis.cluster.enabled", "true");
+
+    // Configure task and write records
+    final RedisSinkTask sinkTask = new RedisSinkTask();
+    sinkTask.start(config);
+    sinkTask.stop();
+
+    // Can't actually verify connections are closed since lettuce does what it wants
   }
 }

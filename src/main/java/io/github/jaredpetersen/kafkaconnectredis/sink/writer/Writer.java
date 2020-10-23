@@ -7,6 +7,7 @@ import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisSetComm
 import io.lettuce.core.SetArgs;
 import io.lettuce.core.api.reactive.RedisReactiveCommands;
 import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
+import org.apache.kafka.connect.errors.ConnectException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -43,7 +44,7 @@ public class Writer {
         response = geoadd((RedisGeoaddCommand) redisCommand);
         break;
       default:
-        response = Mono.error(new UnsupportedOperationException("redis command " + redisCommand + " is not supported"));
+        response = Mono.error(new ConnectException("redis command " + redisCommand + " is not supported"));
     }
 
     return response;
@@ -110,10 +111,12 @@ public class Writer {
   private Mono<Void> geoadd(RedisGeoaddCommand geoaddCommand) {
     final Flux<Object> geoLocationFlux = Flux
       .fromIterable(geoaddCommand.getPayload().getValues())
-      .flatMapIterable(geoLocation ->
-        (geoLocation.getMember() != null)
-          ? Arrays.asList(geoLocation.getLongitude(), geoLocation.getLatitude(), geoLocation.getMember())
-          : null);
+      .flatMapIterable(geoLocation -> {
+        if (geoLocation.getMember() == null) {
+          throw new ConnectException("geoadd command does not contain member");
+        }
+        return Arrays.asList(geoLocation.getLongitude(), geoLocation.getLatitude(), geoLocation.getMember());
+      });
 
     return Mono
       .zip(Mono.just(geoaddCommand.getPayload().getKey()), geoLocationFlux.collectList())
