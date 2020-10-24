@@ -15,13 +15,15 @@ public class VersionUtil {
   static {
     try {
       PROPERTIES.load(VersionUtil.class.getClassLoader().getResourceAsStream("kafka-connect-redis.properties"));
-    } catch (IOException exception) {
+    }
+    catch (IOException exception) {
       LOGGER.error("failed to load properties", exception);
     }
   }
 
   /**
    * Get version.
+   *
    * @return package version
    */
   public static String getVersion() {

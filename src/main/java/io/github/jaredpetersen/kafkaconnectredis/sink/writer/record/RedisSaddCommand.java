@@ -1,9 +1,8 @@
 package io.github.jaredpetersen.kafkaconnectredis.sink.writer.record;
 
+import java.util.List;
 import lombok.Builder;
 import lombok.Value;
-
-import java.util.List;
 
 @Value
 @Builder(builderClassName = "Builder")
