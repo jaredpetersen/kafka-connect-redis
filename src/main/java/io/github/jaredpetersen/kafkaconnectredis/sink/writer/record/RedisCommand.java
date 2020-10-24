@@ -8,5 +8,6 @@ public interface RedisCommand {
   }
 
   Command getCommand();
+
   Object getPayload();
 }

@@ -1,19 +1,17 @@
 package io.github.jaredpetersen.kafkaconnectredis.sink;
 
 import io.github.jaredpetersen.kafkaconnectredis.sink.config.RedisSinkConfig;
-import io.github.jaredpetersen.kafkaconnectredis.sink.writer.Writer;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.RecordConverter;
+import io.github.jaredpetersen.kafkaconnectredis.sink.writer.Writer;
 import io.github.jaredpetersen.kafkaconnectredis.util.VersionUtil;
-
-import java.util.Collection;
-import java.util.Map;
-
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.reactive.RedisReactiveCommands;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
+import java.util.Collection;
+import java.util.Map;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.sink.SinkTask;

@@ -5,12 +5,8 @@ import org.apache.kafka.common.config.AbstractConfig;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.ConfigDef.Importance;
 import org.apache.kafka.common.config.ConfigDef.Type;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RedisSinkConfig extends AbstractConfig {
-  private static final Logger LOGGER = LoggerFactory.getLogger(RedisSinkConfig.class);
-
   private static final String REDIS_URI = "redis.uri";
   private static final String REDIS_URI_DOC = "Redis uri.";
   private final String redisUri;
@@ -25,6 +21,7 @@ public class RedisSinkConfig extends AbstractConfig {
 
   /**
    * Configuration for Redis Sink.
+   *
    * @param originals configurations.
    */
   public RedisSinkConfig(final Map<?, ?> originals) {

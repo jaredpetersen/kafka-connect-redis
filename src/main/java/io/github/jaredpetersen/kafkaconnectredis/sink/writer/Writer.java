@@ -7,33 +7,48 @@ import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisSetComm
 import io.lettuce.core.SetArgs;
 import io.lettuce.core.api.reactive.RedisReactiveCommands;
 import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
+import java.util.Arrays;
 import org.apache.kafka.connect.errors.ConnectException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.Arrays;
 
 public class Writer {
   private final RedisReactiveCommands<String, String> redisStandaloneCommands;
   private final RedisClusterReactiveCommands<String, String> redisClusterCommands;
   private final boolean clusterEnabled;
 
+  /**
+   * Set up writer to interact with standalone Redis.
+   *
+   * @param redisStandaloneCommands Standalone Redis to write to.
+   */
   public Writer(RedisReactiveCommands<String, String> redisStandaloneCommands) {
     this.redisStandaloneCommands = redisStandaloneCommands;
     this.redisClusterCommands = null;
     this.clusterEnabled = false;
   }
 
+  /**
+   * Set up writer to interact with Redis cluster.
+   *
+   * @param redisClusterCommands Redis cluster to write to.
+   */
   public Writer(RedisClusterReactiveCommands<String, String> redisClusterCommands) {
     this.redisStandaloneCommands = null;
     this.redisClusterCommands = redisClusterCommands;
     this.clusterEnabled = true;
   }
 
+  /**
+   * Apply write-type command to Redis.
+   *
+   * @param redisCommand Command to apply.
+   * @return Mono used to indicate the write has completed.
+   */
   public Mono<Void> write(RedisCommand redisCommand) {
     final Mono<Void> response;
 
-    switch(redisCommand.getCommand()) {
+    switch (redisCommand.getCommand()) {
       case SET:
         response = set((RedisSetCommand) redisCommand);
         break;
