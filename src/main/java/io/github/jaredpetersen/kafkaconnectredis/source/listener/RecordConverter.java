@@ -4,14 +4,19 @@ import io.github.jaredpetersen.kafkaconnectredis.source.listener.record.RedisCom
 import io.github.jaredpetersen.kafkaconnectredis.source.listener.record.RedisGeoaddCommand;
 import io.github.jaredpetersen.kafkaconnectredis.source.listener.record.RedisSaddCommand;
 import io.github.jaredpetersen.kafkaconnectredis.source.listener.record.RedisSetCommand;
+import java.util.List;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.sink.SinkRecord;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
 public class RecordConverter {
+  /**
+   * Convert Source record to Redis Command.
+   *
+   * @param sinkRecord source record to convert
+   * @return
+   */
   public Mono<RedisCommand> convert(SinkRecord sinkRecord) {
     final Mono<Struct> valueMono = Mono.just((Struct) sinkRecord.value());
     final Mono<RedisCommand.Command> commandTypeMono = valueMono
@@ -25,7 +30,7 @@ public class RecordConverter {
 
         final Mono<RedisCommand> redisCommandMono;
 
-        switch(commandType) {
+        switch (commandType) {
           case SET:
             redisCommandMono = convertSet(value);
             break;

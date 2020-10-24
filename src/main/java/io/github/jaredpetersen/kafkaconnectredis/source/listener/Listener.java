@@ -10,21 +10,36 @@ public class Listener {
   private final RedisClusterReactiveCommands<String, String> redisClusterCommands;
   private final boolean clusterEnabled;
 
+  /**
+   * Set up listener to interact with standalone Redis and begin listening.
+   *
+   * @param redisStandaloneCommands Standalone Redis to listen to.
+   */
   public Listener(RedisReactiveCommands<String, String> redisStandaloneCommands) {
     this.redisStandaloneCommands = redisStandaloneCommands;
     this.redisClusterCommands = null;
     this.clusterEnabled = false;
   }
 
+  /**
+   * Set up listener to interact with Redis cluster and begin listening.
+   *
+   * @param redisClusterCommands Redis cluster to listen to.
+   */
   public Listener(RedisClusterReactiveCommands<String, String> redisClusterCommands) {
     this.redisStandaloneCommands = null;
     this.redisClusterCommands = redisClusterCommands;
     this.clusterEnabled = true;
   }
 
+  /**
+   * Retrieve all of the recently listened to items from Redis in the order that they arrived.
+   *
+   * @return Recently listened to items from Redis.
+   */
   public Mono<SourceRecord> poll() {
     if (this.clusterEnabled) {
-      this.redisClusterCommands.pubsubChannels("channel")
+      this.redisClusterCommands.pubsubChannels("channel");
     }
   }
 }

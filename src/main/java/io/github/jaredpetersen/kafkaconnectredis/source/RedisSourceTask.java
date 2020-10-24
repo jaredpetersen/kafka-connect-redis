@@ -1,7 +1,6 @@
 package io.github.jaredpetersen.kafkaconnectredis.source;
 
 import io.github.jaredpetersen.kafkaconnectredis.sink.config.RedisSinkConfig;
-import io.github.jaredpetersen.kafkaconnectredis.sink.writer.Writer;
 import io.github.jaredpetersen.kafkaconnectredis.source.listener.Listener;
 import io.github.jaredpetersen.kafkaconnectredis.util.VersionUtil;
 import io.lettuce.core.RedisClient;
@@ -10,13 +9,12 @@ import io.lettuce.core.api.reactive.RedisReactiveCommands;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
+import java.util.List;
+import java.util.Map;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.source.SourceTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Kafka Connect Task for Kafka Connect Redis Sink.

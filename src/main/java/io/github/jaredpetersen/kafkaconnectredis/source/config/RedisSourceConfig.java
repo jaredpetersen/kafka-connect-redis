@@ -1,13 +1,12 @@
 package io.github.jaredpetersen.kafkaconnectredis.source.config;
 
+import java.util.Map;
 import org.apache.kafka.common.config.AbstractConfig;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.ConfigDef.Importance;
 import org.apache.kafka.common.config.ConfigDef.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
 
 public class RedisSourceConfig extends AbstractConfig {
   private static final Logger LOGGER = LoggerFactory.getLogger(RedisSourceConfig.class);
@@ -26,6 +25,7 @@ public class RedisSourceConfig extends AbstractConfig {
 
   /**
    * Configuration for Redis Sink.
+   *
    * @param originals configurations.
    */
   public RedisSourceConfig(final Map<?, ?> originals) {
@@ -35,10 +35,20 @@ public class RedisSourceConfig extends AbstractConfig {
     this.redisClusterEnabled = getBoolean(REDIS_CLUSTER_ENABLED);
   }
 
+  /**
+   * Get URI for Redis.
+   *
+   * @return Redis URI.
+   */
   public String getRedisUri() {
     return this.redisUri;
   }
 
+  /**
+   * Get Redis cluster status.
+   *
+   * @return Redis cluster enablement.
+   */
   public Boolean isRedisClusterEnabled() {
     return this.redisClusterEnabled;
   }

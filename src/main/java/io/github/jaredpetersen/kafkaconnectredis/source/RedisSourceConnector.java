@@ -2,13 +2,12 @@ package io.github.jaredpetersen.kafkaconnectredis.source;
 
 import io.github.jaredpetersen.kafkaconnectredis.source.config.RedisSourceConfig;
 import io.github.jaredpetersen.kafkaconnectredis.util.VersionUtil;
-import org.apache.kafka.common.config.ConfigDef;
-import org.apache.kafka.connect.connector.Task;
-import org.apache.kafka.connect.sink.SinkConnector;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.apache.kafka.common.config.ConfigDef;
+import org.apache.kafka.connect.connector.Task;
+import org.apache.kafka.connect.sink.SinkConnector;
 
 /**
  * Entry point for Kafka Connect Redis Sink.
