@@ -14,8 +14,8 @@ public class RecordConverter {
   /**
    * Convert sink record to Redis command.
    *
-   * @param sinkRecord record to convert.
-   * @return Redis command
+   * @param sinkRecord Record to convert.
+   * @return Redis command.
    */
   public Mono<RedisCommand> convert(SinkRecord sinkRecord) {
     final Mono<Struct> valueMono = Mono.just((Struct) sinkRecord.value());

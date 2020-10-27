@@ -1,125 +1,55 @@
 package io.github.jaredpetersen.kafkaconnectredis.source.listener;
 
-import io.github.jaredpetersen.kafkaconnectredis.source.listener.record.RedisCommand;
-import io.github.jaredpetersen.kafkaconnectredis.source.listener.record.RedisGeoaddCommand;
-import io.github.jaredpetersen.kafkaconnectredis.source.listener.record.RedisSaddCommand;
-import io.github.jaredpetersen.kafkaconnectredis.source.listener.record.RedisSetCommand;
-import java.util.List;
-import org.apache.kafka.connect.data.Struct;
-import org.apache.kafka.connect.sink.SinkRecord;
-import reactor.core.publisher.Flux;
+import io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber.SubscriptionEvent;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.kafka.connect.data.Schema;
+import org.apache.kafka.connect.data.SchemaBuilder;
+import org.apache.kafka.connect.source.SourceRecord;
 import reactor.core.publisher.Mono;
 
 public class RecordConverter {
+  private final String topic;
+
+  private static final Schema KEY_SCHEMA = SchemaBuilder.string()
+    .name("RedisSubscriptionEventKey");
+  private static final Schema VALUE_SCHEMA = SchemaBuilder.string()
+    .name("RedisSubscriptionEventValue");
+
   /**
-   * Convert Source record to Redis Command.
+   * Set up converter with preset topic.
    *
-   * @param sinkRecord source record to convert
-   * @return
+   * @param topic Topic to use for all converted records.
    */
-  public Mono<RedisCommand> convert(SinkRecord sinkRecord) {
-    final Mono<Struct> valueMono = Mono.just((Struct) sinkRecord.value());
-    final Mono<RedisCommand.Command> commandTypeMono = valueMono
-      .flatMap(value -> Mono.just(RedisCommand.Command.valueOf(value.getString("command").toUpperCase())));
-
-    return Mono
-      .zip(commandTypeMono, valueMono)
-      .flatMap(tuple -> {
-        final RedisCommand.Command commandType = tuple.getT1();
-        final Struct value = tuple.getT2();
-
-        final Mono<RedisCommand> redisCommandMono;
-
-        switch (commandType) {
-          case SET:
-            redisCommandMono = convertSet(value);
-            break;
-          case SADD:
-            redisCommandMono = convertSadd(value);
-            break;
-          case GEOADD:
-            redisCommandMono = convertGeoadd(value);
-            break;
-          default:
-            redisCommandMono = Mono.error(new UnsupportedOperationException("redis command type does not exist"));
-        }
-
-        return redisCommandMono;
-      });
+  public RecordConverter(String topic) {
+    this.topic = topic;
   }
 
-  private Mono<RedisCommand> convertSet(Struct value) {
-    return Mono.fromCallable(() -> {
-      final Struct rawPayload = value.getStruct("payload");
+  /**
+   * Convert subscription event to source record.
+   *
+   * @param event Subscription event to be converted.
+   * @return Converted source record.
+   */
+  public Mono<SourceRecord> convert(SubscriptionEvent<String, String> event) {
+    // Source partition and offset are not useful in our case because the Redis subscription model does not allow us
+    // to pick up where we left off if we stop subscribing for a while
+    final Map<String, ?> sourcePartition = new HashMap<>();
+    final Map<String, ?> sourceOffset = new HashMap<>();
 
-      final Struct rawPayloadExpiration = rawPayload.getStruct("expiration");
-      final RedisSetCommand.Payload.Expiration expiration = (rawPayloadExpiration == null)
-        ? null
-        : RedisSetCommand.Payload.Expiration.builder()
-          .type(RedisSetCommand.Payload.Expiration.Type.valueOf(rawPayloadExpiration.getString("type")))
-          .time(rawPayloadExpiration.getInt64("time"))
-          .build();
+    final String key = event.getChannel();
+    final String value = event.getMessage();
 
-      final RedisSetCommand.Payload.Condition condition = (rawPayload.get("condition") == null)
-        ? null
-        : RedisSetCommand.Payload.Condition.valueOf((rawPayload.getString("condition")).toUpperCase());
+    final SourceRecord sourceRecord = new SourceRecord(
+      sourcePartition,
+      sourceOffset,
+      this.topic,
+      KEY_SCHEMA,
+      key,
+      VALUE_SCHEMA,
+      value
+    );
 
-      final RedisSetCommand.Payload payload = RedisSetCommand.Payload.builder()
-        .key(rawPayload.getString("key"))
-        .value(rawPayload.getString("value"))
-        .expiration(expiration)
-        .condition(condition)
-        .build();
-
-      return RedisSetCommand.builder()
-        .payload(payload)
-        .build();
-    });
-  }
-
-  private Mono<RedisCommand> convertSadd(Struct value) {
-    return Mono.fromCallable(() -> {
-      final Struct rawPayload = value.getStruct("payload");
-
-      final RedisSaddCommand.Payload payload = RedisSaddCommand.Payload.builder()
-        .key(rawPayload.getString("key"))
-        .values(rawPayload.getArray("values"))
-        .build();
-
-      return RedisSaddCommand.builder()
-        .payload(payload)
-        .build();
-    });
-  }
-
-  private Mono<RedisCommand> convertGeoadd(Struct value) {
-    final Mono<Struct> rawPayloadMono = Mono.just(value.getStruct("payload"));
-
-    final Flux<RedisGeoaddCommand.Payload.GeoLocation> geoLocationFlux = rawPayloadMono
-      .flatMapIterable(rawPayload -> rawPayload.getArray("values"))
-      .flatMap(rawGeolocation -> Mono.fromCallable(() -> {
-        final Struct rawGeolocationStruct = (Struct) rawGeolocation;
-        return RedisGeoaddCommand.Payload.GeoLocation.builder()
-          .latitude(Double.parseDouble(rawGeolocationStruct.getString("latitude")))
-          .longitude(Double.parseDouble(rawGeolocationStruct.getString("longitude")))
-          .member(rawGeolocationStruct.getString("member"))
-          .build();
-      }));
-
-    return Mono
-      .zip(rawPayloadMono, geoLocationFlux.collectList())
-      .flatMap(tuple -> Mono.fromCallable(() -> {
-        final Struct rawPayload = tuple.getT1();
-        final List<RedisGeoaddCommand.Payload.GeoLocation> geoLocations = tuple.getT2();
-
-        final RedisGeoaddCommand.Payload payload = RedisGeoaddCommand.Payload.builder()
-          .key(rawPayload.getString("key"))
-          .values(geoLocations)
-          .build();
-
-        return RedisGeoaddCommand.builder()
-          .payload(payload)
-          .build();
-      }));
+    return Mono.just(sourceRecord);
   }
 }

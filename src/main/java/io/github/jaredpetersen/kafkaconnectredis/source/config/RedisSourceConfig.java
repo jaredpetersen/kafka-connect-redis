@@ -1,16 +1,14 @@
 package io.github.jaredpetersen.kafkaconnectredis.source.config;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import org.apache.kafka.common.config.AbstractConfig;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.ConfigDef.Importance;
 import org.apache.kafka.common.config.ConfigDef.Type;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RedisSourceConfig extends AbstractConfig {
-  private static final Logger LOGGER = LoggerFactory.getLogger(RedisSourceConfig.class);
-
   private static final String REDIS_URI = "redis.uri";
   private static final String REDIS_URI_DOC = "Redis uri.";
   private final String redisUri;
@@ -19,12 +17,27 @@ public class RedisSourceConfig extends AbstractConfig {
   private static final String REDIS_CLUSTER_ENABLED_DOC = "Redis cluster mode enabled.";
   private final boolean redisClusterEnabled;
 
+  private static final String REDIS_CHANNELS = "redis.channels";
+  private static final String REDIS_CHANNELS_DOC = "Redis channel(s) to subscribe to.";
+  private final List<String> redisChannels;
+
+  private static final String REDIS_CHANNELS_PATTERN_ENABLED = "redis.channels.pattern.enabled";
+  private static final String REDIS_CHANNELS_PATTERN_ENABLED_DOC = "Redis channel(s) utilize pattern matching.";
+  private final boolean redisChannelPatternEnabled;
+
+  private static final String TOPIC = "topics";
+  private static final String TOPIC_DOC = "Topics to write to.";
+  private final String topic;
+
   public static final ConfigDef CONFIG_DEF = new ConfigDef()
-      .define(REDIS_URI, Type.STRING, Importance.HIGH, REDIS_URI_DOC)
-      .define(REDIS_CLUSTER_ENABLED, Type.BOOLEAN, false, Importance.HIGH, REDIS_CLUSTER_ENABLED_DOC);
+    .define(REDIS_URI, Type.STRING, Importance.HIGH, REDIS_URI_DOC)
+    .define(REDIS_CLUSTER_ENABLED, Type.BOOLEAN, false, Importance.HIGH, REDIS_CLUSTER_ENABLED_DOC)
+    .define(REDIS_CHANNELS, Type.LIST, Collections.emptyList(), Importance.HIGH, REDIS_CHANNELS_DOC)
+    .define(REDIS_CHANNELS_PATTERN_ENABLED, Type.BOOLEAN, false, Importance.HIGH, REDIS_CHANNELS_PATTERN_ENABLED_DOC)
+    .define(TOPIC, Type.STRING, "redis", Importance.HIGH, TOPIC_DOC);
 
   /**
-   * Configuration for Redis Sink.
+   * Configuration for Redis Source.
    *
    * @param originals configurations.
    */
@@ -33,6 +46,9 @@ public class RedisSourceConfig extends AbstractConfig {
 
     this.redisUri = getString(REDIS_URI);
     this.redisClusterEnabled = getBoolean(REDIS_CLUSTER_ENABLED);
+    this.redisChannels = getList(REDIS_CHANNELS);
+    this.redisChannelPatternEnabled = getBoolean(REDIS_CHANNELS_PATTERN_ENABLED);
+    this.topic = getString(TOPIC);
   }
 
   /**
@@ -45,11 +61,38 @@ public class RedisSourceConfig extends AbstractConfig {
   }
 
   /**
-   * Get Redis cluster status.
+   * Get Redis cluster enablement status.
    *
-   * @return Redis cluster enablement.
+   * @return Redis cluster enablement status.
    */
-  public Boolean isRedisClusterEnabled() {
+  public boolean isRedisClusterEnabled() {
     return this.redisClusterEnabled;
+  }
+
+  /**
+   * Get Redis channels to subscribe to.
+   *
+   * @return Redis channels.
+   */
+  public List<String> getRedisChannels() {
+    return this.redisChannels;
+  }
+
+  /**
+   * Get Redis pattern matching enablement on channels.
+   *
+   * @return Redis channels utilize pattern matching.
+   */
+  public boolean isRedisChannelPatternEnabled() {
+    return this.redisChannelPatternEnabled;
+  }
+
+  /**
+   * Get Topic to write to.
+   *
+   * @return Topic that can be written to.
+   */
+  public String getTopic() {
+    return this.topic;
   }
 }

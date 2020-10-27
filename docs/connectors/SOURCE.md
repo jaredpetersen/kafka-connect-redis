@@ -1,4 +1,33 @@
 # Kafka Connect Redis - Source
-Subscribes to Redis keyspace notifications and writes the received messages to Kafka.
+Subscribes to Redis channels (including [keyspace notifications](https://redis.io/topics/notifications)) and writes the received messages to Kafka.
 
-This functionality does not yet exist but is on the roadmap.
+Both patterns and strict channels are supported.
+
+## Record Schema
+
+### Key
+#### Avro
+```json
+{
+  "type": "string",
+  "name": "RedisSubscriptionEventKey",
+  "version": 1
+}
+```
+
+#### Connect JSON
+
+### Value
+#### Avro
+```json
+{
+
+}
+```
+
+#### Connect JSON
+```json
+{
+
+}
+```

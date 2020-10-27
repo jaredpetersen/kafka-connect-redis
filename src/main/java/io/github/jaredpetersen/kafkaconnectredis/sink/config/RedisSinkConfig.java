@@ -16,8 +16,8 @@ public class RedisSinkConfig extends AbstractConfig {
   private final boolean redisClusterEnabled;
 
   public static final ConfigDef CONFIG_DEF = new ConfigDef()
-      .define(REDIS_URI, Type.STRING, Importance.HIGH, REDIS_URI_DOC)
-      .define(REDIS_CLUSTER_ENABLED, Type.BOOLEAN, false, Importance.HIGH, REDIS_CLUSTER_ENABLED_DOC);
+    .define(REDIS_URI, Type.STRING, Importance.HIGH, REDIS_URI_DOC)
+    .define(REDIS_CLUSTER_ENABLED, Type.BOOLEAN, false, Importance.HIGH, REDIS_CLUSTER_ENABLED_DOC);
 
   /**
    * Configuration for Redis Sink.
@@ -31,11 +31,21 @@ public class RedisSinkConfig extends AbstractConfig {
     this.redisClusterEnabled = getBoolean(REDIS_CLUSTER_ENABLED);
   }
 
+  /**
+   * Get URI for Redis.
+   *
+   * @return Redis URI.
+   */
   public String getRedisUri() {
     return this.redisUri;
   }
 
-  public Boolean isRedisClusterEnabled() {
+  /**
+   * Get Redis cluster enablement status.
+   *
+   * @return Redis cluster enablement status.
+   */
+  public boolean isRedisClusterEnabled() {
     return this.redisClusterEnabled;
   }
 }

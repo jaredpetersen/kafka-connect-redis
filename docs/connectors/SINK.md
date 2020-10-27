@@ -11,7 +11,11 @@ Support for additional write-based commands will be added in the future.
 ## Record Schema
 Records must adhere to a specific schema in order to be processed by the connector.
 
-### Avro
+### Key
+Keys are ignored.
+
+### Value
+#### Avro
 ```json
 {
     "type": "record",
@@ -142,8 +146,8 @@ Records must adhere to a specific schema in order to be processed by the connect
 }
 ```
 
-### JSON Schema
-#### SET
+#### Connect JSON
+##### SET
 ```json
 {
     "type": "struct",
@@ -197,7 +201,7 @@ Records must adhere to a specific schema in order to be processed by the connect
 }
 ```
 
-#### SADD
+##### SADD
 ```json
 {
     "type": "struct",
@@ -230,7 +234,7 @@ Records must adhere to a specific schema in order to be processed by the connect
 }
 ```
 
-#### GEOADD
+##### GEOADD
 ```json
 
 ```
