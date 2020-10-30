@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-schema-registry
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: kafka-schema-registry
+  template:
+    metadata:
+      labels:
+        app: kafka-schema-registry
+    spec:
+      containers:
+      - name: kafka-schema-registry
+        image: confluentinc/cp-schema-registry:5.4.3
+        ports:
+        - containerPort: 8081
+          name: rest
+        env:
+        - name: SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS
+          value: kafka-broker-0.kafka-broker:9092,kafka-broker-1.kafka-broker:9092,kafka-broker-2.kafka-broker:9092
+        - name: SCHEMA_REGISTRY_HOST_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        readinessProbe:
+          httpGet:
+            path: /
+            port: rest
+          initialDelaySeconds: 15
+          periodSeconds: 3
+        resources: {}

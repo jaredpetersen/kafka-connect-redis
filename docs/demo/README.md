@@ -43,69 +43,17 @@ kubectl -n kcr-demo run -it --rm redis-client --image redis:6 -- redis-cli --pas
 ```
 
 ## Usage
-### Create Kafka Topics
-Create an interactive ephemeral query pod:
-```bash
-kubectl -n kcr-demo run -it --rm kafka-create-topics --image confluentinc/cp-kafka:5.4.3 --command /bin/bash
-```
+[Source Connector](SOURCE.md)
 
-Create topic:
-```
-kafka-topics --create --zookeeper zookeeper-0.zookeeper:2181 --replication-factor 1 --partitions 1 --topic rediscommands
-```
-
-### Configure Kafka Connect Redis
-Send a request to the Kafka Connect REST API to configure it to use Kafka Connect Redis:
-```bash
-curl --request POST \
-    --url "$(minikube -n kcr-demo service kafka-connect --url)/connectors" \
-    --header 'content-type: application/json' \
-    --data '{
-        "name": "demo-redis-connector",
-        "config": {
-            "connector.class": "io.github.jaredpetersen.kafkaconnectredis.sink.RedisSinkConnector",
-            "tasks.max": "1",
-            "topics": "rediscommands",
-            "redis.uri": "redis://IEPfIr0eLF7UsfwrIlzy80yUaBG258j9@redis-cluster",
-            "redis.cluster.enabled": true
-        }
-    }'
-```
-
-### Write Records
-Create an interactive ephemeral query pod:
-```bash
-kubectl -n kcr-demo run -it --rm kafka-write-records --image confluentinc/cp-kafka:5.4.3 --command /bin/bash
-```
-
-Write records to the `rediscommands` topic:
-```bash
-kafka-console-producer --broker-list kafka-broker-0.kafka-broker:9092 --topic rediscommands
->{ "payload": { "command": "SET", "payload": { "key": "{user.1}.username", "value": "jetpackmelon22" } }, "schema": { "type": "struct", "fields": [ { "field": "command", "type": "string", "optional": false }, { "field": "payload", "type": "struct", "fields": [ { "field": "key", "type": "string", "optional": false }, { "field": "value", "type": "string", "optional": false }, { "field": "expiration", "type": "struct", "fields": [ { "field": "type", "type": "string", "optional": false }, { "field": "time", "type": "int64", "optional": false } ], "optional": true }, { "field": "condition", "type": "string", "optional": true } ], "optional": false } ], "optional": false } }
->{ "payload": { "command": "SET", "payload": { "key": "{user.2}.username", "value": "anchorgoat74", "expiration": { "type": "EX", "time": 2100 }, "condition": "NX" } }, "schema": { "type": "struct", "fields": [ { "field": "command", "type": "string", "optional": false }, { "field": "payload", "type": "struct", "fields": [ { "field": "key", "type": "string", "optional": false }, { "field": "value", "type": "string", "optional": false }, { "field": "expiration", "type": "struct", "fields": [ { "field": "type", "type": "string", "optional": false }, { "field": "time", "type": "int64", "optional": false } ], "optional": true }, { "field": "condition", "type": "string", "optional": true } ], "optional": false } ], "optional": false } }
-```
-
-### Redis
-Create Redis client pod:
-```bash
-kubectl -n kcr-demo run -it --rm redis-client --image redis:6 -- /bin/bash
-```
-
-Use redis-cli to connect to the cluster:
-```bash
-redis-cli -c -u 'redis://IEPfIr0eLF7UsfwrIlzy80yUaBG258j9@redis-cluster'
-```
-
-### Validate
-Open up the `demo` database again and go to the collections we created earlier. You should now see that they have the data we just wrote into Kafka.
+[Sink Connector](SINK.md)
 
 ## Teardown
-Remove all manifests:
+Remove all of the created resources in Kubernetes:
 ```bash
 k delete -k kubernetes
 ```
 
-Delete the minikube cluster
+Delete the minikube cluster:
 ```bash
 minikube delete
 ```

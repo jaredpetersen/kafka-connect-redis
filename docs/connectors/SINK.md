@@ -19,13 +19,13 @@ Keys are ignored.
 ```json
 {
     "type": "record",
-    "name": "RedisCommand",
+    "name": "RedisCommandRecord",
     "namespace": "io.github.jaredpetersen.kafkaconnectredis",
     "fields": [
         {
             "name": "command",
             "type": {
-                "name": "Command",
+                "name": "RedisCommand",
                 "type": "enum",
                 "symbols": [
                     "SET",
@@ -38,7 +38,7 @@ Keys are ignored.
             "name": "payload",
             "type": [
                 {
-                    "name": "SetPayload",
+                    "name": "RedisSetCommand",
                     "type": "record",
                     "fields": [
                         {
@@ -51,46 +51,56 @@ Keys are ignored.
                         },
                         {
                             "name": "expiration",
-                            "type": {
-                                "name": "SetPayloadExpiration",
-                                "type": "record",
-                                "fields": [
-                                    {
-                                        "name": "type",
-                                        "type": {
-                                            "name": "SetExpirationType",
-                                            "type": "enum",
-                                            "symbols": [
-                                                "EX",
-                                                "PX"
+                            "type": [
+                                "null",
+                                {
+                                    "name": "RedisSetCommandExpiration",
+                                    "type": "record",
+                                    "fields": [
+                                        {
+                                            "name": "type",
+                                            "type": {
+                                                "name": "RedisSetCommandExpirationType",
+                                                "type": "enum",
+                                                "symbols": [
+                                                    "EX",
+                                                    "PX",
+                                                    "KEEPTTL"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "name": "time",
+                                            "type": [
+                                                "null",
+                                                "long"
                                             ]
                                         }
-                                    },
-                                    {
-                                        "name": "time",
-                                        "type": [
-                                            "null",
-                                            "long"
-                                        ]
-                                    }
-                                ]
-                            }
+                                    ]
+                                }
+                            ],
+                            "default": null
                         },
                         {
                             "name": "condition",
-                            "type": {
-                                "name": "SetCondition",
-                                "type": "enum",
-                                "symbols": [
-                                    "NX",
-                                    "XX"
-                                ]
-                            }
+                            "type": [
+                                "null",
+                                {
+                                    "name": "SetCondition",
+                                    "type": "enum",
+                                    "symbols": [
+                                        "NX",
+                                        "XX",
+                                        "KEEPTTL"
+                                    ]
+                                }
+                            ],
+                            "default": null
                         }
                     ]
                 },
                 {
-                    "name": "SaddPayload",
+                    "name": "RedisSaddCommand",
                     "type": "record",
                     "fields": [
                         {
@@ -107,7 +117,7 @@ Keys are ignored.
                     ]
                 },
                 {
-                    "name": "GeoaddPayload",
+                    "name": "RedisGeoaddCommand",
                     "type": "record",
                     "fields": [
                         {
@@ -236,7 +246,54 @@ Keys are ignored.
 
 ##### GEOADD
 ```json
-
+{
+    "type": "struct",
+    "fields": [
+        {
+            "field": "command",
+            "type": "string",
+            "optional": false
+        },
+        {
+            "field": "payload",
+            "type": "struct",
+            "fields": [
+                {
+                    "field": "key",
+                    "type": "string",
+                    "optional": false
+                },
+                {
+                    "field": "values",
+                    "type": "array",
+                    "items": {
+                        "type": "struct",
+                        "fields": [
+                            {
+                                "field": "longitude",
+                                "type": "double",
+                                "optional": false
+                            },
+                            {
+                                "field": "latitude",
+                                "type": "double",
+                                "optional": false
+                            },
+                            {
+                                "field": "member",
+                                "type": "string",
+                                "optional": false
+                            },
+                        ]
+                    },
+                    "optional": true
+                }
+            ],
+            "optional": false
+        }
+    ],
+    "optional": false
+}
 ```
 
 ## Configuration

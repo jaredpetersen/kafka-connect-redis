@@ -5,9 +5,7 @@ import io.github.jaredpetersen.kafkaconnectredis.source.listener.Listener;
 import io.github.jaredpetersen.kafkaconnectredis.source.listener.RecordConverter;
 import io.github.jaredpetersen.kafkaconnectredis.util.VersionUtil;
 import io.lettuce.core.RedisClient;
-import io.lettuce.core.api.reactive.RedisReactiveCommands;
 import io.lettuce.core.cluster.RedisClusterClient;
-import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
 import io.lettuce.core.cluster.pubsub.StatefulRedisClusterPubSubConnection;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import java.util.List;
@@ -43,6 +41,8 @@ public class RedisSourceTask extends SourceTask {
   public void start(Map<String, String> props) {
     // Map the task properties to config object
     final RedisSourceConfig config = new RedisSourceConfig(props);
+
+    // TODO look at just passing the redis client instead so that the listener can create its own connection
 
     if (config.isRedisClusterEnabled()) {
       this.redisClusterClient = RedisClusterClient.create(config.getRedisUri());
