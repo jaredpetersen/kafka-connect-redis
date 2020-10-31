@@ -61,7 +61,22 @@ kafka-avro-console-producer \
 ```
 
 ```bash
-// TODO
+kafka-avro-console-producer \
+    --broker-list kafka-broker-0.kafka-broker:9092 \
+    --property schema.registry.url='http://kafka-schema-registry:8081' \
+    --property value.schema='{"namespace":"io.github.jaredpetersen.kafkaconnectredis","name":"RedisSaddCommand","type":"record","fields":[{"name":"key","type":"string"},{"name":"values","type":{"type":"array","items":"string"}}]}' \
+    --topic redis.commands
+>{"key":"{user.1}.interests","values":["reading"]}
+>{"key":"{user.1}.interests","values":["sailing","woodworking","programming"]}
+```
+
+```bash
+kafka-avro-console-producer \
+    --broker-list kafka-broker-0.kafka-broker:9092 \
+    --property schema.registry.url='http://kafka-schema-registry:8081' \
+    --property value.schema='{"namespace":"io.github.jaredpetersen.kafkaconnectredis","name":"RedisGeoaddCommand","type":"record","fields":[{"name":"key","type":"string"},{"name":"values","type":{"type":"array","items":{"name":"RedisGeoaddCommandGeolocation","type":"record","fields":[{"name":"longitude","type":"double"},{"name":"latitude","type":"double"},{"name":"member","type":"double"}]}}}]}' \
+    --topic redis.commands
+>{"key":"Sicily","values":[{"longitude":13.361389,"latitude":13.361389,"member":"Palermo"},{"longitude":15.087269,"latitude":37.502669,"member":"Catania"}]}
 ```
 
 ### Connect JSON
@@ -75,8 +90,8 @@ Write records to the `redis.commands` topic:
 kafka-console-producer \
     --broker-list kafka-broker-0.kafka-broker:9092 \
     --topic redis.commands
->{"payload":{"key":"{user.1}.username","value":"jetpackmelon22"},"schema":{"name":"io.github.jaredpetersen.kafkaconnectredis.RedisSetCommand","type":"struct","fields":[{"field":"key","type":"string","optional":false},{"field":"value","type":"string","optional":false},{"field":"expiration","type":"struct","fields":[{"field":"type","type":"string","optional":false},{"field":"time","type":"int64","optional":false}],"optional":true},{"field":"condition","type":"string","optional":true}],"optional":false}}
->{"payload":{"key":"{user.2}.username","value":"anchorgoat74","expiration":{"type":"EX","time":2100},"condition":"NX"},"schema":{"name":"io.github.jaredpetersen.kafkaconnectredis.RedisSetCommand","type":"struct","fields":[{"field":"key","type":"string","optional":false},{"field":"value","type":"string","optional":false},{"field":"expiration","type":"struct","fields":[{"field":"type","type":"string","optional":false},{"field":"time","type":"int64","optional":false}],"optional":true},{"field":"condition","type":"string","optional":true}],"optional":false}}
+>{"payload":{"key":"{user.1}.username","value":"jetpackmelon22"},"schema":{"name":"io.github.jaredpetersen.kafkaconnectredis.RedisSetCommand","type":"struct","fields":[{"field":"key","type":"string","optional":false},{"field":"value","type":"string","optional":false},{"field":"expiration","type":"struct","fields":[{"field":"type","type":"string","optional":false},{"field":"time","type":"int64","optional":true}],"optional":true},{"field":"condition","type":"string","optional":true}]}}
+>{"payload":{"key":"{user.2}.username","value":"anchorgoat74","expiration":{"type":"EX","time":2100},"condition":"NX"},"schema":{"name":"io.github.jaredpetersen.kafkaconnectredis.RedisSetCommand","type":"struct","fields":[{"field":"key","type":"string","optional":false},{"field":"value","type":"string","optional":false},{"field":"expiration","type":"struct","fields":[{"field":"type","type":"string","optional":false},{"field":"time","type":"int64","optional":true}],"optional":true},{"field":"condition","type":"string","optional":true}]}}
 ```
 
 ## Validate
