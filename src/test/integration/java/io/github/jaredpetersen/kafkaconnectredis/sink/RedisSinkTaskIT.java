@@ -23,22 +23,21 @@ import reactor.test.StepVerifier;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @Testcontainers
 public class RedisSinkTaskIT {
   @Container
   private static final GenericContainer REDIS_STANDALONE = new GenericContainer(DockerImageName.parse("redis:6"))
-      .withExposedPorts(6379)
-      .waitingFor(Wait.forLogMessage(".*Ready to accept connections.*\\n", 1));;
+    .withExposedPorts(6379)
+    .waitingFor(Wait.forLogMessage(".*Ready to accept connections.*\\n", 1));
 
   @Container
   private static final GenericContainer REDIS_CLUSTER = new GenericContainer(DockerImageName.parse("redis:6"))
-      .withCopyFileToContainer(MountableFile.forClasspathResource("redis/redis-cluster.conf"), "/data/redis.conf")
-      .withCopyFileToContainer(MountableFile.forClasspathResource("redis/nodes-cluster.conf"), "/data/nodes.conf")
-      .withCommand("redis-server", "/data/redis.conf")
-      .withExposedPorts(6379)
-      .waitingFor(Wait.forLogMessage(".*Cluster state changed: ok*\\n", 1));
+    .withCopyFileToContainer(MountableFile.forClasspathResource("redis/redis-cluster.conf"), "/data/redis.conf")
+    .withCopyFileToContainer(MountableFile.forClasspathResource("redis/nodes-cluster.conf"), "/data/nodes.conf")
+    .withCommand("redis-server", "/data/redis.conf")
+    .withExposedPorts(6379)
+    .waitingFor(Wait.forLogMessage(".*Cluster state changed: ok*\\n", 1));
 
   private static String REDIS_STANDALONE_URI;
   private static RedisClient REDIS_STANDALONE_CLIENT;
@@ -51,18 +50,16 @@ public class RedisSinkTaskIT {
   private static RedisClusterReactiveCommands<String, String> REDIS_CLUSTER_COMMANDS;
 
   private static final Schema REDIS_SET_COMMAND_SCHEMA = SchemaBuilder.struct()
-      .field("command", SchemaBuilder.STRING_SCHEMA)
-      .field("payload", SchemaBuilder.struct()
-          .field("key", SchemaBuilder.STRING_SCHEMA)
-          .field("value", SchemaBuilder.STRING_SCHEMA)
-          .field("expiration", SchemaBuilder.struct()
-              .field("type", SchemaBuilder.STRING_SCHEMA)
-              .field("time", SchemaBuilder.INT64_SCHEMA)
-              .optional())
-          .field("condition", SchemaBuilder.OPTIONAL_STRING_SCHEMA)
-          .required()
-          .build())
-      .required();
+    .name("io.github.jaredpetersen.kafkaconnectredis.RedisSetCommand")
+    .field("key", SchemaBuilder.STRING_SCHEMA)
+    .field("value", SchemaBuilder.STRING_SCHEMA)
+    .field("expiration", SchemaBuilder.struct()
+      .field("type", SchemaBuilder.STRING_SCHEMA)
+      .field("time", SchemaBuilder.INT64_SCHEMA)
+      .optional())
+    .field("condition", SchemaBuilder.OPTIONAL_STRING_SCHEMA)
+    .required()
+    .build();
 
   @BeforeAll
   static void setupAll() {
@@ -113,10 +110,8 @@ public class RedisSinkTaskIT {
     final Object key = null;
     final Schema valueSchema = REDIS_SET_COMMAND_SCHEMA;
     final Struct value = new Struct(valueSchema)
-        .put("command", "SET")
-        .put("payload", new Struct(valueSchema.field("payload").schema())
-            .put("key", "{user.1}.username")
-            .put("value", "jetpackmelon22"));
+      .put("key", "{user.1}.username")
+      .put("value", "jetpackmelon22");
     final long offset = 0L;
     final SinkRecord sinkRecord = new SinkRecord(topic, partition, keySchema, key, valueSchema, value, offset);
 
@@ -147,10 +142,8 @@ public class RedisSinkTaskIT {
     final Object key = null;
     final Schema valueSchema = REDIS_SET_COMMAND_SCHEMA;
     final Struct value = new Struct(valueSchema)
-        .put("command", "SET")
-        .put("payload", new Struct(valueSchema.field("payload").schema())
-            .put("key", "{user.1}.username")
-            .put("value", "jetpackmelon22"));
+      .put("key", "{user.1}.username")
+      .put("value", "jetpackmelon22");
     final long offset = 0L;
     final SinkRecord sinkRecord = new SinkRecord(topic, partition, keySchema, key, valueSchema, value, offset);
 
