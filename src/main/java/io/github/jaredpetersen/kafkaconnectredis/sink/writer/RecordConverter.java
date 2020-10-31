@@ -4,13 +4,17 @@ import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisCommand
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisGeoaddCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisSaddCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisSetCommand;
-import java.util.List;
 import org.apache.kafka.connect.data.Struct;
+import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.sink.SinkRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class RecordConverter {
+  private static final Logger LOG = LoggerFactory.getLogger(RecordConverter.class);
+
   /**
    * Convert sink record to Redis command.
    *
@@ -18,55 +22,49 @@ public class RecordConverter {
    * @return Redis command.
    */
   public Mono<RedisCommand> convert(SinkRecord sinkRecord) {
-    final Mono<Struct> valueMono = Mono.just((Struct) sinkRecord.value());
-    final Mono<RedisCommand.Command> commandTypeMono = valueMono
-      .flatMap(value -> Mono.just(RedisCommand.Command.valueOf(value.getString("command").toUpperCase())));
+    LOG.debug("converting record {}", sinkRecord);
 
-    return Mono
-      .zip(commandTypeMono, valueMono)
-      .flatMap(tuple -> {
-        final RedisCommand.Command commandType = tuple.getT1();
-        final Struct value = tuple.getT2();
+    final Struct recordValue = (Struct) sinkRecord.value();
+    final String recordValueSchemaName = recordValue.schema().name();
 
-        final Mono<RedisCommand> redisCommandMono;
+    final Mono<RedisCommand> redisCommandMono;
 
-        switch (commandType) {
-          case SET:
-            redisCommandMono = convertSet(value);
-            break;
-          case SADD:
-            redisCommandMono = convertSadd(value);
-            break;
-          case GEOADD:
-            redisCommandMono = convertGeoadd(value);
-            break;
-          default:
-            redisCommandMono = Mono.error(new UnsupportedOperationException("redis command type does not exist"));
-        }
+    switch (recordValueSchemaName) {
+      case "io.github.jaredpetersen.kafkaconnectredis.RedisSetCommand":
+        redisCommandMono = convertSet(recordValue);
+        break;
+      case "io.github.jaredpetersen.kafkaconnectredis.RedisSaddCommand":
+        redisCommandMono = convertSadd(recordValue);
+        break;
+      case "io.github.jaredpetersen.kafkaconnectredis.RedisGeoaddCommand":
+        redisCommandMono = convertGeoadd(recordValue);
+        break;
+      default:
+        redisCommandMono = Mono.error(new ConnectException("unsupported command schema " + recordValueSchemaName));
+    }
 
-        return redisCommandMono;
-      });
+    return redisCommandMono;
   }
 
   private Mono<RedisCommand> convertSet(Struct value) {
     return Mono.fromCallable(() -> {
-      final Struct rawPayload = value.getStruct("payload");
-
-      final Struct rawPayloadExpiration = rawPayload.getStruct("expiration");
-      final RedisSetCommand.Payload.Expiration expiration = (rawPayloadExpiration == null)
+      final Struct expirationStruct = value.getStruct("expiration");
+      final RedisSetCommand.Payload.Expiration expiration = (expirationStruct == null)
         ? null
         : RedisSetCommand.Payload.Expiration.builder()
-          .type(RedisSetCommand.Payload.Expiration.Type.valueOf(rawPayloadExpiration.getString("type")))
-          .time(rawPayloadExpiration.getInt64("time"))
+          .type(RedisSetCommand.Payload.Expiration.Type
+            .valueOf(expirationStruct.getString("type")))
+          .time(expirationStruct.getInt64("time"))
           .build();
 
-      final RedisSetCommand.Payload.Condition condition = (rawPayload.get("condition") == null)
+      final String conditionString = value.getString("condition");
+      final RedisSetCommand.Payload.Condition condition = (conditionString == null)
         ? null
-        : RedisSetCommand.Payload.Condition.valueOf((rawPayload.getString("condition")).toUpperCase());
+        : RedisSetCommand.Payload.Condition.valueOf(conditionString.toUpperCase());
 
       final RedisSetCommand.Payload payload = RedisSetCommand.Payload.builder()
-        .key(rawPayload.getString("key"))
-        .value(rawPayload.getString("value"))
+        .key(value.getString("key"))
+        .value(value.getString("value"))
         .expiration(expiration)
         .condition(condition)
         .build();
@@ -79,11 +77,9 @@ public class RecordConverter {
 
   private Mono<RedisCommand> convertSadd(Struct value) {
     return Mono.fromCallable(() -> {
-      final Struct rawPayload = value.getStruct("payload");
-
       final RedisSaddCommand.Payload payload = RedisSaddCommand.Payload.builder()
-        .key(rawPayload.getString("key"))
-        .values(rawPayload.getArray("values"))
+        .key(value.getString("key"))
+        .values(value.getArray("values"))
         .build();
 
       return RedisSaddCommand.builder()
@@ -93,10 +89,8 @@ public class RecordConverter {
   }
 
   private Mono<RedisCommand> convertGeoadd(Struct value) {
-    final Mono<Struct> rawPayloadMono = Mono.just(value.getStruct("payload"));
-
-    final Flux<RedisGeoaddCommand.Payload.GeoLocation> geoLocationFlux = rawPayloadMono
-      .flatMapIterable(rawPayload -> rawPayload.getArray("values"))
+    return Flux
+      .fromIterable(value.getArray("values"))
       .flatMap(rawGeolocation -> Mono.fromCallable(() -> {
         final Struct rawGeolocationStruct = (Struct) rawGeolocation;
         return RedisGeoaddCommand.Payload.GeoLocation.builder()
@@ -104,17 +98,12 @@ public class RecordConverter {
           .longitude(Double.parseDouble(rawGeolocationStruct.getString("longitude")))
           .member(rawGeolocationStruct.getString("member"))
           .build();
-      }));
-
-    return Mono
-      .zip(rawPayloadMono, geoLocationFlux.collectList())
-      .flatMap(tuple -> Mono.fromCallable(() -> {
-        final Struct rawPayload = tuple.getT1();
-        final List<RedisGeoaddCommand.Payload.GeoLocation> geoLocations = tuple.getT2();
-
+      }))
+      .collectList()
+      .flatMap(geolocations -> Mono.fromCallable(() -> {
         final RedisGeoaddCommand.Payload payload = RedisGeoaddCommand.Payload.builder()
-          .key(rawPayload.getString("key"))
-          .values(geoLocations)
+          .key(value.getString("key"))
+          .values(geolocations)
           .build();
 
         return RedisGeoaddCommand.builder()

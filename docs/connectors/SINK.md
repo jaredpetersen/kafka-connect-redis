@@ -231,7 +231,7 @@ Keys are ignored.
                     "optional": false
                 },
                 {
-                    "field": "value",
+                    "field": "values",
                     "type": "array",
                     "items": "string",
                     "optional": false

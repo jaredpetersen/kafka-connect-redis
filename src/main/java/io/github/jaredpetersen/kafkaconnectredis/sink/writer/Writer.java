@@ -9,6 +9,8 @@ import io.lettuce.core.api.reactive.RedisReactiveCommands;
 import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
 import java.util.Arrays;
 import org.apache.kafka.connect.errors.ConnectException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -16,6 +18,8 @@ public class Writer {
   private final RedisReactiveCommands<String, String> redisStandaloneCommands;
   private final RedisClusterReactiveCommands<String, String> redisClusterCommands;
   private final boolean clusterEnabled;
+
+  private static final Logger LOG = LoggerFactory.getLogger(Writer.class);
 
   /**
    * Set up writer to interact with standalone Redis.
@@ -46,6 +50,8 @@ public class Writer {
    * @return Mono used to indicate the write has completed.
    */
   public Mono<Void> write(RedisCommand redisCommand) {
+    LOG.debug("writing {}", redisCommand);
+
     final Mono<Void> response;
 
     switch (redisCommand.getCommand()) {

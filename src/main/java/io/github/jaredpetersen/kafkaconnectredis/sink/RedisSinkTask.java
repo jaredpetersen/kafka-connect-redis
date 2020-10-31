@@ -23,10 +23,6 @@ import reactor.core.publisher.Flux;
  * Kafka Connect Task for Kafka Connect Redis Sink.
  */
 public class RedisSinkTask extends SinkTask {
-  private static final Logger LOG = LoggerFactory.getLogger(RedisSinkTask.class);
-
-  private static final RecordConverter RECORD_CONVERTER = new RecordConverter();
-
   private RedisClient redisStandaloneClient;
   private StatefulRedisConnection<String, String> redisStandaloneConnection;
 
@@ -34,6 +30,10 @@ public class RedisSinkTask extends SinkTask {
   private StatefulRedisClusterConnection<String, String> redisClusterConnection;
 
   private Writer writer;
+
+  private static final RecordConverter RECORD_CONVERTER = new RecordConverter();
+
+  private static final Logger LOG = LoggerFactory.getLogger(RedisSinkTask.class);
 
   @Override
   public String version() {
@@ -68,6 +68,7 @@ public class RedisSinkTask extends SinkTask {
     }
 
     LOG.info("writing {} record(s)", records.size());
+    LOG.debug("records: {}", records);
 
     Flux
         .fromIterable(records)

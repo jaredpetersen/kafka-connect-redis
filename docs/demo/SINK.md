@@ -1,5 +1,5 @@
 # Demo: Kafka Connect Sink
-## Configure Connector
+## Install Connector
 Send a request to the Kafka Connect REST API to configure it to use Kafka Connect Redis:
 
 ### Avro
@@ -8,7 +8,7 @@ curl --request POST \
     --url "$(minikube -n kcr-demo service kafka-connect --url)/connectors" \
     --header 'content-type: application/json' \
     --data '{
-        "name": "demo-redis-sink-connector4",
+        "name": "demo-redis-sink-connector",
         "config": {
             "connector.class": "io.github.jaredpetersen.kafkaconnectredis.sink.RedisSinkConnector",
             "key.converter": "io.confluent.connect.avro.AvroConverter",
@@ -54,11 +54,14 @@ Write records to the `redis.commands` topic:
 kafka-avro-console-producer \
     --broker-list kafka-broker-0.kafka-broker:9092 \
     --property schema.registry.url='http://kafka-schema-registry:8081' \
-    --property value.schema='{"type":"record","name":"RedisCommandRecord","namespace":"io.github.jaredpetersen.kafkaconnectredis","fields":[{"name":"command","type":{"name":"RedisCommand","type":"enum","symbols":["SET","SADD","GEOAD"]}},{"name":"payload","type":[{"name":"RedisSetCommand","type":"record","fields":[{"name":"key","type":"string"},{"name":"value","type":"string"},{"name":"expiration","type":["null",{"name":"RedisSetCommandExpiration","type":"record","fields":[{"name":"type","type":{"name":"RedisSetCommandExpirationType","type":"enum","symbols":["EX","PX","KEEPTTL"]}},{"name":"time","type":["null","long"]}]}],"default":null},{"name":"condition","type":["null",{"name":"RedisSetCommandCondition","type":"enum","symbols":["NX","XX","KEEPTTL"]}],"default":null}]},{"name":"RedisSaddCommand","type":"record","fields":[{"name":"key","type":"string"},{"name":"values","type":{"type":"array","items":"string"}}]},{"name":"RedisGeoaddCommand","type":"record","fields":[{"name":"key","type":"string"},{"name":"values","type":{"type":"array","items":{"name":"GeoaddGeolocation","type":"record","fields":[{"name":"longitude","type":"double"},{"name":"latitude","type":"double"},{"name":"member","type":"double"}]}}}]}]}]}' \
+    --property value.schema='{"namespace":"io.github.jaredpetersen.kafkaconnectredis","name":"RedisSetCommand","type":"record","fields":[{"name":"key","type":"string"},{"name":"value","type":"string"},{"name":"expiration","type":["null",{"name":"RedisSetCommandExpiration","type":"record","fields":[{"name":"type","type":{"name":"RedisSetCommandExpirationType","type":"enum","symbols":["EX","PX","KEEPTTL"]}},{"name":"time","type":["null","long"]}]}],"default":null},{"name":"condition","type":["null",{"name":"RedisSetCommandCondition","type":"enum","symbols":["NX","XX","KEEPTTL"]}],"default":null}]}' \
     --topic redis.commands
->{"command":"SET","payload":{"io.github.jaredpetersen.kafkaconnectredis.RedisSetCommand":{"key":"{user.1}.username","value":"jetpackmelon22","expiration":null,"condition":null}}}
->{"command":"SET","payload":{"io.github.jaredpetersen.kafkaconnectredis.RedisSetCommand":{"key":"{user.2}.username","value":"anchorgoat74","expiration":{"io.github.jaredpetersen.kafkaconnectredis.RedisSetCommandExpiration":{"type":"EX","time":{"long":2100}}},"condition":{"io.github.jaredpetersen.kafkaconnectredis.RedisSetCommandCondition":"NX"}}}}
+>{"key":"{user.1}.username","value":"jetpackmelon22","expiration":null,"condition":null}
+>{"key":"{user.2}.username","value":"anchorgoat74","expiration":{"io.github.jaredpetersen.kafkaconnectredis.RedisSetCommandExpiration":{"type":"EX","time":{"long":2100}}},"condition":{"io.github.jaredpetersen.kafkaconnectredis.RedisSetCommandCondition":"NX"}}
 ```
+
+```bash
+// TODO
 ```
 
 ### Connect JSON
@@ -71,9 +74,9 @@ Write records to the `redis.commands` topic:
 ```bash
 kafka-console-producer \
     --broker-list kafka-broker-0.kafka-broker:9092 \
-    --topic rediscommands
->{ "payload": { "command": "SET", "payload": { "key": "{user.1}.username", "value": "jetpackmelon22" } }, "schema": { "type": "struct", "fields": [ { "field": "command", "type": "string", "optional": false }, { "field": "payload", "type": "struct", "fields": [ { "field": "key", "type": "string", "optional": false }, { "field": "value", "type": "string", "optional": false }, { "field": "expiration", "type": "struct", "fields": [ { "field": "type", "type": "string", "optional": false }, { "field": "time", "type": "int64", "optional": false } ], "optional": true }, { "field": "condition", "type": "string", "optional": true } ], "optional": false } ], "optional": false } }
->{ "payload": { "command": "SET", "payload": { "key": "{user.2}.username", "value": "anchorgoat74", "expiration": { "type": "EX", "time": 2100 }, "condition": "NX" } }, "schema": { "type": "struct", "fields": [ { "field": "command", "type": "string", "optional": false }, { "field": "payload", "type": "struct", "fields": [ { "field": "key", "type": "string", "optional": false }, { "field": "value", "type": "string", "optional": false }, { "field": "expiration", "type": "struct", "fields": [ { "field": "type", "type": "string", "optional": false }, { "field": "time", "type": "int64", "optional": false } ], "optional": true }, { "field": "condition", "type": "string", "optional": true } ], "optional": false } ], "optional": false } }
+    --topic redis.commands
+>{"payload":{"key":"{user.1}.username","value":"jetpackmelon22"},"schema":{"name":"io.github.jaredpetersen.kafkaconnectredis.RedisSetCommand","type":"struct","fields":[{"field":"key","type":"string","optional":false},{"field":"value","type":"string","optional":false},{"field":"expiration","type":"struct","fields":[{"field":"type","type":"string","optional":false},{"field":"time","type":"int64","optional":false}],"optional":true},{"field":"condition","type":"string","optional":true}],"optional":false}}
+>{"payload":{"key":"{user.2}.username","value":"anchorgoat74","expiration":{"type":"EX","time":2100},"condition":"NX"},"schema":{"name":"io.github.jaredpetersen.kafkaconnectredis.RedisSetCommand","type":"struct","fields":[{"field":"key","type":"string","optional":false},{"field":"value","type":"string","optional":false},{"field":"expiration","type":"struct","fields":[{"field":"type","type":"string","optional":false},{"field":"time","type":"int64","optional":false}],"optional":true},{"field":"condition","type":"string","optional":true}],"optional":false}}
 ```
 
 ## Validate
