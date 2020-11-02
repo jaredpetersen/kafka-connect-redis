@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: kafka-schema-registry
-        image: confluentinc/cp-schema-registry:5.4.3
+        image: confluentinc/cp-schema-registry:6.0.0
         ports:
         - containerPort: 8081
           name: rest

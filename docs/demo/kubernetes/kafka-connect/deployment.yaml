@@ -30,6 +30,8 @@ spec:
           value: "8083"
         - name: CONNECT_GROUP_ID
           value: kafka-connect
+        - name: CONNECT_PLUGIN_PATH
+          value: "/usr/share/java/,/usr/share/confluent-hub-components/"
         - name: CONNECT_CONFIG_STORAGE_TOPIC
           value: kafka-connect.config
         - name: CONNECT_OFFSET_STORAGE_TOPIC

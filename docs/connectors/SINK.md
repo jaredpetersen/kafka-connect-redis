@@ -11,7 +11,7 @@ Support for additional write-based commands will be added in the future.
 ## Record Schema
 Records must adhere to a specific schema in order to be processed by the connector.
 
-If you are utilizing a schema registry, you must configure the sink topic to be able to utilize multiple schemas. For Confluent's schema registry, you must [configure the subject](https://docs.confluent.io/current/schema-registry/schema-validation.html#change-the-subject-naming-strategy-for-a-topic) to use either `RecordNameStrategy` or `TopicRecordNameStrategy` strategies.
+We suggest you write the Redis commands to one topic so that they arrive at the connector in order. If you are utilizing a schema registry, this means that you must configure the topic producer to use either `RecordNameStrategy` or `TopicRecordNameStrategy` as the subject naming strategy. For more information about this, check out the [official documentation](https://docs.confluent.io/6.0.0/schema-registry/serdes-develop/index.html#sr-schemas-subject-name-strategy) and this [Confluent blog post](https://www.confluent.io/blog/put-several-event-types-kafka-topic/).
 
 ### Key
 Keys are ignored.
@@ -164,7 +164,9 @@ Keys are ignored.
         {
             "field": "values",
             "type": "array",
-            "items": "string",
+            "items": {
+              "type": "string"
+            },
             "optional": false
         }
     ]
@@ -201,7 +203,7 @@ Keys are ignored.
                         },
                         {
                             "name": "member",
-                            "type": "double"
+                            "type": "string"
                         }
                     ]
                 }

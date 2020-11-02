@@ -42,11 +42,6 @@ Run the following command to configure redis to run in cluster mode instead of s
 kubectl -n kcr-demo run -it --rm redis-client --image redis:6 -- redis-cli --pass IEPfIr0eLF7UsfwrIlzy80yUaBG258j9 --cluster create $(kubectl -n kcr-demo get pods -l app=redis-cluster -o jsonpath='{range.items[*]}{.status.podIP}:6379 ') --cluster-yes
 ```
 
-Run the following command to create the topic the sink connector will listen to. Kafka can automatically create topics, but we need to make sure that the sink topic can support multiple schemas in the same topic.
-```bash
-kubectl -n kcr-demo run -it --rm kafka-create-topic --image confluentinc/cp-kafka:5.4.3 -- kafka-topics --create --bootstrap-server 'kafka-broker-0.kafka-broker:9092' --config 'confluent.value.subject.name.strategy=io.confluent.kafka.serializers.subject.TopicRecordNameStrategy' --topic 'redis.commands'
-```
-
 ## Usage
 [Source Connector](SOURCE.md)
 
