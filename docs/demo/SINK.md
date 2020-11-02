@@ -117,7 +117,6 @@ redis-cli -c -u 'redis://IEPfIr0eLF7UsfwrIlzy80yUaBG258j9@redis-cluster'
 
 Run commands to confirm the commands were applied correctly:
 ```bash
-KEYS *
 GET '{user.1}.username'
 GET '{user.2}.username'
 SMEMBERS '{user.1}.interests'
