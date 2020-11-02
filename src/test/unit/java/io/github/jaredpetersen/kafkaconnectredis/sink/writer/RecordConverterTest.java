@@ -37,8 +37,8 @@ public class RecordConverterTest {
     .field("key", SchemaBuilder.STRING_SCHEMA)
     .field("values", SchemaBuilder
       .array(SchemaBuilder.struct()
-        .field("longitude", SchemaBuilder.STRING_SCHEMA)
-        .field("latitude", SchemaBuilder.STRING_SCHEMA)
+        .field("longitude", SchemaBuilder.FLOAT64_SCHEMA)
+        .field("latitude", SchemaBuilder.FLOAT64_SCHEMA)
         .field("member", SchemaBuilder.STRING_SCHEMA)
         .required()
         .build())
@@ -152,12 +152,12 @@ public class RecordConverterTest {
       .put("key", "sicily")
       .put("values", Arrays.asList(
         new Struct(valueLocationSchema)
-          .put("longitude", "13.361389")
-          .put("latitude", "38.115556")
+          .put("longitude", 13.361389d)
+          .put("latitude", 38.115556d)
           .put("member", "Palermo"),
         new Struct(valueLocationSchema)
-          .put("longitude", "15.087269")
-          .put("latitude", "37.502669")
+          .put("longitude", 15.087269d)
+          .put("latitude", 37.502669d)
           .put("member", "Catania")));
     final long offset = 0L;
     final SinkRecord sinkRecord = new SinkRecord(topic, partition, keySchema, key, valueSchema, value, offset);
