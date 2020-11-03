@@ -29,13 +29,13 @@ curl --request POST \
     --url "$(minikube -n kcr-demo service kafka-connect --url)/connectors" \
     --header 'content-type: application/json' \
     --data '{
-        "name": "demo-redis-sink-connector4",
+        "name": "demo-redis-sink-connector",
         "config": {
             "connector.class": "io.github.jaredpetersen.kafkaconnectredis.sink.RedisSinkConnector",
             "key.converter": "org.apache.kafka.connect.json.JsonConverter",
             "value.converter": "org.apache.kafka.connect.json.JsonConverter",
             "tasks.max": "1",
-            "topics": "redis.commands4",
+            "topics": "redis.commands",
             "redis.uri": "redis://IEPfIr0eLF7UsfwrIlzy80yUaBG258j9@redis-cluster",
             "redis.cluster.enabled": true
         }
@@ -88,14 +88,14 @@ kafka-avro-console-producer \
 ### Connect JSON
 Create an interactive ephemeral query pod:
 ```bash
-kubectl -n kcr-demo run -it --rm kafka-write-records --image confluentinc/cp-kafka:5.4.3 --command /bin/bash
+kubectl -n kcr-demo run -it --rm kafka-write-records --image confluentinc/cp-kafka:6.0.0 --command /bin/bash
 ```
 
 Write records to the `redis.commands` topic:
 ```bash
 kafka-console-producer \
     --broker-list kafka-broker-0.kafka-broker:9092 \
-    --topic redis.commands4
+    --topic redis.commands
 >{"payload":{"key":"{user.1}.username","value":"jetpackmelon22"},"schema":{"name":"io.github.jaredpetersen.kafkaconnectredis.RedisSetCommand","type":"struct","fields":[{"field":"key","type":"string","optional":false},{"field":"value","type":"string","optional":false},{"field":"expiration","type":"struct","fields":[{"field":"type","type":"string","optional":false},{"field":"time","type":"int64","optional":true}],"optional":true},{"field":"condition","type":"string","optional":true}]}}
 >{"payload":{"key":"{user.2}.username","value":"anchorgoat74","expiration":{"type":"EX","time":2100},"condition":"NX"},"schema":{"name":"io.github.jaredpetersen.kafkaconnectredis.RedisSetCommand","type":"struct","fields":[{"field":"key","type":"string","optional":false},{"field":"value","type":"string","optional":false},{"field":"expiration","type":"struct","fields":[{"field":"type","type":"string","optional":false},{"field":"time","type":"int64","optional":true}],"optional":true},{"field":"condition","type":"string","optional":true}]}}
 >{"payload":{"key":"{user.1}.interests","values":["reading"]},"schema":{"name":"io.github.jaredpetersen.kafkaconnectredis.RedisSaddCommand","type":"struct","fields":[{"field":"key","type":"string","optional":false},{"field":"values","type":"array","items":{"type":"string"},"optional":false}]}}
@@ -117,11 +117,11 @@ redis-cli -c -u 'redis://IEPfIr0eLF7UsfwrIlzy80yUaBG258j9@redis-cluster'
 
 Run commands to confirm the commands were applied correctly:
 ```bash
-GET '{user.1}.username'
-GET '{user.2}.username'
-SMEMBERS '{user.1}.interests'
-SMEMBERS '{user.2}.interests'
-GEOPOS 'Sicily' 'Catania'
+GET {user.1}.username
+GET {user.2}.username
+SMEMBERS {user.1}.interests
+SMEMBERS {user.2}.interests
+GEOPOS Sicily Catania
 ```
 
 ## Teardown

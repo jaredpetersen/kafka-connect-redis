@@ -25,8 +25,8 @@ public class RedisSourceConfig extends AbstractConfig {
   private static final String REDIS_CHANNELS_PATTERN_ENABLED_DOC = "Redis channel(s) utilize pattern matching.";
   private final boolean redisChannelPatternEnabled;
 
-  private static final String TOPIC = "topics";
-  private static final String TOPIC_DOC = "Topics to write to.";
+  private static final String TOPIC = "topic";
+  private static final String TOPIC_DOC = "Topic to write to.";
   private final String topic;
 
   public static final ConfigDef CONFIG_DEF = new ConfigDef()

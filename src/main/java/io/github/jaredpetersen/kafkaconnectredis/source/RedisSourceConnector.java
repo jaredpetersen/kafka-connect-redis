@@ -2,17 +2,17 @@ package io.github.jaredpetersen.kafkaconnectredis.source;
 
 import io.github.jaredpetersen.kafkaconnectredis.source.config.RedisSourceConfig;
 import io.github.jaredpetersen.kafkaconnectredis.util.VersionUtil;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.connect.connector.Task;
-import org.apache.kafka.connect.sink.SinkConnector;
+import org.apache.kafka.connect.source.SourceConnector;
 
 /**
  * Entry point for Kafka Connect Redis Sink.
  */
-public class RedisSourceConnector extends SinkConnector {
+public class RedisSourceConnector extends SourceConnector {
   private Map<String, String> config;
 
   @Override
@@ -32,13 +32,9 @@ public class RedisSourceConnector extends SinkConnector {
 
   @Override
   public List<Map<String, String>> taskConfigs(final int maxTasks) {
-    List<Map<String, String>> taskConfigs = new ArrayList<>(maxTasks);
-
-    for (int configIndex = 0; configIndex < maxTasks; ++configIndex) {
-      taskConfigs.add(this.config);
-    }
-
-    return taskConfigs;
+    // Ignore maxTasks, only set up one listener
+    // Redis subscribers all receive the same exact message so any more than one task would result in duplicates
+    return Collections.singletonList(this.config);
   }
 
   @Override

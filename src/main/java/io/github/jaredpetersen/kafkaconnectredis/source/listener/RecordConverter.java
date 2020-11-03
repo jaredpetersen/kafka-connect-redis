@@ -1,6 +1,5 @@
 package io.github.jaredpetersen.kafkaconnectredis.source.listener;
 
-import io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber.SubscriptionEvent;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.kafka.connect.data.Schema;
@@ -31,7 +30,7 @@ public class RecordConverter {
    * @param event Subscription event to be converted.
    * @return Converted source record.
    */
-  public Mono<SourceRecord> convert(SubscriptionEvent<String, String> event) {
+  public Mono<SourceRecord> convert(RedisSubscriptionMessage<String, String> event) {
     // Source partition and offset are not useful in our case because the Redis subscription model does not allow us
     // to pick up where we left off if we stop subscribing for a while
     final Map<String, ?> sourcePartition = new HashMap<>();
