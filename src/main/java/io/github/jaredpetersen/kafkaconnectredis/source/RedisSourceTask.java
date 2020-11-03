@@ -1,7 +1,7 @@
 package io.github.jaredpetersen.kafkaconnectredis.source;
 
 import io.github.jaredpetersen.kafkaconnectredis.source.config.RedisSourceConfig;
-import io.github.jaredpetersen.kafkaconnectredis.source.listener.RedisClusterListener;
+import io.github.jaredpetersen.kafkaconnectredis.source.listener.Listener;
 import io.github.jaredpetersen.kafkaconnectredis.source.listener.RecordConverter;
 import io.github.jaredpetersen.kafkaconnectredis.util.VersionUtil;
 import io.lettuce.core.RedisClient;
@@ -28,7 +28,7 @@ public class RedisSourceTask extends SourceTask {
 
   private RecordConverter recordConverter;
 
-  private RedisClusterListener listener;
+  private Listener listener;
 
   private static final Logger LOG = LoggerFactory.getLogger(RedisSourceTask.class);
 
@@ -42,15 +42,13 @@ public class RedisSourceTask extends SourceTask {
     // Map the task properties to config object
     final RedisSourceConfig config = new RedisSourceConfig(props);
 
-    // TODO look into just passing the redis client instead so that the listener can create its own connection
-
     if (config.isRedisClusterEnabled()) {
       this.redisClusterClient = RedisClusterClient.create(config.getRedisUri());
       this.redisClusterPubSubConnection = this.redisClusterClient.connectPubSub();
       this.redisClusterPubSubConnection.setNodeMessagePropagation(true);
 
-      this.listener = new RedisClusterListener(
-        redisClusterPubSubConnection,
+      this.listener = new Listener(
+        redisClusterPubSubConnection.reactive(),
         config.getRedisChannels(),
         config.isRedisChannelPatternEnabled());
     }
@@ -58,11 +56,13 @@ public class RedisSourceTask extends SourceTask {
       this.redisStandaloneClient = RedisClient.create(config.getRedisUri());
       this.redisStandalonePubSubConnection = this.redisStandaloneClient.connectPubSub();
 
-      this.listener = new RedisClusterListener(
-        redisStandalonePubSubConnection,
+      this.listener = new Listener(
+        redisStandalonePubSubConnection.reactive(),
         config.getRedisChannels(),
         config.isRedisChannelPatternEnabled());
     }
+
+    this.listener.start();
 
     this.recordConverter = new RecordConverter(config.getTopic());
   }
@@ -84,6 +84,9 @@ public class RedisSourceTask extends SourceTask {
 
   @Override
   public void stop() {
+    this.listener.stop();
+
+    // Close out Redis standalone
     if (this.redisStandalonePubSubConnection != null) {
       this.redisStandalonePubSubConnection.close();
     }
@@ -91,6 +94,7 @@ public class RedisSourceTask extends SourceTask {
       this.redisStandaloneClient.shutdown();
     }
 
+    // Close out Redis cluster
     if (this.redisClusterPubSubConnection != null) {
       this.redisClusterPubSubConnection.close();
     }

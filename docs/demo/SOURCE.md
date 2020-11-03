@@ -31,7 +31,7 @@ curl --request POST \
     --url "$(minikube -n kcr-demo service kafka-connect --url)/connectors" \
     --header 'content-type: application/json' \
     --data '{
-        "name": "demo-redis-source-connector4",
+        "name": "demo-redis-source-connector",
         "config": {
             "connector.class": "io.github.jaredpetersen.kafkaconnectredis.source.RedisSourceConnector",
             "key.converter": "org.apache.kafka.connect.json.JsonConverter",
@@ -84,7 +84,7 @@ kafka-console-avro-consumer \
     --broker-list kafka-broker-0.kafka-broker:9092 \
     --property schema.registry.url='http://kafka-schema-registry:8081' \
     --property value.schema='{}' \
-    --topic redis.events
+    --topic redis.events \
     --from-beginning
 ```
 
@@ -98,6 +98,8 @@ Tail the topic, starting from the beginning:
 ```bash
 kafka-console-consumer \
     --bootstrap-server kafka-broker-0.kafka-broker:9092 \
+    --property print.key=true \
+    --property key.separator='|' \
     --topic redis.events \
     --from-beginning
 ```

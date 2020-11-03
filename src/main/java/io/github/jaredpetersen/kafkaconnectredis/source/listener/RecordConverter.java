@@ -11,9 +11,9 @@ public class RecordConverter {
   private final String topic;
 
   private static final Schema KEY_SCHEMA = SchemaBuilder.string()
-    .name("RedisSubscriptionEventKey");
+    .name("io.github.jaredpetersen.kafkaconnectredis.RedisSubscriptionEventKey");
   private static final Schema VALUE_SCHEMA = SchemaBuilder.string()
-    .name("RedisSubscriptionEventValue");
+    .name("io.github.jaredpetersen.kafkaconnectredis.RedisSubscriptionEventValue");
 
   /**
    * Set up converter with preset topic.
@@ -25,19 +25,19 @@ public class RecordConverter {
   }
 
   /**
-   * Convert subscription event to source record.
+   * Convert subscription message to source record.
    *
-   * @param event Subscription event to be converted.
+   * @param redisMessage Redis subscription event to be converted.
    * @return Converted source record.
    */
-  public Mono<SourceRecord> convert(RedisSubscriptionMessage<String, String> event) {
+  public Mono<SourceRecord> convert(RedisSubscriptionMessage redisMessage) {
     // Source partition and offset are not useful in our case because the Redis subscription model does not allow us
     // to pick up where we left off if we stop subscribing for a while
     final Map<String, ?> sourcePartition = new HashMap<>();
     final Map<String, ?> sourceOffset = new HashMap<>();
 
-    final String key = event.getChannel();
-    final String value = event.getMessage();
+    final String key = redisMessage.getChannel();
+    final String value = redisMessage.getMessage();
 
     final SourceRecord sourceRecord = new SourceRecord(
       sourcePartition,

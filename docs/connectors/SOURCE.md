@@ -9,25 +9,34 @@ Both patterns and strict channels are supported.
 #### Avro
 ```json
 {
-  "type": "string",
-  "name": "RedisSubscriptionEventKey",
-  "version": 1
+  "name":"io.github.jaredpetersen.kafkaconnectredis.RedisSubscriptionEventKey",
+  "type":"string"
 }
 ```
 
 #### Connect JSON
+```json
+{
+  "name":"io.github.jaredpetersen.kafkaconnectredis.RedisSubscriptionEventKey",
+  "type":"string",
+  "optional":false
+}
+```
 
 ### Value
 #### Avro
 ```json
 {
-
+  "name":"io.github.jaredpetersen.kafkaconnectredis.RedisSubscriptionEventValue",
+  "type":"string"
 }
 ```
 
 #### Connect JSON
 ```json
 {
-
+  "name":"io.github.jaredpetersen.kafkaconnectredis.RedisSubscriptionEventValue",
+  "type":"string",
+  "optional":false
 }
 ```
