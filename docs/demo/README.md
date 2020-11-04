@@ -11,9 +11,9 @@ minikube start --cpus 2 --memory 10g
 ```
 
 ### Docker
-Now that we have a cluster, we'll need a Docker image that contains the Kafka Connect Redis plugin. We don't publish a Docker image to public Docker registries since you will usually install multiple Kafka Connect plugins on one image. Additionally, that base image may vary depending on your preferences and use case.
+Now that we have a local Kubernetes setup, we'll need a Docker image that contains Kafka Connect Redis. We don't publish a Docker image to public Docker registries since you will usually install multiple Kafka Connectors on one image.
 
-Navigate to `demo/docker/` and run the following commands in a separate terminal to download the plugin and build the image for Minikube:
+Navigate to `demo/docker/` in this repository and run the following commands **in a separate terminal** to download the plugin and build the image for Minikube:
 ```bash
 curl -O https://search.maven.org/remotecontent?filepath=io/github/jaredpetersen/kafka-connect-redis/1.0.0/kafka-connect-redis-1.0.0.jar
 eval $(minikube docker-env)
@@ -22,10 +22,10 @@ docker build -t jaredpetersen/kafka-connect-redis:latest .
 
 Alternatively, obtain the JAR file by building from source with `mvn package` at the root of this repository.
 
-Close out this terminal when you're done -- we want to go back to our normal Docker environment.
+Close out this terminal when you're done -- we want to go back to our normal Docker environment that isn't polluted by MiniKube.
 
 ### Kubernetes Manifests
-Let's start running everything. Apply the manifests (you may have to give this a couple of tries due to race conditions):
+Apply the Kubernetes manifests so that we can start running all the different services:
 ```bash
 kubectl apply -k kubernetes
 ```
@@ -37,7 +37,7 @@ kubectl -n kcr-demo get pods
 
 Be patient, this can take a few minutes.
 
-Run the following command to configure redis to run in cluster mode instead of standalone mode:
+Run the following command to configure Redis to run in cluster mode instead of standalone mode:
 ```bash
 kubectl -n kcr-demo run -it --rm redis-client --image redis:6 -- redis-cli --pass IEPfIr0eLF7UsfwrIlzy80yUaBG258j9 --cluster create $(kubectl -n kcr-demo get pods -l app=redis-cluster -o jsonpath='{range.items[*]}{.status.podIP}:6379 ') --cluster-yes
 ```
