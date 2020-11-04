@@ -1,5 +1,6 @@
 package io.github.jaredpetersen.kafkaconnectredis.source.listener;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.kafka.connect.data.Schema;
@@ -36,6 +37,7 @@ public class RecordConverter {
     final Map<String, ?> sourcePartition = new HashMap<>();
     final Map<String, ?> sourceOffset = new HashMap<>();
 
+    final int partition = 0;
     final String key = redisMessage.getChannel();
     final String value = redisMessage.getMessage();
 
@@ -43,10 +45,12 @@ public class RecordConverter {
       sourcePartition,
       sourceOffset,
       this.topic,
+      partition,
       KEY_SCHEMA,
       key,
       VALUE_SCHEMA,
-      value
+      value,
+      Instant.now().toEpochMilli()
     );
 
     return Mono.just(sourceRecord);

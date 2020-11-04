@@ -255,7 +255,7 @@ Keys are ignored.
 
 ## Configuration
 ### Connector Properties
-| Name                    | Description         | Type     | Default | Importance |
-| ----------------------- | ------------------- | -------- | ------- | ---------- |
-| `redis.uri`             | Redis URI           | string   |         | high       |
-| `redis.cluster.enabled` | Enable cluster mode | boolean  | false   | high       |
+| Name                    | Description         | Type    | Default | Importance |
+| ----------------------- | ------------------- | ------- | ------- | ---------- |
+| `redis.uri`             | Redis URI           | string  |         | high       |
+| `redis.cluster.enabled` | Enable cluster mode | boolean | false   | high       |
