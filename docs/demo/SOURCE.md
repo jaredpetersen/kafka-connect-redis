@@ -80,10 +80,11 @@ kubectl -n kcr-demo run -it --rm kafka-tail-records --image confluentinc/cp-sche
 
 Tail the topic, starting from the beginning:
 ```bash
-kafka-console-avro-consumer \
-    --broker-list kafka-broker-0.kafka-broker:9092 \
+kafka-avro-console-consumer \
+    --bootstrap-server kafka-broker-0.kafka-broker:9092 \
     --property schema.registry.url='http://kafka-schema-registry:8081' \
-    --property value.schema='{}' \
+    --property print.key=true \
+    --property key.separator='|' \
     --topic redis.events \
     --from-beginning
 ```
