@@ -11,7 +11,7 @@ Support for additional write-based commands will be added in the future.
 ## Record Schema
 Records must adhere to a specific schema in order to be processed by the connector.
 
-We suggest you write the Redis commands to one topic so that they arrive at the connector in order. If you are utilizing a schema registry, this means that you must configure the topic producer to use either `RecordNameStrategy` or `TopicRecordNameStrategy` as the subject naming strategy. For more information about this, check out the [official documentation](https://docs.confluent.io/6.0.0/schema-registry/serdes-develop/index.html#sr-schemas-subject-name-strategy) and this [Confluent blog post](https://www.confluent.io/blog/put-several-event-types-kafka-topic/).
+Each Redis command type has its own schema. This can be an issue if you are utilizing a schema registry because the default subject naming strategy assumes that topics will only have one schema. To overcome this, you must configure the subject naming strategy to be either `RecordNameStrategy` or `TopicRecordNameStrategy`. Check out the [official documentation](https://docs.confluent.io/6.0.0/schema-registry/serdes-develop/index.html#sr-schemas-subject-name-strategy) and this [Confluent blog post](https://www.confluent.io/blog/put-several-event-types-kafka-topic/) for more information.
 
 ### Key
 Keys are ignored.

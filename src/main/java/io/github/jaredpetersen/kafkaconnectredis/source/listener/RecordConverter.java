@@ -5,16 +5,20 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
+import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import reactor.core.publisher.Mono;
 
 public class RecordConverter {
   private final String topic;
 
-  private static final Schema KEY_SCHEMA = SchemaBuilder.string()
-    .name("io.github.jaredpetersen.kafkaconnectredis.RedisSubscriptionEventKey");
-  private static final Schema VALUE_SCHEMA = SchemaBuilder.string()
-    .name("io.github.jaredpetersen.kafkaconnectredis.RedisSubscriptionEventValue");
+  private static final Schema KEY_SCHEMA = SchemaBuilder.struct()
+    .name("io.github.jaredpetersen.kafkaconnectredis.RedisSubscriptionEventKey")
+    .field("channel", Schema.STRING_SCHEMA)
+    .field("pattern", Schema.OPTIONAL_STRING_SCHEMA);
+  private static final Schema VALUE_SCHEMA = SchemaBuilder.struct()
+    .name("io.github.jaredpetersen.kafkaconnectredis.RedisSubscriptionEventValue")
+    .field("message", Schema.STRING_SCHEMA);
 
   /**
    * Set up converter with preset topic.
@@ -37,15 +41,17 @@ public class RecordConverter {
     final Map<String, ?> sourcePartition = new HashMap<>();
     final Map<String, ?> sourceOffset = new HashMap<>();
 
-    final int partition = 0;
-    final String key = redisMessage.getChannel();
-    final String value = redisMessage.getMessage();
+    final Struct key = new Struct(KEY_SCHEMA)
+      .put("channel", redisMessage.getChannel())
+      .put("pattern", redisMessage.getPattern());
+    final Struct value = new Struct(VALUE_SCHEMA)
+      .put("message", redisMessage.getMessage());
 
     final SourceRecord sourceRecord = new SourceRecord(
       sourcePartition,
       sourceOffset,
       this.topic,
-      partition,
+      null,
       KEY_SCHEMA,
       key,
       VALUE_SCHEMA,
