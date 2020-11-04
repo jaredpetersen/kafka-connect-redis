@@ -1,7 +1,5 @@
 # Kafka Connect Redis - Source
-Subscribes to Redis channels (including [keyspace notifications](https://redis.io/topics/notifications)) and writes the received messages to Kafka.
-
-Both channels (`SUBSCRIBE`) and patterns (`PSUBSCRIBE`) are supported.
+Subscribes to Redis channels/patterns (including [keyspace notifications](https://redis.io/topics/notifications)) and writes the received messages to Kafka.
 
 ## Record Schema
 
