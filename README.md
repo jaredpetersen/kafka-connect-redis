@@ -6,7 +6,7 @@ Kafka Source and Sink Connector for Redis
 
 ## Connectors
 ### Source
-Subscribes to Redis channels/patterns using the Pub/Sub feature and writes the received messages to Kafka. [Keyspace notifications](https://redis.io/topics/notifications) are supported.
+Subscribes to Redis channels/patterns (including [keyspace notifications](https://redis.io/topics/notifications)) using the Pub/Sub feature and writes the received messages to Kafka.
 
 For more information, see the [detailed documentation](/docs/source).
 
