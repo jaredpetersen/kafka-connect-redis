@@ -53,7 +53,7 @@ public class WriterIT {
     REDIS_STANDALONE_CONNECTION = REDIS_STANDALONE_CLIENT.connect();
     REDIS_STANDALONE_COMMANDS = REDIS_STANDALONE_CONNECTION.reactive();
 
-    final String redisClusterUri = "redis://" + REDIS_STANDALONE.getHost() + ":" + REDIS_CLUSTER.getFirstMappedPort();
+    final String redisClusterUri = "redis://" + REDIS_CLUSTER.getHost() + ":" + REDIS_CLUSTER.getFirstMappedPort();
     REDIS_CLUSTER_CLIENT = RedisClusterClient.create(redisClusterUri);
     REDIS_CLUSTER_CONNECTION = REDIS_CLUSTER_CLIENT.connect();
     REDIS_CLUSTER_COMMANDS = REDIS_CLUSTER_CONNECTION.reactive();
