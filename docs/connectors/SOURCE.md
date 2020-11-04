@@ -44,6 +44,9 @@ Records are partitioned using the [`DefaultPartitioner`](https://github.com/apac
 
 If you would prefer a different partitioning strategy, you may implement your own [`Partitioner`](https://github.com/apache/kafka/blob/trunk/clients/src/main/java/org/apache/kafka/clients/producer/Partitioner.java) and configure the connector to use it via [`partitioner.class`](https://kafka.apache.org/documentation/#partitioner.class). Alternatively, you may also implement a custom [Single Message Transform (SMT)](https://docs.confluent.io/current/connect/transforms/index.html).
 
+## Parallelization
+Splitting the workload between multiple tasks via the configuration property `max.tasks` is not supported at this time. Support for this will be added in the future.
+
 ## Configuration
 ### Connector Properties
 | Name                              | Description                                       | Type    | Default | Importance |

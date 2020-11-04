@@ -51,7 +51,7 @@ kubectl -n kcr-demo run -it --rm kafka-write-records --image confluentinc/cp-sch
 
 Write records to the `redis.commands` topic:
 
-**IMPORTANT:** The following avro example does not completely work [due to a bug in the avro console producer](https://github.com/confluentinc/schema-registry/issues/898). A fix has been merged but Confluent has not published a new Docker image for it yet. In the meantime, you may only issue one Redis command type per topic if you are using the avro console producer.
+**IMPORTANT:** The following Avro example does not completely work [due to a bug in the Avro console producer](https://github.com/confluentinc/schema-registry/issues/898). A fix has been merged but Confluent has not published a new Docker image for it yet (6.1.0+). In the meantime, you may only issue one Redis command type per topic if you are using the Avro console producer.
 
 ```bash
 kafka-avro-console-producer \
@@ -122,15 +122,4 @@ GET {user.2}.username
 SMEMBERS {user.1}.interests
 SMEMBERS {user.2}.interests
 GEOPOS Sicily Catania
-```
-
-## Teardown
-Remove all manifests:
-```bash
-k delete -k kubernetes
-```
-
-Delete the minikube cluster
-```bash
-minikube delete
 ```

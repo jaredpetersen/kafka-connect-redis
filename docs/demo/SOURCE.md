@@ -1,6 +1,6 @@
 # Demo: Kafka Connect Source
 ## Install Connector
-Send a request to the Kafka Connect REST API to configure it to use Kafka Connect Redis. We'll be listening to all events in Redis by using the channel `__key*__:*`.
+Send a request to the Kafka Connect REST API to configure it to use Kafka Connect Redis. We'll be listening to all keyspace and keyevent notifications in Redis by using the channel pattern `__key*__:*`.
 
 ### Avro
 ```bash
@@ -103,15 +103,4 @@ kafka-console-consumer \
     --property key.separator='|' \
     --topic redis.events \
     --from-beginning
-```
-
-## Teardown
-Remove all manifests:
-```bash
-k delete -k kubernetes
-```
-
-Delete the minikube cluster
-```bash
-minikube delete
 ```
