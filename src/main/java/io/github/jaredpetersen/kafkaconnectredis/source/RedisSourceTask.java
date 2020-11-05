@@ -1,8 +1,7 @@
 package io.github.jaredpetersen.kafkaconnectredis.source;
 
 import io.github.jaredpetersen.kafkaconnectredis.source.config.RedisSourceConfig;
-import io.github.jaredpetersen.kafkaconnectredis.source.listener.Listener;
-import io.github.jaredpetersen.kafkaconnectredis.source.listener.RecordConverter;
+import io.github.jaredpetersen.kafkaconnectredis.source.listener.*;
 import io.github.jaredpetersen.kafkaconnectredis.util.VersionUtil;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.cluster.RedisClusterClient;
@@ -28,7 +27,7 @@ public class RedisSourceTask extends SourceTask {
 
   private RecordConverter recordConverter;
 
-  private Listener listener;
+  private RedisListener listener;
 
   private static final Logger LOG = LoggerFactory.getLogger(RedisSourceTask.class);
 
@@ -47,19 +46,25 @@ public class RedisSourceTask extends SourceTask {
       this.redisClusterPubSubConnection = this.redisClusterClient.connectPubSub();
       this.redisClusterPubSubConnection.setNodeMessagePropagation(true);
 
-      this.listener = new Listener(
-        redisClusterPubSubConnection.reactive(),
-        config.getRedisChannels(),
-        config.isRedisChannelPatternEnabled());
+      this.listener = (config.isRedisChannelPatternEnabled())
+        ? new RedisClusterChannelListener(
+            redisClusterPubSubConnection.reactive(),
+            config.getRedisChannels())
+        : new RedisClusterPatternListener(
+            redisClusterPubSubConnection.reactive(),
+            config.getRedisChannels());
     }
     else {
       this.redisStandaloneClient = RedisClient.create(config.getRedisUri());
       this.redisStandalonePubSubConnection = this.redisStandaloneClient.connectPubSub();
 
-      this.listener = new Listener(
-        redisStandalonePubSubConnection.reactive(),
-        config.getRedisChannels(),
-        config.isRedisChannelPatternEnabled());
+      this.listener = (config.isRedisChannelPatternEnabled())
+        ? new RedisChannelListener(
+            redisClusterPubSubConnection.reactive(),
+            config.getRedisChannels())
+        : new RedisPatternListener(
+            redisClusterPubSubConnection.reactive(),
+            config.getRedisChannels());
     }
 
     this.listener.start();

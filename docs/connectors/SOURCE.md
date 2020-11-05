@@ -7,17 +7,39 @@ Subscribes to Redis channels/patterns (including [keyspace notifications](https:
 #### Avro
 ```json
 {
-  "name":"io.github.jaredpetersen.kafkaconnectredis.RedisSubscriptionEventKey",
-  "type":"string"
+    "namespace": "io.github.jaredpetersen.kafkaconnectredis",
+    "name": "RedisSubscriptionEventKey",
+    "type": "record",
+    "fields": [
+        {
+            "name": "channel",
+            "type": "string"
+        },
+        {
+            "name": "pattern",
+            "type": [null, "string"]
+        }
+    ]
 }
 ```
 
 #### Connect JSON
 ```json
 {
-  "name":"io.github.jaredpetersen.kafkaconnectredis.RedisSubscriptionEventKey",
-  "type":"string",
-  "optional":false
+    "name": "io.github.jaredpetersen.kafkaconnectredis.RedisSubscriptionEventKey",
+    "type": "struct",
+    "fields": [
+        {
+            "field": "channel",
+            "type": "string",
+            "optional": false
+        },
+        {
+            "field": "pattern",
+            "type": "string",
+            "optional": true
+        }
+    ]
 }
 ```
 
@@ -25,17 +47,30 @@ Subscribes to Redis channels/patterns (including [keyspace notifications](https:
 #### Avro
 ```json
 {
-  "name":"io.github.jaredpetersen.kafkaconnectredis.RedisSubscriptionEventValue",
-  "type":"string"
+    "namespace": "io.github.jaredpetersen.kafkaconnectredis",
+    "name": "RedisSubscriptionEventValue",
+    "type": "record",
+    "fields": [
+        {
+            "name": "message",
+            "type": "string"
+        }
+    ]
 }
 ```
 
 #### Connect JSON
 ```json
 {
-  "name":"io.github.jaredpetersen.kafkaconnectredis.RedisSubscriptionEventValue",
-  "type":"string",
-  "optional":false
+    "name": "io.github.jaredpetersen.kafkaconnectredis.RedisSubscriptionEventValue",
+    "type": "struct",
+    "fields": [
+        {
+            "field": "message",
+            "type": "string",
+            "optional": false
+        }
+    ]
 }
 ```
 
