@@ -32,8 +32,7 @@ public class RedisSourceConnector extends SourceConnector {
 
   @Override
   public List<Map<String, String>> taskConfigs(final int maxTasks) {
-    // Ignore maxTasks, only set up one listener
-    // Redis subscribers all receive the same exact message so any more than one task would result in duplicates
+    // TODO create a task for each channel/pattern
     return Collections.singletonList(this.config);
   }
 

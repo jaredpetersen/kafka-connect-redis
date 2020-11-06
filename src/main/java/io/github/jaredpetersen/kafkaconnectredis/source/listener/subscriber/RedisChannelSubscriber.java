@@ -1,5 +1,6 @@
-package io.github.jaredpetersen.kafkaconnectredis.source.listener;
+package io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber;
 
+import io.github.jaredpetersen.kafkaconnectredis.source.listener.RedisSubscriptionMessage;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import java.util.List;
 import org.slf4j.Logger;
@@ -7,34 +8,34 @@ import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public class RedisPatternSubscriber implements RedisSubscriber {
+public class RedisChannelSubscriber implements RedisSubscriber {
   private final StatefulRedisPubSubConnection<String, String> redisPubSubConnection;
-  private final List<String> patterns;
+  private final List<String> channels;
 
   private static final Logger LOG = LoggerFactory.getLogger(RedisChannelSubscriber.class);
 
-  public RedisPatternSubscriber(
+  public RedisChannelSubscriber(
       StatefulRedisPubSubConnection<String, String> redisPubSubConnection,
-      List<String> patterns) {
+      List<String> channels) {
     this.redisPubSubConnection = redisPubSubConnection;
-    this.patterns = patterns;
+    this.channels = channels;
   }
 
   @Override
   public Mono<Void> subscribe() {
     return redisPubSubConnection.reactive()
-      .subscribe(patterns.toArray(new String[0]));
+      .subscribe(channels.toArray(new String[0]));
   }
 
   @Override
   public Mono<Void> unsubscribe() {
     return redisPubSubConnection.reactive()
-      .unsubscribe(patterns.toArray(new String[0]));
+      .unsubscribe(channels.toArray(new String[0]));
   }
 
   @Override
   public Flux<RedisSubscriptionMessage> observe() {
-    return redisPubSubConnection.reactive().observePatterns()
+    return redisPubSubConnection.reactive().observeChannels()
       .map(channelMessage -> RedisSubscriptionMessage.builder()
         .channel(channelMessage.getChannel())
         .message(channelMessage.getMessage())

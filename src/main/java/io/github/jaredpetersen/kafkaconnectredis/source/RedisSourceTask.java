@@ -1,7 +1,12 @@
 package io.github.jaredpetersen.kafkaconnectredis.source;
 
 import io.github.jaredpetersen.kafkaconnectredis.source.config.RedisSourceConfig;
-import io.github.jaredpetersen.kafkaconnectredis.source.listener.*;
+import io.github.jaredpetersen.kafkaconnectredis.source.listener.RecordConverter;
+import io.github.jaredpetersen.kafkaconnectredis.source.listener.RedisListener;
+import io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber.RedisChannelSubscriber;
+import io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber.RedisClusterChannelSubscriber;
+import io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber.RedisPatternSubscriber;
+import io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber.RedisSubscriber;
 import io.github.jaredpetersen.kafkaconnectredis.util.VersionUtil;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.cluster.RedisClusterClient;
@@ -25,9 +30,8 @@ public class RedisSourceTask extends SourceTask {
   private RedisClusterClient redisClusterClient;
   private StatefulRedisClusterPubSubConnection<String, String> redisClusterPubSubConnection;
 
+  private RedisListener redisListener;
   private RecordConverter recordConverter;
-
-  private RedisListener listener;
 
   private static final Logger LOG = LoggerFactory.getLogger(RedisSourceTask.class);
 
@@ -41,41 +45,42 @@ public class RedisSourceTask extends SourceTask {
     // Map the task properties to config object
     final RedisSourceConfig config = new RedisSourceConfig(props);
 
+    final RedisSubscriber redisSubscriber;
+
     if (config.isRedisClusterEnabled()) {
       this.redisClusterClient = RedisClusterClient.create(config.getRedisUri());
       this.redisClusterPubSubConnection = this.redisClusterClient.connectPubSub();
       this.redisClusterPubSubConnection.setNodeMessagePropagation(true);
 
-      this.listener = (config.isRedisChannelPatternEnabled())
-        ? new RedisClusterChannelListener(
-            redisClusterPubSubConnection.reactive(),
+      redisSubscriber = (config.isRedisChannelPatternEnabled())
+        ? new RedisClusterChannelSubscriber(
+            redisClusterPubSubConnection,
             config.getRedisChannels())
-        : new RedisClusterPatternListener(
-            redisClusterPubSubConnection.reactive(),
+        : new RedisClusterChannelSubscriber(
+            redisClusterPubSubConnection,
             config.getRedisChannels());
     }
     else {
       this.redisStandaloneClient = RedisClient.create(config.getRedisUri());
       this.redisStandalonePubSubConnection = this.redisStandaloneClient.connectPubSub();
 
-      this.listener = (config.isRedisChannelPatternEnabled())
-        ? new RedisChannelListener(
-            redisClusterPubSubConnection.reactive(),
+      redisSubscriber = (config.isRedisChannelPatternEnabled())
+        ? new RedisChannelSubscriber(
+            redisClusterPubSubConnection,
             config.getRedisChannels())
-        : new RedisPatternListener(
-            redisClusterPubSubConnection.reactive(),
+        : new RedisPatternSubscriber(
+            redisClusterPubSubConnection,
             config.getRedisChannels());
     }
 
-    this.listener.start();
-
+    this.redisListener = new RedisListener(redisSubscriber);
     this.recordConverter = new RecordConverter(config.getTopic());
   }
 
   @Override
   public List<SourceRecord> poll() {
     final List<SourceRecord> sourceRecords = Flux
-      .fromIterable(this.listener.poll())
+      .fromIterable(this.redisListener.poll())
       .flatMapSequential(this.recordConverter::convert)
       .collectList()
       .block();
@@ -89,7 +94,7 @@ public class RedisSourceTask extends SourceTask {
 
   @Override
   public void stop() {
-    this.listener.stop();
+    this.redisListener.stop();
 
     // Close out Redis standalone
     if (this.redisStandalonePubSubConnection != null) {

@@ -1,5 +1,6 @@
 package io.github.jaredpetersen.kafkaconnectredis.source.listener;
 
+import io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber.RedisSubscriber;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
@@ -13,12 +14,15 @@ public class RedisListener {
 
   private Disposable listener;
 
-  private static final long MAX_POLL_SIZE = 10_000L;
+  private static final long MAX_POLL_SIZE = 100_000L;
 
   public RedisListener(RedisSubscriber redisSubscriber) {
     this.redisSubscriber = redisSubscriber;
   }
 
+  /**
+   * Subscribe and start listening asynchronously.
+   */
   public void start() {
     this.redisSubscriber.subscribe().block();
     this.listener = this.redisSubscriber.observe()
@@ -26,11 +30,19 @@ public class RedisListener {
       .subscribe();
   }
 
+  /**
+   * Unsubscribe and stop listening.
+   */
   public void stop() {
     this.redisSubscriber.unsubscribe().block();
     this.listener.dispose();
   }
 
+  /**
+   * Retrieve messages from Redis Pub/Sub.
+   *
+   * @return List of subscription messages.
+   */
   public List<RedisSubscriptionMessage> poll() {
     final List<RedisSubscriptionMessage> redisMessages = new ArrayList<>();
 
