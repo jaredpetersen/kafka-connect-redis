@@ -20,7 +20,7 @@ public class RedisSinkConfig extends AbstractConfig {
   public static final ConfigDef CONFIG_DEF = new ConfigDef()
     .define(
       REDIS_URI,
-      Type.STRING,
+      Type.PASSWORD,
       Importance.HIGH,
       REDIS_URI_DOC)
     .define(
@@ -38,7 +38,7 @@ public class RedisSinkConfig extends AbstractConfig {
   public RedisSinkConfig(final Map<?, ?> originals) {
     super(CONFIG_DEF, originals, true);
 
-    this.redisUri = getString(REDIS_URI);
+    this.redisUri = getPassword(REDIS_URI).value();
     this.redisClusterEnabled = getBoolean(REDIS_CLUSTER_ENABLED);
   }
 

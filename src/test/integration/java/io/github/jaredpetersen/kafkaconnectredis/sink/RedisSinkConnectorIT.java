@@ -2,10 +2,8 @@ package io.github.jaredpetersen.kafkaconnectredis.sink;
 
 import io.github.jaredpetersen.kafkaconnectredis.sink.config.RedisSinkConfig;
 import io.github.jaredpetersen.kafkaconnectredis.util.VersionUtil;
-import org.apache.kafka.common.config.ConfigDef;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

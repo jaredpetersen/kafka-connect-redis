@@ -40,7 +40,7 @@ public class RedisSourceConfig extends AbstractConfig {
       TOPIC_DOC)
     .define(
       REDIS_URI,
-      Type.STRING,
+      Type.PASSWORD,
       Importance.HIGH,
       REDIS_URI_DOC)
     .define(
@@ -69,7 +69,7 @@ public class RedisSourceConfig extends AbstractConfig {
     super(CONFIG_DEF, originals, true);
 
     this.topic = getString(TOPIC);
-    this.redisUri = getString(REDIS_URI);
+    this.redisUri = getPassword(REDIS_URI).value();
     this.redisClusterEnabled = getBoolean(REDIS_CLUSTER_ENABLED);
     this.redisChannels = getList(REDIS_CHANNELS);
     this.redisChannelPatternEnabled = getBoolean(REDIS_CHANNELS_PATTERN_ENABLED);
