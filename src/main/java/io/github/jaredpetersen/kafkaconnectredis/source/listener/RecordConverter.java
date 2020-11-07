@@ -56,7 +56,7 @@ public class RecordConverter {
       key,
       VALUE_SCHEMA,
       value,
-      Instant.now().toEpochMilli()
+      Instant.now().getEpochSecond()
     );
 
     return Mono.just(sourceRecord);
