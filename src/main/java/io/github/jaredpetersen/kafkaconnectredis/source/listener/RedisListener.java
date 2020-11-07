@@ -49,10 +49,16 @@ public class RedisListener {
 
     while (true) {
       final RedisSubscriptionMessage redisMessage = this.queue.poll();
+
+      // No more events left, stop iterating
+      if (redisMessage == null) {
+        break;
+      }
+
       redisMessages.add(redisMessage);
 
       // Subscription events may come in faster than we can iterate over them here so return early once we hit the max
-      if (redisMessage == null || redisMessages.size() >= MAX_POLL_SIZE) {
+      if (redisMessages.size() >= MAX_POLL_SIZE) {
         break;
       }
     }

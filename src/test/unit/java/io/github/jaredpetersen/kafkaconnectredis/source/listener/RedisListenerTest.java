@@ -88,6 +88,20 @@ public class RedisListenerTest {
   }
 
   @Test
+  public void pollRetrievesEmptyListOfSubscribedMessages() throws InterruptedException {
+    final RedisSubscriber mockRedisSubscriber = mock(RedisSubscriber.class);
+    when(mockRedisSubscriber.subscribe()).thenReturn(Mono.empty());
+    when(mockRedisSubscriber.observe()).thenReturn(Flux.empty());
+    when(mockRedisSubscriber.unsubscribe()).thenReturn(Mono.empty());
+
+    final RedisListener redisListener = new RedisListener(mockRedisSubscriber);
+
+    final List<RedisSubscriptionMessage> redisSubscriptionMessages = redisListener.poll();
+
+    assertEquals(0, redisSubscriptionMessages.size());
+  }
+
+  @Test
   public void pollRetrievesSubscribedMessages() throws InterruptedException {
     // Generate an unbounded flux redis messages on demand
     // Use an external index to track the progress for verification purposes
