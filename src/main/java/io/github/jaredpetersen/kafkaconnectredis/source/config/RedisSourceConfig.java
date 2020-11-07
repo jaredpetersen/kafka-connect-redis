@@ -11,6 +11,7 @@ import org.apache.kafka.common.config.ConfigDef.Type;
 public class RedisSourceConfig extends AbstractConfig {
   private static final String TOPIC = "topic";
   private static final String TOPIC_DOC = "Topic to write to.";
+  private static final String TOPIC_DEFAULT = "redis";
   private final String topic;
 
   private static final String REDIS_URI = "redis.uri";
@@ -19,6 +20,7 @@ public class RedisSourceConfig extends AbstractConfig {
 
   private static final String REDIS_CLUSTER_ENABLED = "redis.cluster.enabled";
   private static final String REDIS_CLUSTER_ENABLED_DOC = "Redis cluster mode enabled.";
+  private static final boolean REDIS_CLUSTER_ENABLED_DEFAULT = false;
   private final boolean redisClusterEnabled;
 
   private static final String REDIS_CHANNELS = "redis.channels";
@@ -30,11 +32,33 @@ public class RedisSourceConfig extends AbstractConfig {
   private final boolean redisChannelPatternEnabled;
 
   public static final ConfigDef CONFIG_DEF = new ConfigDef()
-    .define(TOPIC, Type.STRING, "redis", Importance.HIGH, TOPIC_DOC)
-    .define(REDIS_URI, Type.STRING, Importance.HIGH, REDIS_URI_DOC)
-    .define(REDIS_CLUSTER_ENABLED, Type.BOOLEAN, false, Importance.HIGH, REDIS_CLUSTER_ENABLED_DOC)
-    .define(REDIS_CHANNELS, Type.LIST, Collections.emptyList(), Importance.HIGH, REDIS_CHANNELS_DOC)
-    .define(REDIS_CHANNELS_PATTERN_ENABLED, Type.BOOLEAN, false, Importance.HIGH, REDIS_CHANNELS_PATTERN_ENABLED_DOC);
+    .define(
+      TOPIC,
+      Type.STRING,
+      TOPIC_DEFAULT,
+      Importance.HIGH,
+      TOPIC_DOC)
+    .define(
+      REDIS_URI,
+      Type.STRING,
+      Importance.HIGH,
+      REDIS_URI_DOC)
+    .define(
+      REDIS_CLUSTER_ENABLED,
+      Type.BOOLEAN,
+      REDIS_CLUSTER_ENABLED_DEFAULT,
+      Importance.HIGH,
+      REDIS_CLUSTER_ENABLED_DOC)
+    .define(
+      REDIS_CHANNELS,
+      Type.LIST,
+      Importance.HIGH,
+      REDIS_CHANNELS_DOC)
+    .define(
+      REDIS_CHANNELS_PATTERN_ENABLED,
+      Type.BOOLEAN,
+      Importance.HIGH,
+      REDIS_CHANNELS_PATTERN_ENABLED_DOC);
 
   /**
    * Configuration for Redis Source.

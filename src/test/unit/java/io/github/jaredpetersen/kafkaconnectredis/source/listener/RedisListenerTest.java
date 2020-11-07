@@ -1,4 +1,4 @@
-package io.github.jaredpetersen.kafkaconnectredis.sink;
+package io.github.jaredpetersen.kafkaconnectredis.source.listener;
 
 import io.github.jaredpetersen.kafkaconnectredis.source.listener.RedisListener;
 import io.github.jaredpetersen.kafkaconnectredis.source.listener.RedisSubscriptionMessage;
