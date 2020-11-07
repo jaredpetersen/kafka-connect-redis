@@ -26,6 +26,7 @@ public class RedisListener {
   public void start() {
     this.redisSubscriber.subscribe().block();
     this.listener = this.redisSubscriber.observe()
+      .doOnNext(this.queue::add)
       .subscribeOn(Schedulers.boundedElastic())
       .subscribe();
   }
@@ -48,13 +49,12 @@ public class RedisListener {
 
     while (true) {
       final RedisSubscriptionMessage redisMessage = this.queue.poll();
+      redisMessages.add(redisMessage);
 
       // Subscription events may come in faster than we can iterate over them here so return early once we hit the max
       if (redisMessage == null || redisMessages.size() >= MAX_POLL_SIZE) {
         break;
       }
-
-      redisMessages.add(redisMessage);
     }
 
     return redisMessages;
