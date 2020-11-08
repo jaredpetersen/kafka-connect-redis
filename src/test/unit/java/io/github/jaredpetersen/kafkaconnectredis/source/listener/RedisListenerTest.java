@@ -1,7 +1,5 @@
 package io.github.jaredpetersen.kafkaconnectredis.source.listener;
 
-import io.github.jaredpetersen.kafkaconnectredis.source.listener.RedisListener;
-import io.github.jaredpetersen.kafkaconnectredis.source.listener.RedisSubscriptionMessage;
 import io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber.RedisSubscriber;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -19,12 +17,12 @@ public class RedisListenerTest {
     // Generate an unbounded flux redis messages on demand
     // Use an external index to track the progress for verification purposes
     final AtomicInteger redisSubscriptionMessageIndex = new AtomicInteger();
-    final Flux<RedisSubscriptionMessage> redisSubscriptionMessageFlux = Flux.generate(
+    final Flux<RedisMessage> redisSubscriptionMessageFlux = Flux.generate(
       () -> 0,
       (state, sink) -> {
         redisSubscriptionMessageIndex.set(state);
 
-        final RedisSubscriptionMessage redisMessage = RedisSubscriptionMessage.builder()
+        final RedisMessage redisMessage = RedisMessage.builder()
           .channel("election")
           .message("vote-" + state)
           .build();
@@ -53,12 +51,12 @@ public class RedisListenerTest {
     // Generate an unbounded flux redis messages on demand
     // Use an external index to track the progress for verification purposes
     final AtomicInteger redisSubscriptionMessageIndex = new AtomicInteger();
-    final Flux<RedisSubscriptionMessage> redisSubscriptionMessageFlux = Flux.generate(
+    final Flux<RedisMessage> redisSubscriptionMessageFlux = Flux.generate(
       () -> 0,
       (state, sink) -> {
         redisSubscriptionMessageIndex.set(state);
 
-        final RedisSubscriptionMessage redisMessage = RedisSubscriptionMessage.builder()
+        final RedisMessage redisMessage = RedisMessage.builder()
           .channel("election")
           .message("vote-" + state)
           .build();
@@ -96,9 +94,9 @@ public class RedisListenerTest {
 
     final RedisListener redisListener = new RedisListener(mockRedisSubscriber);
 
-    final List<RedisSubscriptionMessage> redisSubscriptionMessages = redisListener.poll();
+    final List<RedisMessage> redisMessages = redisListener.poll();
 
-    assertEquals(0, redisSubscriptionMessages.size());
+    assertEquals(0, redisMessages.size());
   }
 
   @Test
@@ -106,12 +104,12 @@ public class RedisListenerTest {
     // Generate an unbounded flux redis messages on demand
     // Use an external index to track the progress for verification purposes
     final AtomicInteger redisSubscriptionMessageIndex = new AtomicInteger();
-    final Flux<RedisSubscriptionMessage> redisSubscriptionMessageFlux = Flux.generate(
+    final Flux<RedisMessage> redisSubscriptionMessageFlux = Flux.generate(
       () -> 0,
       (state, sink) -> {
         redisSubscriptionMessageIndex.set(state);
 
-        final RedisSubscriptionMessage redisMessage = RedisSubscriptionMessage.builder()
+        final RedisMessage redisMessage = RedisMessage.builder()
           .channel("election")
           .message("vote-" + state)
           .build();
@@ -134,22 +132,22 @@ public class RedisListenerTest {
     // Give the listener time to observe some messages
     Thread.sleep(2000L);
 
-    final List<RedisSubscriptionMessage> redisSubscriptionMessages = redisListener.poll();
+    final List<RedisMessage> redisMessages = redisListener.poll();
 
-    assertTrue(redisSubscriptionMessages.size() > 0);
-    assertTrue(redisSubscriptionMessages.size() <= 100_000);
+    assertTrue(redisMessages.size() > 0);
+    assertTrue(redisMessages.size() <= 100_000);
     assertEquals(
-      RedisSubscriptionMessage.builder()
+      RedisMessage.builder()
         .channel("election")
         .message("vote-0")
         .build(),
-      redisSubscriptionMessages.get(0));
+      redisMessages.get(0));
     assertEquals(
-      RedisSubscriptionMessage.builder()
+      RedisMessage.builder()
         .channel("election")
-        .message("vote-" + (redisSubscriptionMessages.size() - 1))
+        .message("vote-" + (redisMessages.size() - 1))
         .build(),
-      redisSubscriptionMessages.get(redisSubscriptionMessages.size() - 1));
+      redisMessages.get(redisMessages.size() - 1));
   }
 
   @Test
@@ -157,12 +155,12 @@ public class RedisListenerTest {
     // Generate an unbounded flux redis messages on demand
     // Use an external index to track the progress for verification purposes
     final AtomicInteger redisSubscriptionMessageIndex = new AtomicInteger();
-    final Flux<RedisSubscriptionMessage> redisSubscriptionMessageFlux = Flux.generate(
+    final Flux<RedisMessage> redisSubscriptionMessageFlux = Flux.generate(
       () -> 0,
       (state, sink) -> {
         redisSubscriptionMessageIndex.set(state);
 
-        final RedisSubscriptionMessage redisMessage = RedisSubscriptionMessage.builder()
+        final RedisMessage redisMessage = RedisMessage.builder()
           .channel("election")
           .message("vote-" + state)
           .build();
@@ -185,39 +183,39 @@ public class RedisListenerTest {
     // Give the listener time to observe some messages
     Thread.sleep(1000L);
 
-    final List<RedisSubscriptionMessage> redisSubscriptionMessagesRoundA = redisListener.poll();
+    final List<RedisMessage> redisMessagesRoundA = redisListener.poll();
 
-    assertTrue(redisSubscriptionMessagesRoundA.size() > 0);
-    assertTrue(redisSubscriptionMessagesRoundA.size() <= 100_000);
+    assertTrue(redisMessagesRoundA.size() > 0);
+    assertTrue(redisMessagesRoundA.size() <= 100_000);
     assertEquals(
-      RedisSubscriptionMessage.builder()
+      RedisMessage.builder()
         .channel("election")
         .message("vote-0")
         .build(),
-      redisSubscriptionMessagesRoundA.get(0));
+      redisMessagesRoundA.get(0));
     assertEquals(
-      RedisSubscriptionMessage.builder()
+      RedisMessage.builder()
         .channel("election")
-        .message("vote-" + (redisSubscriptionMessagesRoundA.size() - 1))
+        .message("vote-" + (redisMessagesRoundA.size() - 1))
         .build(),
-      redisSubscriptionMessagesRoundA.get(redisSubscriptionMessagesRoundA.size() - 1));
+      redisMessagesRoundA.get(redisMessagesRoundA.size() - 1));
 
     // Poll again, confirming that we're getting the next batch of data
-    final List<RedisSubscriptionMessage> redisSubscriptionMessagesRoundB = redisListener.poll();
+    final List<RedisMessage> redisMessagesRoundB = redisListener.poll();
 
-    assertTrue(redisSubscriptionMessagesRoundB.size() > 0);
-    assertTrue(redisSubscriptionMessagesRoundB.size() <= 100_000);
+    assertTrue(redisMessagesRoundB.size() > 0);
+    assertTrue(redisMessagesRoundB.size() <= 100_000);
     assertEquals(
-      RedisSubscriptionMessage.builder()
+      RedisMessage.builder()
         .channel("election")
-        .message("vote-" + redisSubscriptionMessagesRoundA.size())
+        .message("vote-" + redisMessagesRoundA.size())
         .build(),
-      redisSubscriptionMessagesRoundB.get(0));
+      redisMessagesRoundB.get(0));
     assertEquals(
-      RedisSubscriptionMessage.builder()
+      RedisMessage.builder()
         .channel("election")
-        .message("vote-" + (redisSubscriptionMessagesRoundA.size() + redisSubscriptionMessagesRoundB.size() - 1))
+        .message("vote-" + (redisMessagesRoundA.size() + redisMessagesRoundB.size() - 1))
         .build(),
-      redisSubscriptionMessagesRoundB.get(redisSubscriptionMessagesRoundB.size() - 1));
+      redisMessagesRoundB.get(redisMessagesRoundB.size() - 1));
   }
 }

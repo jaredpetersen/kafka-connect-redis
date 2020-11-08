@@ -35,7 +35,7 @@ public class RecordConverter {
    * @param redisMessage Redis subscription event to be converted.
    * @return Converted source record.
    */
-  public Mono<SourceRecord> convert(RedisSubscriptionMessage redisMessage) {
+  public Mono<SourceRecord> convert(RedisMessage redisMessage) {
     // Source partition and offset are not useful in our case because the Redis subscription model does not allow us
     // to pick up where we left off if we stop subscribing for a while
     final Map<String, ?> sourcePartition = new HashMap<>();

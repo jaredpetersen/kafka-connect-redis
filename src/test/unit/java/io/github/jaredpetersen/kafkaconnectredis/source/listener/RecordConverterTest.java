@@ -9,7 +9,7 @@ import reactor.test.StepVerifier;
 public class RecordConverterTest {
   @Test
   public void convertTransformsRedisMessageToSourceRecord() {
-    final RedisSubscriptionMessage redisSubscriptionMessage = RedisSubscriptionMessage.builder()
+    final RedisMessage redisMessage = RedisMessage.builder()
       .channel("mychannel")
       .pattern("mypattern")
       .message("some message")
@@ -19,7 +19,7 @@ public class RecordConverterTest {
     final RecordConverter recordConverter = new RecordConverter(topic);
 
     StepVerifier
-      .create(recordConverter.convert(redisSubscriptionMessage))
+      .create(recordConverter.convert(redisMessage))
       .expectNextMatches(sourceRecord ->
         sourceRecord.sourcePartition().size() == 0
           && sourceRecord.sourceOffset().size() == 0

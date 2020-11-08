@@ -1,6 +1,6 @@
 package io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber;
 
-import io.github.jaredpetersen.kafkaconnectredis.source.listener.RedisSubscriptionMessage;
+import io.github.jaredpetersen.kafkaconnectredis.source.listener.RedisMessage;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
 import io.lettuce.core.cluster.pubsub.StatefulRedisClusterPubSubConnection;
@@ -125,11 +125,11 @@ public class RedisClusterChannelSubscriberIT {
 
     final StepVerifier observeVerifier = StepVerifier
       .create(redisSubscriber.observe())
-      .expectNext(RedisSubscriptionMessage.builder().channel(channel).message("podcast-1").build())
-      .expectNext(RedisSubscriptionMessage.builder().channel(channel).message("podcast-2").build())
-      .expectNext(RedisSubscriptionMessage.builder().channel(channel).message("podcast-3").build())
-      .expectNext(RedisSubscriptionMessage.builder().channel(channel).message("podcast-4").build())
-      .expectNext(RedisSubscriptionMessage.builder().channel(channel).message("podcast-5").build())
+      .expectNext(RedisMessage.builder().channel(channel).message("podcast-1").build())
+      .expectNext(RedisMessage.builder().channel(channel).message("podcast-2").build())
+      .expectNext(RedisMessage.builder().channel(channel).message("podcast-3").build())
+      .expectNext(RedisMessage.builder().channel(channel).message("podcast-4").build())
+      .expectNext(RedisMessage.builder().channel(channel).message("podcast-5").build())
       .expectNoEvent(Duration.ofSeconds(2L))
       .thenCancel()
       .verifyLater();

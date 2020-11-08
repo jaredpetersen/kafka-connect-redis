@@ -1,6 +1,6 @@
 package io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber;
 
-import io.github.jaredpetersen.kafkaconnectredis.source.listener.RedisSubscriptionMessage;
+import io.github.jaredpetersen.kafkaconnectredis.source.listener.RedisMessage;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -24,5 +24,5 @@ public interface RedisSubscriber {
    *
    * @return Flux of emitted Redis subscription messages.
    */
-  Flux<RedisSubscriptionMessage> observe();
+  Flux<RedisMessage> observe();
 }

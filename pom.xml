@@ -5,7 +5,7 @@
 
   <groupId>io.github.jaredpetersen</groupId>
   <artifactId>kafka-connect-redis</artifactId>
-  <version>0.0.1</version>
+  <version>1.0.0</version>
   <packaging>jar</packaging>
 
   <name>kafka-connect-redis</name>

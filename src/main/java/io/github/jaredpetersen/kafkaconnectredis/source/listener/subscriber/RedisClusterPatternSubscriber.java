@@ -1,18 +1,14 @@
 package io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber;
 
-import io.github.jaredpetersen.kafkaconnectredis.source.listener.RedisSubscriptionMessage;
+import io.github.jaredpetersen.kafkaconnectredis.source.listener.RedisMessage;
 import io.lettuce.core.cluster.pubsub.StatefulRedisClusterPubSubConnection;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class RedisClusterPatternSubscriber implements RedisSubscriber {
   private final StatefulRedisClusterPubSubConnection<String, String> redisClusterPubSubConnection;
   private final List<String> patterns;
-
-  private static final Logger LOG = LoggerFactory.getLogger(RedisChannelSubscriber.class);
 
   public RedisClusterPatternSubscriber(
       StatefulRedisClusterPubSubConnection<String, String> redisClusterPubSubConnection,
@@ -34,13 +30,12 @@ public class RedisClusterPatternSubscriber implements RedisSubscriber {
   }
 
   @Override
-  public Flux<RedisSubscriptionMessage> observe() {
+  public Flux<RedisMessage> observe() {
     return redisClusterPubSubConnection.reactive().observePatterns()
-      .map(channelMessage -> RedisSubscriptionMessage.builder()
+      .map(channelMessage -> RedisMessage.builder()
         .channel(channelMessage.getChannel())
         .pattern(channelMessage.getPattern())
         .message(channelMessage.getMessage())
-        .build())
-      .doOnNext(redisMessage -> LOG.info("received message {}", redisMessage));
+        .build());
   }
 }

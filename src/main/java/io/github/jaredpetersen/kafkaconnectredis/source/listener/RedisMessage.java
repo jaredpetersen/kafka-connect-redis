@@ -5,7 +5,7 @@ import lombok.Value;
 
 @Value
 @Builder(builderClassName = "Builder")
-public class RedisSubscriptionMessage {
+public class RedisMessage {
   String channel;
   String pattern;
   String message;
