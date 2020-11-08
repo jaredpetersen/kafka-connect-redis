@@ -84,9 +84,9 @@ Splitting the workload between multiple tasks via the configuration property `ma
 
 ## Configuration
 ### Connector Properties
-| Name                              | Description                                       | Type    | Default | Importance |
-| --------------------------------- | ------------------------------------------------- | ------- | ------- | ---------- |
-| `redis.uri`                       | Redis URI                                         | string  |         | high       |
-| `redis.cluster.enabled`           | Enable cluster mode                               | boolean | false   | high       |
-| `redis.channels`                  | Redis channel(s) to subscribe to, comma-separated | string  |         | high       |
-| `redis.channels.patterns.enabled` | Redis channels utilize patterns                   | boolean | false   | high       |
+| Name | Type | Default | Importance | Description |
+| ---- | ---- | ------- | ---------- | ----------- |
+| `redis.uri` | string | | High | Redis connection information provided via a URI string. |
+| `redis.cluster.enabled` | boolean | false | High | Target Redis is running as a cluster. |
+| `redis.channels` | string | | High | Redis channels to subscribe to separated by commas. |
+| `redis.channels.patterns.enabled` | boolean | | High | Redis channels use patterns (PSUBSCRIBE). |
