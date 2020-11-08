@@ -38,8 +38,8 @@ public class RedisClusterChannelSubscriberIT {
 
   @BeforeAll
   static void setupAll() {
-    final String redisClusterUri = "redis://" + REDIS_CLUSTER.getHost() + ":" + REDIS_CLUSTER.getFirstMappedPort();
-    REDIS_CLUSTER_CLIENT = RedisClusterClient.create(redisClusterUri);
+    final String redisStandaloneUri = "redis://" + REDIS_CLUSTER.getHost() + ":" + REDIS_CLUSTER.getFirstMappedPort();
+    REDIS_CLUSTER_CLIENT = RedisClusterClient.create(redisStandaloneUri);
 
     REDIS_CLUSTER_PUB_CONNECTION = REDIS_CLUSTER_CLIENT.connectPubSub();
     REDIS_CLUSTER_PUB_COMMANDS = REDIS_CLUSTER_PUB_CONNECTION.reactive();

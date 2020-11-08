@@ -5,6 +5,7 @@ import io.github.jaredpetersen.kafkaconnectredis.source.listener.RecordConverter
 import io.github.jaredpetersen.kafkaconnectredis.source.listener.RedisListener;
 import io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber.RedisChannelSubscriber;
 import io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber.RedisClusterChannelSubscriber;
+import io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber.RedisClusterPatternSubscriber;
 import io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber.RedisPatternSubscriber;
 import io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber.RedisSubscriber;
 import io.github.jaredpetersen.kafkaconnectredis.util.VersionUtil;
@@ -53,7 +54,7 @@ public class RedisSourceTask extends SourceTask {
       this.redisClusterPubSubConnection.setNodeMessagePropagation(true);
 
       redisSubscriber = (config.isRedisChannelPatternEnabled())
-        ? new RedisClusterChannelSubscriber(
+        ? new RedisClusterPatternSubscriber(
             redisClusterPubSubConnection,
             config.getRedisChannels())
         : new RedisClusterChannelSubscriber(
@@ -65,15 +66,17 @@ public class RedisSourceTask extends SourceTask {
       this.redisStandalonePubSubConnection = this.redisStandaloneClient.connectPubSub();
 
       redisSubscriber = (config.isRedisChannelPatternEnabled())
-        ? new RedisChannelSubscriber(
-            redisClusterPubSubConnection,
+        ? new RedisPatternSubscriber(
+            redisStandalonePubSubConnection,
             config.getRedisChannels())
-        : new RedisPatternSubscriber(
-            redisClusterPubSubConnection,
+        : new RedisChannelSubscriber(
+            redisStandalonePubSubConnection,
             config.getRedisChannels());
     }
 
     this.redisListener = new RedisListener(redisSubscriber);
+    this.redisListener.start();
+
     this.recordConverter = new RecordConverter(config.getTopic());
   }
 
