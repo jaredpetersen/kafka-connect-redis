@@ -20,13 +20,21 @@ public class RedisClusterPatternSubscriber implements RedisSubscriber {
   @Override
   public Mono<Void> subscribe() {
     return redisClusterPubSubConnection.reactive()
-      .psubscribe(patterns.toArray(new String[0]));
+      .upstream()
+      .commands()
+      .psubscribe(patterns.toArray(new String[0]))
+      .flux()
+      .then();
   }
 
   @Override
   public Mono<Void> unsubscribe() {
     return redisClusterPubSubConnection.reactive()
-      .punsubscribe(patterns.toArray(new String[0]));
+      .upstream()
+      .commands()
+      .punsubscribe(patterns.toArray(new String[0]))
+      .flux()
+      .then();
   }
 
   @Override
