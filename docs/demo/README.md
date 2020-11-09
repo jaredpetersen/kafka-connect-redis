@@ -11,7 +11,7 @@ minikube start --cpus 2 --memory 10g
 ```
 
 ### Docker
-Now that we have a local Kubernetes setup, we'll need a Docker image that contains Kafka Connect Redis. We don't publish a Docker image to public Docker registries since you will usually install multiple Kafka Connectors on one image.
+Now that we have a local Kubernetes setup, we'll need a Docker image that contains Kafka Connect Redis.
 
 Navigate to `demo/docker/` in this repository and run the following commands **in a separate terminal** to download the plugin and build the image for minikube:
 ```bash
