@@ -255,7 +255,7 @@ Keys are ignored.
 
 ## Configuration
 ### Connector Properties
-| Name | Type | Default | Importance | Description |
-| ---- | ---- | ------- | ---------- | ----------- |
-| `redis.uri` | string | | High | Redis connection information provided via a URI string. |
-| `redis.cluster.enabled` | boolean | false | High | Target Redis is running as a cluster. |
+| Name                    | Type    | Default | Importance | Description                                             |
+| ----------------------- | ------- | ------- | ---------- | ------------------------------------------------------- |
+| `redis.uri`             | string  |         | High       | Redis connection information provided via a URI string. |
+| `redis.cluster.enabled` | boolean | false   | High       | Target Redis is running as a cluster.                   |
