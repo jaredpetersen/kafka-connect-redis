@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka-broker
+spec:
+  serviceName: kafka-broker
+  replicas: 3
+  selector:
+    matchLabels:
+      app: kafka-broker
+  template:
+    metadata:
+      labels:
+        app: kafka-broker
+    spec:
+      containers:
+      - name: kafka-broker
+        image: confluentinc/cp-kafka:6.0.0
+        command:
+        - /bin/bash
+        args:
+        - -c
+        - export KAFKA_BROKER_ID=$((${HOSTNAME##*-}+1)) && export KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://${HOSTNAME}.kafka-broker:9092 && /etc/confluent/docker/run
+        ports:
+        - containerPort: 9092
+          name: host
+        env:
+        - name: KAFKA_ZOOKEEPER_CONNECT
+          value: zookeeper-0.zookeeper:2181,zookeeper-1.zookeeper:2181,zookeeper-2.zookeeper:2181
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/kafka/data
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi

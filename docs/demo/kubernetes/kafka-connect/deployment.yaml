@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-connect
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: kafka-connect
+  template:
+    metadata:
+      labels:
+        app: kafka-connect
+    spec:
+      containers:
+      - name: kafka-connect
+        image: jaredpetersen/kafka-connect-redis:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8083
+          name: rest
+        env:
+        - name: CONNECT_BOOTSTRAP_SERVERS
+          value: kafka-broker-0.kafka-broker:9092,kafka-broker-1.kafka-broker:9092,kafka-broker-2.kafka-broker:9092
+        - name: CONNECT_REST_ADVERTISED_HOST_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: CONNECT_REST_PORT
+          value: "8083"
+        - name: CONNECT_GROUP_ID
+          value: kafka-connect
+        - name: CONNECT_PLUGIN_PATH
+          value: "/usr/share/java/,/usr/share/confluent-hub-components/"
+        - name: CONNECT_CONFIG_STORAGE_TOPIC
+          value: kafka-connect.config
+        - name: CONNECT_OFFSET_STORAGE_TOPIC
+          value: kafka-connect.offsets
+        - name: CONNECT_STATUS_STORAGE_TOPIC
+          value: kafka-connect.status
+        - name: CONNECT_KEY_CONVERTER
+          value: io.confluent.connect.avro.AvroConverter
+        - name: CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL
+          value: http://kafka-schema-registry:8081
+        - name: CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE
+          value: "true"
+        - name: CONNECT_VALUE_CONVERTER
+          value: io.confluent.connect.avro.AvroConverter
+        - name: CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL
+          value: http://kafka-schema-registry:8081
+        - name: CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE
+          value: "true"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: rest
+          initialDelaySeconds: 15
+          periodSeconds: 3
+        resources: {}

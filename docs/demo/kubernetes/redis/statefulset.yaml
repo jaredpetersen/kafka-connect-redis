@@ -1,0 +1,60 @@
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis-cluster
+spec:
+  serviceName: redis-cluster
+  replicas: 3
+  selector:
+    matchLabels:
+      app: redis-cluster
+  template:
+    metadata:
+      labels:
+        app: redis-cluster
+    spec:
+      containers:
+      - name: redis
+        image: redis:6
+        args:
+        - /usr/local/etc/redis/redis.conf
+        ports:
+        - containerPort: 6379
+          name: client
+        - containerPort: 16379
+          name: bus
+        readinessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - "redis-cli -h $(hostname) ping"
+          initialDelaySeconds: 15
+          timeoutSeconds: 5
+        livenessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - "redis-cli -h $(hostname) ping"
+          initialDelaySeconds: 20
+          periodSeconds: 3
+        volumeMounts:
+        - name: redis
+          mountPath: /usr/local/etc/redis/redis.conf
+          subPath: redis.conf
+        - name: data
+          mountPath: /data
+      volumes:
+        - name: redis
+          secret:
+            secretName: redis-cluster
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 100Mi
