@@ -1,9 +1,9 @@
 # Demo
-Let's run Kafka Connect Redis in a local Apache Kafka + Redis Kubernetes cluster via minikube so that we can get a feel for how it all works together.
+Let's run Kafka Connect Redis against Kafka and a Redis cluster to get a feel for how it all works. We'll be running everything in Kubernetes via minikube since it's one of the easiest ways to do so without installing a ton of software on your machine.
 
 ## Setup
 ### Minikube
-Let's set up the cluster. We're going to use minikube for this so [make sure you have it installed](https://minikube.sigs.k8s.io/docs/start/) along with [`kubectl` 1.14 or higher](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
+First we need to set up Kubernetes. We're going to use minikube for this so [make sure you have it installed](https://minikube.sigs.k8s.io/docs/start/) along with [`kubectl` 1.14 or higher](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
 
 Set up the cluster with a docker registry and some extra juice:
 ```bash
