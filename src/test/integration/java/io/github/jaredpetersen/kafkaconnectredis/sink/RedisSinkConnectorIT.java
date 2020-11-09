@@ -2,11 +2,10 @@ package io.github.jaredpetersen.kafkaconnectredis.sink;
 
 import io.github.jaredpetersen.kafkaconnectredis.sink.config.RedisSinkConfig;
 import io.github.jaredpetersen.kafkaconnectredis.util.VersionUtil;
-import org.junit.jupiter.api.Test;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

@@ -4,6 +4,7 @@ import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisCommand
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisGeoaddCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisSaddCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisSetCommand;
+import java.util.Arrays;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.data.Struct;
@@ -11,8 +12,6 @@ import org.apache.kafka.connect.sink.SinkRecord;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-
-import java.util.Arrays;
 
 public class RecordConverterTest {
   private static final Schema REDIS_SET_COMMAND_SCHEMA = SchemaBuilder.struct()

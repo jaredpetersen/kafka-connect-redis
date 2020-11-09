@@ -10,8 +10,12 @@ import io.lettuce.core.api.reactive.RedisReactiveCommands;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
+import java.util.Arrays;
 import org.apache.kafka.connect.errors.ConnectException;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
@@ -20,8 +24,6 @@ import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-
-import java.util.Arrays;
 
 @Testcontainers
 public class WriterIT {
@@ -48,7 +50,10 @@ public class WriterIT {
 
   @BeforeAll
   static void setupAll() {
-    final String redisStandaloneUri = "redis://" + REDIS_STANDALONE.getHost() + ":" + REDIS_STANDALONE.getFirstMappedPort();
+    final String redisStandaloneUri = "redis://"
+      + REDIS_STANDALONE.getHost()
+      + ":"
+      + REDIS_STANDALONE.getFirstMappedPort();
     REDIS_STANDALONE_CLIENT = RedisClient.create(redisStandaloneUri);
     REDIS_STANDALONE_CONNECTION = REDIS_STANDALONE_CLIENT.connect();
     REDIS_STANDALONE_COMMANDS = REDIS_STANDALONE_CONNECTION.reactive();
@@ -325,7 +330,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeSetWithNXConditionCommandAppliesCommandToStandalone() {
+  public void writeSetWithNxConditionCommandAppliesCommandToStandalone() {
     final String key = "{user.1}.username";
 
     final Mono<String> result = REDIS_STANDALONE_COMMANDS.set(key, "artistjanitor90");
@@ -366,7 +371,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeSetWithNXConditionCommandAppliesCommandToCluster() {
+  public void writeSetWithNxConditionCommandAppliesCommandToCluster() {
     final String key = "{user.1}.username";
 
     final Mono<String> initialSetResult = REDIS_CLUSTER_COMMANDS.set(key, "artistjanitor90");
@@ -407,7 +412,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeSetWithXXConditionCommandAppliesCommandToStandalone() {
+  public void writeSetWithXxConditionCommandAppliesCommandToStandalone() {
     final String key = "{user.1}.username";
 
     final Mono<String> result = REDIS_STANDALONE_COMMANDS.set(key, "artistjanitor90");
@@ -448,7 +453,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeSetWithXXConditionCommandAppliesCommandToCluster() {
+  public void writeSetWithXxConditionCommandAppliesCommandToCluster() {
     final String key = "{user.1}.username";
 
     final Mono<String> result = REDIS_CLUSTER_COMMANDS.set(key, "artistjanitor90");
