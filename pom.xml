@@ -294,112 +294,97 @@
           </execution>
         </executions>
       </plugin>
+
+      <plugin>
+        <groupId>io.confluent</groupId>
+        <artifactId>kafka-connect-maven-plugin</artifactId>
+        <version>0.11.3</version>
+        <executions>
+          <execution>
+            <phase>install</phase>
+            <goals>
+              <goal>kafka-connect</goal>
+            </goals>
+            <configuration>
+              <title>Kafka Connect Redis</title>
+              <documentationUrl>${project.url}/blob/master/README.md</documentationUrl>
+              <ownerLogo>docs/logos/jaredpetersen-logo.png</ownerLogo>
+              <ownerUsername>jaredpetersen</ownerUsername>
+              <ownerType>user</ownerType>
+              <ownerName>Jared Petersen</ownerName>
+              <ownerUrl>https://github.com/jaredpetersen</ownerUrl>
+              <supportProviderName>Open Source Community</supportProviderName>
+              <supportSummary>Support provided through community involvement.</supportSummary>
+              <supportUrl>${project.issueManagement.url}</supportUrl>
+              <confluentControlCenterIntegration>true</confluentControlCenterIntegration>
+              <componentTypes>
+                <componentType>sink</componentType>
+              </componentTypes>
+              <requirements>
+                <requirement>Redis 2.6+</requirement>
+              </requirements>
+              <tags>
+                <tag>redis</tag>
+              </tags>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>3.2.1</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <phase>install</phase>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.2.0</version>
+        <configuration>
+          <source>${java.version}</source>
+        </configuration>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <phase>install</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>1.6</version>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>deploy</phase>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+            <configuration>
+              <!-- Prevent gpg from using pinentry programs -->
+              <gpgArguments>
+                <arg>--pinentry-mode</arg>
+                <arg>loopback</arg>
+              </gpgArguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
-
-  <profiles>
-    <profile>
-      <id>deploy</id>
-      <build>
-        <plugins>
-
-          <plugin>
-            <groupId>io.confluent</groupId>
-            <artifactId>kafka-connect-maven-plugin</artifactId>
-            <version>0.11.3</version>
-            <executions>
-              <execution>
-                <phase>package</phase>
-                <goals>
-                  <goal>kafka-connect</goal>
-                </goals>
-                <configuration>
-                  <title>Kafka Connect Redis</title>
-                  <documentationUrl>${project.url}/blob/master/README.md</documentationUrl>
-                  <ownerLogo>docs/logos/jaredpetersen-logo.png</ownerLogo>
-                  <ownerUsername>jaredpetersen</ownerUsername>
-                  <ownerType>user</ownerType>
-                  <ownerName>Jared Petersen</ownerName>
-                  <ownerUrl>https://github.com/jaredpetersen</ownerUrl>
-                  <supportProviderName>Open Source Community</supportProviderName>
-                  <supportSummary>Support provided through community involvement.</supportSummary>
-                  <supportUrl>${project.issueManagement.url}</supportUrl>
-                  <confluentControlCenterIntegration>true</confluentControlCenterIntegration>
-                  <componentTypes>
-                    <componentType>sink</componentType>
-                  </componentTypes>
-                  <requirements>
-                    <requirement>Redis 2.6+</requirement>
-                  </requirements>
-                  <tags>
-                    <tag>redis</tag>
-                  </tags>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-assembly-plugin</artifactId>
-          </plugin>
-
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-source-plugin</artifactId>
-            <version>3.2.1</version>
-            <executions>
-              <execution>
-                <id>attach-sources</id>
-                <goals>
-                  <goal>jar-no-fork</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>3.2.0</version>
-            <configuration>
-              <source>${java.version}</source>
-            </configuration>
-            <executions>
-              <execution>
-                <id>attach-javadocs</id>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.6</version>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-                <configuration>
-                  <!-- Prevent gpg from using pinentry programs -->
-                  <gpgArguments>
-                    <arg>--pinentry-mode</arg>
-                    <arg>loopback</arg>
-                  </gpgArguments>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
-
 </project>

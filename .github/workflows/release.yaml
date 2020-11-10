@@ -26,7 +26,7 @@ jobs:
             ${{ runner.os }}-maven-
       - name: Deploy
         id: deploy
-        run: mvn -B -Pdeploy clean deploy
+        run: mvn -B clean deploy
         env:
           MAVEN_USERNAME: jaredpetersen
           MAVEN_CENTRAL_TOKEN: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
