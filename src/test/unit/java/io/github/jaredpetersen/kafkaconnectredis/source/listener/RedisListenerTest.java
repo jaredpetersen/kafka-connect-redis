@@ -152,7 +152,7 @@ public class RedisListenerTest {
   }
 
   @Test
-  public void pollMultipleTiesRetrievesSubscribedMessagesWithoutDataLoss() throws InterruptedException {
+  public void pollMultipleTimesRetrievesSubscribedMessagesWithoutDataLoss() throws InterruptedException {
     // Generate an unbounded flux redis messages on demand
     // Use an external index to track the progress for verification purposes
     final AtomicInteger redisSubscriptionMessageIndex = new AtomicInteger();
@@ -202,6 +202,7 @@ public class RedisListenerTest {
       redisMessagesRoundA.get(redisMessagesRoundA.size() - 1));
 
     // Poll again, confirming that we're getting the next batch of data
+    Thread.sleep(1000L);
     final List<RedisMessage> redisMessagesRoundB = redisListener.poll();
 
     assertTrue(redisMessagesRoundB.size() > 0);
