@@ -1,0 +1,133 @@
+name: Release
+on:
+  push:
+    branches:
+      - master
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 8
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_CENTRAL_TOKEN
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: GPG_PASSPHRASE
+      - name: Cache Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Deploy
+        id: deploy
+        run: mvn -B clean deploy
+        env:
+          MAVEN_USERNAME: jaredpetersen
+          MAVEN_CENTRAL_TOKEN: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.deploy.outputs.version }}
+          release_name: ${{ steps.deploy.outputs.version }}
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset -- JAR
+        id: upload_release_asset_jar
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: target/kafka-connect-redis-${{ steps.deploy.outputs.version }}.jar
+          asset_name: kafka-connect-redis-${{ steps.deploy.outputs.version }}.jar
+          asset_content_type: application/java-archive
+      - name: Upload Release Asset -- JAR ASC
+        id: upload_release_asset_jar_asc
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: target/kafka-connect-redis-${{ steps.deploy.outputs.version }}.jar.asc
+          asset_name: kafka-connect-redis-${{ steps.deploy.outputs.version }}.jar.asc
+          asset_content_type: text/plain
+      - name: Upload Release Asset -- POM
+        id: upload_release_asset_pom
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: target/kafka-connect-redis-${{ steps.deploy.outputs.version }}.pom
+          asset_name: kafka-connect-redis-${{ steps.deploy.outputs.version }}.pom
+          asset_content_type: text/xml
+      - name: Upload Release Asset -- POM ASC
+        id: upload_release_asset_pom_asc
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: target/kafka-connect-redis-${{ steps.deploy.outputs.version }}.jar.asc
+          asset_name: kafka-connect-redis-${{ steps.deploy.outputs.version }}.pom.asc
+          asset_content_type: text/plain
+      - name: Upload Release Asset -- Sources
+        id: upload_release_asset_sources
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: target/kafka-connect-redis-${{ steps.deploy.outputs.version }}-sources.jar
+          asset_name: kafka-connect-redis-${{ steps.deploy.outputs.version }}-sources.jar
+          asset_content_type: application/java-archive
+      - name: Upload Release Asset -- Sources ASC
+        id: upload_release_asset_sources_asc
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: target/kafka-connect-redis-${{ steps.deploy.outputs.version }}-sources.jar.asc
+          asset_name: kafka-connect-redis-${{ steps.deploy.outputs.version }}-sources.jar.asc
+          asset_content_type: text/plain
+      - name: Upload Release Asset -- JavaDoc
+        id: upload_release_asset_javadoc
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: target/kafka-connect-redis-${{ steps.deploy.outputs.version }}-javadoc.jar
+          asset_name: kafka-connect-redis-${{ steps.deploy.outputs.version }}-javadoc.jar
+          asset_content_type: application/java-archive
+      - name: Upload Release Asset -- JavaDoc ASC
+        id: upload_release_asset_javadoc_asc
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: target/kafka-connect-redis-${{ steps.deploy.outputs.version }}-javadoc.jar.asc
+          asset_name: kafka-connect-redis-${{ steps.deploy.outputs.version }}-javadoc.jar.asc
+          asset_content_type: text/plain
+      - name: Upload Release Asset -- Confluent Package
+        id: upload_release_asset_confluent_package
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: target/components/packages/jaredpetersen-kafka-connect-redis-${{ steps.deploy.outputs.version }}.zip
+          asset_name: jaredpetersen-kafka-connect-redis-${{ steps.deploy.outputs.version }}.zip
+          asset_content_type: application/zip

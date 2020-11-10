@@ -6,5 +6,5 @@
 
 <!-- Only suppress warnings for tests -->
 <suppressions>
-    <suppress checks="MagicNumber" files=".*[\\/]src[\\/]test[\\/]"/>
+  <suppress checks="MagicNumber" files=".*[\\/]src[\\/]test[\\/]"/>
 </suppressions>
