@@ -214,6 +214,64 @@
       </plugin>
 
       <plugin>
+        <groupId>io.confluent</groupId>
+        <artifactId>kafka-connect-maven-plugin</artifactId>
+        <version>0.11.3</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>kafka-connect</goal>
+            </goals>
+            <configuration>
+              <title>Kafka Connect Redis</title>
+              <documentationUrl>${project.url}/blob/master/README.md</documentationUrl>
+              <ownerLogo>docs/logos/jaredpetersen-logo.png</ownerLogo>
+              <ownerUsername>jaredpetersen</ownerUsername>
+              <ownerType>user</ownerType>
+              <ownerName>Jared Petersen</ownerName>
+              <ownerUrl>https://github.com/jaredpetersen</ownerUrl>
+              <supportProviderName>Open Source Community</supportProviderName>
+              <supportSummary>Support provided through community involvement.</supportSummary>
+              <supportUrl>${project.issueManagement.url}</supportUrl>
+              <confluentControlCenterIntegration>true</confluentControlCenterIntegration>
+              <componentTypes>
+                <componentType>sink</componentType>
+              </componentTypes>
+              <requirements>
+                <requirement>Redis 2.6+</requirement>
+              </requirements>
+              <tags>
+                <tag>redis</tag>
+              </tags>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.3.0</version>
+        <configuration>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+          <finalName>${project.name}-${project.version}</finalName>
+          <appendAssemblyId>false</appendAssemblyId>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
         <version>3.0.0-M5</version>
@@ -275,64 +333,6 @@
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>3.3.0</version>
-        <configuration>
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
-          <finalName>${project.name}-${project.version}</finalName>
-          <appendAssemblyId>false</appendAssemblyId>
-        </configuration>
-        <executions>
-          <execution>
-            <id>make-assembly</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>io.confluent</groupId>
-        <artifactId>kafka-connect-maven-plugin</artifactId>
-        <version>0.11.3</version>
-        <executions>
-          <execution>
-            <phase>install</phase>
-            <goals>
-              <goal>kafka-connect</goal>
-            </goals>
-            <configuration>
-              <title>Kafka Connect Redis</title>
-              <documentationUrl>${project.url}/blob/master/README.md</documentationUrl>
-              <ownerLogo>docs/logos/jaredpetersen-logo.png</ownerLogo>
-              <ownerUsername>jaredpetersen</ownerUsername>
-              <ownerType>user</ownerType>
-              <ownerName>Jared Petersen</ownerName>
-              <ownerUrl>https://github.com/jaredpetersen</ownerUrl>
-              <supportProviderName>Open Source Community</supportProviderName>
-              <supportSummary>Support provided through community involvement.</supportSummary>
-              <supportUrl>${project.issueManagement.url}</supportUrl>
-              <confluentControlCenterIntegration>true</confluentControlCenterIntegration>
-              <componentTypes>
-                <componentType>sink</componentType>
-              </componentTypes>
-              <requirements>
-                <requirement>Redis 2.6+</requirement>
-              </requirements>
-              <tags>
-                <tag>redis</tag>
-              </tags>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
         <version>3.2.1</version>
         <executions>
@@ -371,7 +371,7 @@
         <executions>
           <execution>
             <id>sign-artifacts</id>
-            <phase>deploy</phase>
+            <phase>install</phase>
             <goals>
               <goal>sign</goal>
             </goals>
