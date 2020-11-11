@@ -33,7 +33,7 @@ jobs:
           MAVEN_USERNAME: jaredpetersen
           MAVEN_CENTRAL_TOKEN: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-      - name: Get Changelog Entry
+      - name: Get Changelog
         id: changelog_reader
         uses: mindsers/changelog-reader-action@v2
         with:
