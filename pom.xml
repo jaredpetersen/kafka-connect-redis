@@ -240,7 +240,7 @@
                 <componentType>sink</componentType>
               </componentTypes>
               <requirements>
-                <requirement>Redis 2.4+</requirement>
+                <requirement>Redis 2.6+</requirement>
               </requirements>
               <tags>
                 <tag>redis</tag>
