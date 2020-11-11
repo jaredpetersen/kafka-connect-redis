@@ -33,6 +33,11 @@ jobs:
           MAVEN_USERNAME: jaredpetersen
           MAVEN_CENTRAL_TOKEN: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      - name: Get Changelog Entry
+        id: changelog_reader
+        uses: mindsers/changelog-reader-action@v2
+        with:
+          version: ${{ steps.deploy.outputs.version }}
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -41,6 +46,7 @@ jobs:
         with:
           tag_name: ${{ steps.deploy.outputs.version }}
           release_name: ${{ steps.deploy.outputs.version }}
+          body: ${{ steps.changelog_reader.outputs.changes }}
           draft: false
           prerelease: false
       - name: Upload Release Asset -- JAR

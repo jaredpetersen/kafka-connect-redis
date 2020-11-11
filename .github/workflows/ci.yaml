@@ -16,6 +16,11 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
+      - name: Get Changelog Entry
+        id: changelog_reader
+        uses: mindsers/changelog-reader-action@v2
+        with:
+          version: ${{ steps.deploy.outputs.version }}
       - name: Build
         id: build
-        run: mvn -B clean verify
+        run: echo ${{ steps.changelog_reader.outputs.changes }}
