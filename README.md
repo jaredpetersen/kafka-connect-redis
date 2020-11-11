@@ -21,4 +21,4 @@ Check out the [demo](/docs/demo) for a hands-on experience that shows the connec
 This demonstration will walk you through setting up Kubernetes on your local machine, installing the connector, and using the connector to either write data into a Redis Cluster or pull data from Redis into Kafka.
 
 ## Compatibility
-Requires Redis 2.4 or higher.
+Requires Redis 2.6 or higher.
