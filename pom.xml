@@ -225,7 +225,7 @@
             </goals>
             <configuration>
               <title>Kafka Connect Redis</title>
-              <documentationUrl>${project.url}/blob/master/README.md</documentationUrl>
+              <documentationUrl>${project.url}/blob/main/README.md</documentationUrl>
               <ownerLogo>docs/logos/jaredpetersen-logo.png</ownerLogo>
               <ownerUsername>jaredpetersen</ownerUsername>
               <ownerType>user</ownerType>
@@ -236,10 +236,11 @@
               <supportUrl>${project.issueManagement.url}</supportUrl>
               <confluentControlCenterIntegration>true</confluentControlCenterIntegration>
               <componentTypes>
+                <componentType>source</componentType>
                 <componentType>sink</componentType>
               </componentTypes>
               <requirements>
-                <requirement>Redis 2.6+</requirement>
+                <requirement>Redis 2.4+</requirement>
               </requirements>
               <tags>
                 <tag>redis</tag>
