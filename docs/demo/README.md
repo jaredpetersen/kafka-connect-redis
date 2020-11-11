@@ -15,7 +15,7 @@ Now that we have a local Kubernetes setup, we'll need a Docker image that contai
 
 Navigate to `demo/docker/` in this repository and run the following commands **in a separate terminal** to download the plugin and build the image for minikube:
 ```bash
-curl -O https://search.maven.org/remotecontent?filepath=io/github/jaredpetersen/kafka-connect-redis/1.0.0/kafka-connect-redis-1.0.0.jar
+curl -O https://oss.sonatype.org/service/local/repositories/releases/content/io/github/jaredpetersen/kafka-connect-redis/1.0.1/kafka-connect-redis-1.0.1.jar
 eval $(minikube docker-env)
 docker build -t jaredpetersen/kafka-connect-redis:latest .
 ```
