@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.1] - 2020-11-08
 ### Fixed
-- Confluent hub packaging information
+- Fixed broken links and inaccurate details in the Confluent Hub packaging information
 
 ## [1.0.0] - 2020-11-08
 ### Added
