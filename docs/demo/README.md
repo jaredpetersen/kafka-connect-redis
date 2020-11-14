@@ -5,13 +5,13 @@ Let's run Kafka Connect Redis against Kafka and a Redis cluster to get a feel fo
 ### Minikube
 First we need to set up Kubernetes. We're going to use minikube for this so [make sure you have it installed](https://minikube.sigs.k8s.io/docs/start/) along with [`kubectl` 1.14 or higher](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
 
-Set up the cluster with a docker registry and some extra juice:
+Set up minkube with some extra juice:
 ```bash
 minikube start --cpus 2 --memory 10g
 ```
 
 ### Docker
-Now that we have a local Kubernetes setup, we'll need a Docker image that contains Kafka Connect Redis.
+Now that we have Kubernetes set up locally, we'll need a Docker image that contains Kafka Connect Redis.
 
 Navigate to `demo/docker/` in this repository and run the following commands **in a separate terminal** to download the plugin and build the image for minikube:
 ```bash
@@ -50,7 +50,7 @@ kubectl -n kcr-demo run -it --rm redis-client --image redis:6 -- redis-cli --pas
 ## Teardown
 Remove all of the created resources in Kubernetes:
 ```bash
-k delete -k kubernetes
+kubectl delete -k kubernetes
 ```
 
 Delete the minikube cluster:
