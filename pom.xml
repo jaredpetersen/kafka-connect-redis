@@ -9,7 +9,7 @@
   <packaging>jar</packaging>
 
   <name>kafka-connect-redis</name>
-  <description>Kafka Connect Sink Connector for Redis</description>
+  <description>Kafka Connect source and sink connector for Redis</description>
   <url>https://github.com/jaredpetersen/kafka-connect-redis</url>
 
   <licenses>
