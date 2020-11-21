@@ -1,8 +1,8 @@
 package io.github.jaredpetersen.kafkaconnectredis.sink.writer;
 
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisCommand;
-import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisExpireatCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisExpireCommand;
+import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisExpireatCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisGeoaddCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisPexpireCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisSaddCommand;

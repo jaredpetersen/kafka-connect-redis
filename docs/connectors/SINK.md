@@ -200,7 +200,7 @@ Keys are ignored.
         },
         {
             "field": "timestamp",
-            "type": "long",
+            "type": "int64",
             "optional": false
         }
     ]
