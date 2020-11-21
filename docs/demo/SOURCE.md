@@ -20,8 +20,7 @@ curl --request POST \
             "redis.uri": "redis://IEPfIr0eLF7UsfwrIlzy80yUaBG258j9@redis-cluster",
             "redis.cluster.enabled": true,
             "redis.channels": "__key*__:*",
-            "redis.channels.pattern.enabled": true,
-            "producer.override.partitioner.class": "io.github.jaredpetersen.kafkaconnectredis.source.partitioner.SinglePartitioner"
+            "redis.channels.pattern.enabled": true
         }
     }'
 ```
