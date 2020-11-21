@@ -11,7 +11,7 @@ Kafka Connect Redis Source subscribes to Redis channels/patterns (including [key
 For more information, see the [detailed documentation](/docs/connectors/SOURCE.md).
 
 ### Sink
-Kafka Connect Redis Sink consumes Kafka records in a Redis command format and applies them to Redis. Several write-based commands are supported at this time (`SET`, `SADD`, and `GEOADD`) and more are slated for the near future.
+Kafka Connect Redis Sink consumes Kafka records in a Redis command format (`SET`, `GEOADD`, etc.) and applies them to Redis.
 
 For more information, see the [detailed documentation](/docs/connectors/SINK.md).
 

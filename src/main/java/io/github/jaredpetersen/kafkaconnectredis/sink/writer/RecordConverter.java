@@ -1,7 +1,10 @@
 package io.github.jaredpetersen.kafkaconnectredis.sink.writer;
 
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisCommand;
+import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisExpireCommand;
+import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisExpireatCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisGeoaddCommand;
+import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisPexpireCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisSaddCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisSetCommand;
 import org.apache.kafka.connect.data.Struct;
@@ -32,6 +35,15 @@ public class RecordConverter {
     switch (recordValueSchemaName) {
       case "io.github.jaredpetersen.kafkaconnectredis.RedisSetCommand":
         redisCommandMono = convertSet(recordValue);
+        break;
+      case "io.github.jaredpetersen.kafkaconnectredis.RedisExpireCommand":
+        redisCommandMono = convertExpire(recordValue);
+        break;
+      case "io.github.jaredpetersen.kafkaconnectredis.RedisExpireatCommand":
+        redisCommandMono = convertExpireat(recordValue);
+        break;
+      case "io.github.jaredpetersen.kafkaconnectredis.RedisPexpireCommand":
+        redisCommandMono = convertPexpire(recordValue);
         break;
       case "io.github.jaredpetersen.kafkaconnectredis.RedisSaddCommand":
         redisCommandMono = convertSadd(recordValue);
@@ -70,6 +82,45 @@ public class RecordConverter {
         .build();
 
       return RedisSetCommand.builder()
+        .payload(payload)
+        .build();
+    });
+  }
+
+  private Mono<RedisCommand> convertExpire(Struct value) {
+    return Mono.fromCallable(() -> {
+      final RedisExpireCommand.Payload payload = RedisExpireCommand.Payload.builder()
+        .key(value.getString("key"))
+        .seconds(value.getInt64("seconds"))
+        .build();
+
+      return RedisExpireCommand.builder()
+        .payload(payload)
+        .build();
+    });
+  }
+
+  private Mono<RedisCommand> convertExpireat(Struct value) {
+    return Mono.fromCallable(() -> {
+      final RedisExpireatCommand.Payload payload = RedisExpireatCommand.Payload.builder()
+        .key(value.getString("key"))
+        .timestamp(value.getInt64("timestamp"))
+        .build();
+
+      return RedisExpireatCommand.builder()
+        .payload(payload)
+        .build();
+    });
+  }
+
+  private Mono<RedisCommand> convertPexpire(Struct value) {
+    return Mono.fromCallable(() -> {
+      final RedisPexpireCommand.Payload payload = RedisPexpireCommand.Payload.builder()
+        .key(value.getString("key"))
+        .milliseconds(value.getInt64("milliseconds"))
+        .build();
+
+      return RedisPexpireCommand.builder()
         .payload(payload)
         .build();
     });

@@ -3,6 +3,9 @@ Consume messages from Kafka and apply them to Redis in the form of commands.
 
 The following commands are supported at this time:
 - [SET](https://redis.io/commands/set)
+- [EXPIRE](https://redis.io/commands/expire)
+- [EXPIREAT](https://redis.io/commands/expireat)
+- [PEXPIRE](https://redis.io/commands/pexpire)
 - [SADD](https://redis.io/commands/sadd)
 - [GEOADD](https://redis.io/commands/geoadd)
 
@@ -122,6 +125,126 @@ Keys are ignored.
             "field": "condition",
             "type": "string",
             "optional": true
+        }
+    ]
+}
+```
+
+#### EXPIRE
+##### Avro
+```json
+{
+    "namespace": "io.github.jaredpetersen.kafkaconnectredis",
+    "name": "RedisExpireCommand",
+    "type": "record",
+    "fields": [
+        {
+            "name": "key",
+            "type": "string"
+        },
+        {
+            "name": "seconds",
+            "type": "long"
+        }
+    ]
+}
+```
+
+##### Connect JSON
+```json
+{
+    "name": "io.github.jaredpetersen.kafkaconnectredis.RedisExpireCommand",
+    "type": "struct",
+    "fields": [
+        {
+            "field": "key",
+            "type": "string",
+            "optional": false
+        },
+        {
+            "field": "seconds",
+            "type": "int64",
+            "optional": false
+        }
+    ]
+}
+```
+
+#### EXPIREAT
+##### Avro
+```json
+{
+    "namespace": "io.github.jaredpetersen.kafkaconnectredis",
+    "name": "RedisExpireatCommand",
+    "type": "record",
+    "fields": [
+        {
+            "name": "key",
+            "type": "string"
+        },
+        {
+            "name": "timestamp",
+            "type": "long"
+        }
+    ]
+}
+```
+
+##### Connect JSON
+```json
+{
+    "name": "io.github.jaredpetersen.kafkaconnectredis.RedisExpireatCommand",
+    "type": "struct",
+    "fields": [
+        {
+            "field": "key",
+            "type": "string",
+            "optional": false
+        },
+        {
+            "field": "timestamp",
+            "type": "int64",
+            "optional": false
+        }
+    ]
+}
+```
+
+#### PEXPIRE
+##### Avro
+```json
+{
+    "namespace": "io.github.jaredpetersen.kafkaconnectredis",
+    "name": "RedisPexpireCommand",
+    "type": "record",
+    "fields": [
+        {
+            "name": "key",
+            "type": "string"
+        },
+        {
+            "name": "milliseconds",
+            "type": "long"
+        }
+    ]
+}
+```
+
+##### Connect JSON
+```json
+{
+    "name": "io.github.jaredpetersen.kafkaconnectredis.RedisPexpireCommand",
+    "type": "struct",
+    "fields": [
+        {
+            "field": "key",
+            "type": "string",
+            "optional": false
+        },
+        {
+            "field": "milliseconds",
+            "type": "int64",
+            "optional": false
         }
     ]
 }

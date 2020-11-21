@@ -1,7 +1,10 @@
 package io.github.jaredpetersen.kafkaconnectredis.sink.writer;
 
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisCommand;
+import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisExpireCommand;
+import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisExpireatCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisGeoaddCommand;
+import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisPexpireCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisSaddCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisSetCommand;
 import java.util.Arrays;
@@ -23,6 +26,24 @@ public class RecordConverterTest {
       .field("time", SchemaBuilder.INT64_SCHEMA)
       .optional())
     .field("condition", SchemaBuilder.OPTIONAL_STRING_SCHEMA)
+    .required()
+    .build();
+  private static final Schema REDIS_EXPIRE_COMMAND_SCHEMA = SchemaBuilder.struct()
+    .name("io.github.jaredpetersen.kafkaconnectredis.RedisExpireCommand")
+    .field("key", SchemaBuilder.STRING_SCHEMA)
+    .field("seconds", SchemaBuilder.INT64_SCHEMA)
+    .required()
+    .build();
+  private static final Schema REDIS_EXPIREAT_COMMAND_SCHEMA = SchemaBuilder.struct()
+    .name("io.github.jaredpetersen.kafkaconnectredis.RedisExpireatCommand")
+    .field("key", SchemaBuilder.STRING_SCHEMA)
+    .field("timestamp", SchemaBuilder.INT64_SCHEMA)
+    .required()
+    .build();
+  private static final Schema REDIS_PEXPIRE_COMMAND_SCHEMA = SchemaBuilder.struct()
+    .name("io.github.jaredpetersen.kafkaconnectredis.RedisPexpireCommand")
+    .field("key", SchemaBuilder.STRING_SCHEMA)
+    .field("milliseconds", SchemaBuilder.INT64_SCHEMA)
     .required()
     .build();
   private static final Schema REDIS_SADD_COMMAND_SCHEMA = SchemaBuilder.struct()
@@ -100,6 +121,90 @@ public class RecordConverterTest {
           .time(2100L)
           .build())
         .condition(RedisSetCommand.Payload.Condition.NX)
+        .build())
+      .build();
+
+    final RecordConverter recordConverter = new RecordConverter();
+    final Mono<RedisCommand> redisCommandMono = recordConverter.convert(sinkRecord);
+
+    StepVerifier.create(redisCommandMono)
+      .expectNext(expectedRedisCommand)
+      .verifyComplete();
+  }
+
+  @Test
+  public void convertTransformsSinkRecordToRedisExpireCommand() {
+    final String topic = "rediscommands";
+    final int partition = 0;
+    final Schema keySchema = null;
+    final Object key = null;
+    final Schema valueSchema = REDIS_EXPIRE_COMMAND_SCHEMA;
+    final Object value = new Struct(valueSchema)
+      .put("key", "product.bread")
+      .put("seconds", 120L);
+    final long offset = 0L;
+    final SinkRecord sinkRecord = new SinkRecord(topic, partition, keySchema, key, valueSchema, value, offset);
+
+    final RedisCommand expectedRedisCommand = RedisExpireCommand.builder()
+      .payload(RedisExpireCommand.Payload.builder()
+        .key("product.bread")
+        .seconds(120L)
+        .build())
+      .build();
+
+    final RecordConverter recordConverter = new RecordConverter();
+    final Mono<RedisCommand> redisCommandMono = recordConverter.convert(sinkRecord);
+
+    StepVerifier.create(redisCommandMono)
+      .expectNext(expectedRedisCommand)
+      .verifyComplete();
+  }
+
+  @Test
+  public void convertTransformsSinkRecordToRedisExpireatCommand() {
+    final String topic = "rediscommands";
+    final int partition = 0;
+    final Schema keySchema = null;
+    final Object key = null;
+    final Schema valueSchema = REDIS_EXPIREAT_COMMAND_SCHEMA;
+    final Object value = new Struct(valueSchema)
+      .put("key", "product.bread")
+      .put("timestamp", 1605939214L);
+    final long offset = 0L;
+    final SinkRecord sinkRecord = new SinkRecord(topic, partition, keySchema, key, valueSchema, value, offset);
+
+    final RedisCommand expectedRedisCommand = RedisExpireatCommand.builder()
+      .payload(RedisExpireatCommand.Payload.builder()
+        .key("product.bread")
+        .timestamp(1605939214L)
+        .build())
+      .build();
+
+    final RecordConverter recordConverter = new RecordConverter();
+    final Mono<RedisCommand> redisCommandMono = recordConverter.convert(sinkRecord);
+
+    StepVerifier.create(redisCommandMono)
+      .expectNext(expectedRedisCommand)
+      .verifyComplete();
+  }
+
+  @Test
+  public void convertTransformsSinkRecordToRedisPexpireCommand() {
+    final String topic = "rediscommands";
+    final int partition = 0;
+    final Schema keySchema = null;
+    final Object key = null;
+    final Schema valueSchema = REDIS_PEXPIRE_COMMAND_SCHEMA;
+    final Object value = new Struct(valueSchema)
+      .put("key", "product.bread")
+      .put("milliseconds", 3200L);
+    final long offset = 0L;
+    final SinkRecord sinkRecord = new SinkRecord(topic, partition, keySchema, key, valueSchema, value, offset);
+
+    final RedisCommand expectedRedisCommand = RedisPexpireCommand.builder()
+      .payload(RedisPexpireCommand.Payload.builder()
+        .key("product.bread")
+        .milliseconds(3200L)
         .build())
       .build();
 

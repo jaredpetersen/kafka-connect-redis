@@ -1,7 +1,10 @@
 package io.github.jaredpetersen.kafkaconnectredis.sink.writer;
 
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisCommand;
+import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisExpireCommand;
+import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisExpireatCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisGeoaddCommand;
+import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisPexpireCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisSaddCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisSetCommand;
 import io.lettuce.core.SetArgs;
@@ -58,6 +61,15 @@ public class Writer {
       case SET:
         response = set((RedisSetCommand) redisCommand);
         break;
+      case EXPIRE:
+        response = expire((RedisExpireCommand) redisCommand);
+        break;
+      case EXPIREAT:
+        response = expireat((RedisExpireatCommand) redisCommand);
+        break;
+      case PEXPIRE:
+        response = pexpire((RedisPexpireCommand) redisCommand);
+        break;
       case SADD:
         response = sadd((RedisSaddCommand) redisCommand);
         break;
@@ -72,10 +84,9 @@ public class Writer {
   }
 
   private Mono<Void> set(RedisSetCommand setCommand) {
-    final Mono<RedisSetCommand.Payload> payloadMono = Mono.just(setCommand.getPayload());
-
-    final Mono<SetArgs> setArgsMono = payloadMono
-      .flatMap(payload -> Mono.fromCallable(() -> {
+    final RedisSetCommand.Payload payload = setCommand.getPayload();
+    final Mono<SetArgs> setArgsMono = Mono
+      .fromCallable(() -> {
         final SetArgs setArgs = new SetArgs();
 
         if (payload.getExpiration() != null) {
@@ -102,52 +113,73 @@ public class Writer {
         }
 
         return setArgs;
-      }));
-
-    return Mono
-      .zip(payloadMono, setArgsMono)
-      .flatMap(tuple -> {
-        final RedisSetCommand.Payload payload = tuple.getT1();
-        final SetArgs setArgs = tuple.getT2();
-
-        return (this.clusterEnabled)
+      });
+    final Mono<String> setResult = setArgsMono
+      .flatMap(setArgs ->
+        (this.clusterEnabled)
           ? this.redisClusterCommands.set(payload.getKey(), payload.getValue(), setArgs)
-          : this.redisStandaloneCommands.set(payload.getKey(), payload.getValue(), setArgs);
-      })
-      .then();
+          : this.redisStandaloneCommands.set(payload.getKey(), payload.getValue(), setArgs));
+
+    return setResult.then();
+  }
+
+  private Mono<Void> expire(RedisExpireCommand expireCommand) {
+    final RedisExpireCommand.Payload payload = expireCommand.getPayload();
+    final Mono<Boolean> expirationResult = (this.clusterEnabled)
+      ? this.redisClusterCommands.expire(payload.getKey(), payload.getSeconds())
+      : this.redisStandaloneCommands.expire(payload.getKey(), payload.getSeconds());
+
+    return expirationResult.then();
+  }
+
+  private Mono<Void> expireat(RedisExpireatCommand expireAtCommand) {
+    final RedisExpireatCommand.Payload payload = expireAtCommand.getPayload();
+    final Mono<Boolean> expirationResult = (this.clusterEnabled)
+      ? this.redisClusterCommands.expireat(payload.getKey(), payload.getTimestamp())
+      : this.redisStandaloneCommands.expireat(payload.getKey(), payload.getTimestamp());
+
+    return expirationResult.then();
+  }
+
+  private Mono<Void> pexpire(RedisPexpireCommand pexpireCommand) {
+    final RedisPexpireCommand.Payload payload = pexpireCommand.getPayload();
+    final Mono<Boolean> expirationResult = (this.clusterEnabled)
+      ? this.redisClusterCommands.pexpire(payload.getKey(), payload.getMilliseconds())
+      : this.redisStandaloneCommands.pexpire(payload.getKey(), payload.getMilliseconds());
+
+    return expirationResult.then();
   }
 
   private Mono<Void> sadd(RedisSaddCommand saddCommand) {
-    return Mono
-      .just(saddCommand.getPayload())
-      .flatMap(payload -> {
-        final String[] members = payload.getValues().toArray(new String[0]);
-        return (this.clusterEnabled)
-            ? this.redisClusterCommands.sadd(payload.getKey(), members)
-            : this.redisStandaloneCommands.sadd(payload.getKey(), members);
-      })
-      .then();
+    final RedisSaddCommand.Payload payload = saddCommand.getPayload();
+    final String[] members = payload.getValues().toArray(new String[0]);
+    final Mono<Long> saddResult = (this.clusterEnabled)
+      ? this.redisClusterCommands.sadd(payload.getKey(), members)
+      : this.redisStandaloneCommands.sadd(payload.getKey(), members);
+
+    return saddResult.then();
   }
 
   private Mono<Void> geoadd(RedisGeoaddCommand geoaddCommand) {
+    final RedisGeoaddCommand.Payload payload = geoaddCommand.getPayload();
     final Flux<Object> geoLocationFlux = Flux
-      .fromIterable(geoaddCommand.getPayload().getValues())
+      .fromIterable(payload.getValues())
       .flatMapIterable(geoLocation -> {
         if (geoLocation.getMember() == null) {
           throw new ConnectException("geoadd command does not contain member");
         }
         return Arrays.asList(geoLocation.getLongitude(), geoLocation.getLatitude(), geoLocation.getMember());
       });
-
-    return Mono
-      .zip(Mono.just(geoaddCommand.getPayload().getKey()), geoLocationFlux.collectList())
-      .flatMap(tuple -> {
-        final String key = tuple.getT1();
-        final Object[] longitudeLatitudeMembers = tuple.getT2().toArray(new Object[0]);
+    final Mono<Long> geoaddResult = geoLocationFlux
+      .collectList()
+      .flatMap(geoLocationList -> {
+        final String key = payload.getKey();
+        final Object[] longitudeLatitudeMembers = geoLocationList.toArray(new Object[0]);
         return (this.clusterEnabled)
           ? this.redisClusterCommands.geoadd(key, longitudeLatitudeMembers)
           : this.redisStandaloneCommands.geoadd(key, longitudeLatitudeMembers);
-      })
-      .then();
+      });
+
+    return geoaddResult.then();
   }
 }
