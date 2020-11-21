@@ -8,7 +8,7 @@ curl --request POST \
     --url "$(minikube -n kcr-demo service kafka-connect --url)/connectors" \
     --header 'content-type: application/json' \
     --data '{
-        "name": "demo-redis-source-connector2",
+        "name": "demo-redis-source-connector",
         "config": {
             "connector.class": "io.github.jaredpetersen.kafkaconnectredis.source.RedisSourceConnector",
             "key.converter": "io.confluent.connect.avro.AvroConverter",
