@@ -8,7 +8,7 @@ curl --request POST \
     --url "$(minikube -n kcr-demo service kafka-connect --url)/connectors" \
     --header 'content-type: application/json' \
     --data '{
-        "name": "demo-redis-source-connector",
+        "name": "demo-redis-source-connector2",
         "config": {
             "connector.class": "io.github.jaredpetersen.kafkaconnectredis.source.RedisSourceConnector",
             "key.converter": "io.confluent.connect.avro.AvroConverter",
@@ -20,7 +20,8 @@ curl --request POST \
             "redis.uri": "redis://IEPfIr0eLF7UsfwrIlzy80yUaBG258j9@redis-cluster",
             "redis.cluster.enabled": true,
             "redis.channels": "__key*__:*",
-            "redis.channels.pattern.enabled": true
+            "redis.channels.pattern.enabled": true,
+            "producer.override.partitioner.class": "io.github.jaredpetersen.kafkaconnectredis.source.partitioner.SinglePartitioner"
         }
     }'
 ```

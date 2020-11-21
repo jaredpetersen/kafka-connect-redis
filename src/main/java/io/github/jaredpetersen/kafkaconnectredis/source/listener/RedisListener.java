@@ -33,7 +33,7 @@ public class RedisListener {
       .doOnSuccess(empty -> LOG.info("subscribed to channel(s)"))
       .block();
     this.listener = this.redisSubscriber.observe()
-      .doOnNext(redisSubscriptionMessage -> LOG.info("observed " + redisSubscriptionMessage))
+      .doOnNext(redisSubscriptionMessage -> LOG.debug("observed " + redisSubscriptionMessage))
       .doOnNext(this.queue::add)
       .subscribeOn(Schedulers.boundedElastic())
       .subscribe();

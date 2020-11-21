@@ -1,7 +1,10 @@
 package io.github.jaredpetersen.kafkaconnectredis.sink.writer;
 
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisCommand;
+import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisExpireatCommand;
+import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisExpireCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisGeoaddCommand;
+import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisPexpireCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisSaddCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisSetCommand;
 import io.lettuce.core.SetArgs;
@@ -57,6 +60,15 @@ public class Writer {
     switch (redisCommand.getCommand()) {
       case SET:
         response = set((RedisSetCommand) redisCommand);
+        break;
+      case EXPIRE:
+        response = expire((RedisExpireCommand) redisCommand);
+        break;
+      case EXPIREAT:
+        response = expireat((RedisExpireatCommand) redisCommand);
+        break;
+      case PEXPIRE:
+        response = pexpire((RedisPexpireCommand) redisCommand);
         break;
       case SADD:
         response = sadd((RedisSaddCommand) redisCommand);
@@ -114,6 +126,36 @@ public class Writer {
           ? this.redisClusterCommands.set(payload.getKey(), payload.getValue(), setArgs)
           : this.redisStandaloneCommands.set(payload.getKey(), payload.getValue(), setArgs);
       })
+      .then();
+  }
+
+  private Mono<Void> expire(RedisExpireCommand expireCommand) {
+    return Mono
+      .just(expireCommand.getPayload())
+      .flatMap(payload ->
+        (this.clusterEnabled)
+          ? this.redisClusterCommands.expire(payload.getKey(), payload.getSeconds())
+          : this.redisStandaloneCommands.expire(payload.getKey(), payload.getSeconds()))
+      .then();
+  }
+
+  private Mono<Void> expireat(RedisExpireatCommand expireAtCommand) {
+    return Mono
+      .just(expireAtCommand.getPayload())
+      .flatMap(payload ->
+        (this.clusterEnabled)
+          ? this.redisClusterCommands.expireat(payload.getKey(), payload.getTimestamp())
+          : this.redisStandaloneCommands.expireat(payload.getKey(), payload.getTimestamp()))
+      .then();
+  }
+
+  private Mono<Void> pexpire(RedisPexpireCommand pexpireCommand) {
+    return Mono
+      .just(pexpireCommand.getPayload())
+      .flatMap(payload ->
+        (this.clusterEnabled)
+          ? this.redisClusterCommands.pexpire(payload.getKey(), payload.getMilliseconds())
+          : this.redisStandaloneCommands.pexpire(payload.getKey(), payload.getMilliseconds()))
       .then();
   }
 
