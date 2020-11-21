@@ -3,6 +3,9 @@ Consume messages from Kafka and apply them to Redis in the form of commands.
 
 The following commands are supported at this time:
 - [SET](https://redis.io/commands/set)
+- [EXPIRE](https://redis.io/commands/expire)
+- [EXPIREAT](https://redis.io/commands/expireat)
+- [PEXPIRE](https://redis.io/commands/pexpire)
 - [SADD](https://redis.io/commands/sadd)
 - [GEOADD](https://redis.io/commands/geoadd)
 
