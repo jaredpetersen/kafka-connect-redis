@@ -1,6 +1,5 @@
 package io.github.jaredpetersen.kafkaconnectredis.source.config;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.kafka.common.config.AbstractConfig;

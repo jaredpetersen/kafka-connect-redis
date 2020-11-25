@@ -164,7 +164,8 @@
         <configuration>
           <configLocation>checkstyle.xml</configLocation>
           <consoleOutput>true</consoleOutput>
-          <failsOnError>true</failsOnError>
+          <failOnViolation>true</failOnViolation>
+          <violationSeverity>warning</violationSeverity>
           <includeTestSourceDirectory>true</includeTestSourceDirectory>
           <suppressionsLocation>checkstyle-test-suppressions.xml</suppressionsLocation>
         </configuration>
@@ -179,13 +180,6 @@
           <execution>
             <id>validate</id>
             <phase>validate</phase>
-            <configuration>
-              <configLocation>checkstyle.xml</configLocation>
-              <consoleOutput>true</consoleOutput>
-              <failsOnError>true</failsOnError>
-              <violationSeverity>warning</violationSeverity>
-              <includeTestSourceDirectory>true</includeTestSourceDirectory>
-            </configuration>
             <goals>
               <goal>check</goal>
             </goals>

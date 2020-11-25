@@ -16,7 +16,6 @@ import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Collections;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -814,7 +813,7 @@ public class WriterIT {
     final RedisArbitraryCommand redisCommand = RedisArbitraryCommand.builder()
       .payload(RedisArbitraryCommand.Payload.builder()
         .command("SET")
-        .arguments(Arrays.asList("arbitraryset", "arbitraryvalue", "EX", "25"))
+        .arguments(Arrays.asList("arbitrarykey", "arbitraryvalue", "EX", "25"))
         .build())
       .build();
 
@@ -826,12 +825,39 @@ public class WriterIT {
       .verifyComplete();
 
     StepVerifier
-      .create(REDIS_STANDALONE_COMMANDS.get("arbitraryset"))
+      .create(REDIS_STANDALONE_COMMANDS.get("arbitrarykey"))
       .expectNext("arbitraryvalue")
       .verifyComplete();
 
     StepVerifier
-      .create(REDIS_STANDALONE_COMMANDS.ttl("arbitraryset"))
+      .create(REDIS_STANDALONE_COMMANDS.ttl("arbitrarykey"))
+      .expectNextMatches(ttl -> ttl <= 25L)
+      .verifyComplete();
+  }
+
+  @Test
+  public void writeArbitraryCommandAppliesCommandToCluster() {
+    final RedisArbitraryCommand redisCommand = RedisArbitraryCommand.builder()
+      .payload(RedisArbitraryCommand.Payload.builder()
+        .command("SET")
+        .arguments(Arrays.asList("arbitrarykey", "arbitraryvalue", "EX", "25"))
+        .build())
+      .build();
+
+    final Writer writer = new Writer(REDIS_CLUSTER_COMMANDS);
+    final Mono<Void> write = writer.write(redisCommand);
+
+    StepVerifier
+      .create(write)
+      .verifyComplete();
+
+    StepVerifier
+      .create(REDIS_CLUSTER_COMMANDS.get("arbitrarykey"))
+      .expectNext("arbitraryvalue")
+      .verifyComplete();
+
+    StepVerifier
+      .create(REDIS_CLUSTER_COMMANDS.ttl("arbitrarykey"))
       .expectNextMatches(ttl -> ttl <= 25L)
       .verifyComplete();
   }
