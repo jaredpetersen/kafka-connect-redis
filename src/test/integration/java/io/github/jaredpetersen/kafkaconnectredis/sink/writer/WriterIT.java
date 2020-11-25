@@ -1,5 +1,6 @@
 package io.github.jaredpetersen.kafkaconnectredis.sink.writer;
 
+import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisArbitraryCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisExpireCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisExpireatCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisGeoaddCommand;
@@ -15,6 +16,7 @@ import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -805,5 +807,32 @@ public class WriterIT {
             exception instanceof ConnectException
                 && exception.getMessage().equals("geoadd command does not contain member"))
         .verify();
+  }
+
+  @Test
+  public void writeArbitraryCommandAppliesCommandToStandalone() {
+    final RedisArbitraryCommand redisCommand = RedisArbitraryCommand.builder()
+      .payload(RedisArbitraryCommand.Payload.builder()
+        .command("SET")
+        .arguments(Arrays.asList("arbitraryset", "arbitraryvalue", "EX", "25"))
+        .build())
+      .build();
+
+    final Writer writer = new Writer(REDIS_STANDALONE_COMMANDS);
+    final Mono<Void> write = writer.write(redisCommand);
+
+    StepVerifier
+      .create(write)
+      .verifyComplete();
+
+    StepVerifier
+      .create(REDIS_STANDALONE_COMMANDS.get("arbitraryset"))
+      .expectNext("arbitraryvalue")
+      .verifyComplete();
+
+    StepVerifier
+      .create(REDIS_STANDALONE_COMMANDS.ttl("arbitraryset"))
+      .expectNextMatches(ttl -> ttl <= 25L)
+      .verifyComplete();
   }
 }

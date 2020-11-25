@@ -1,5 +1,6 @@
 package io.github.jaredpetersen.kafkaconnectredis.sink.writer;
 
+import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisArbitraryCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisExpireCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisExpireatCommand;
@@ -10,6 +11,11 @@ import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisSetComm
 import io.lettuce.core.SetArgs;
 import io.lettuce.core.api.reactive.RedisReactiveCommands;
 import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
+import io.lettuce.core.codec.StringCodec;
+import io.lettuce.core.output.CommandOutput;
+import io.lettuce.core.protocol.CommandArgs;
+import io.lettuce.core.protocol.ProtocolKeyword;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.slf4j.Logger;
@@ -75,6 +81,9 @@ public class Writer {
         break;
       case GEOADD:
         response = geoadd((RedisGeoaddCommand) redisCommand);
+        break;
+      case ARBITRARY:
+        response = arbitrary((RedisArbitraryCommand) redisCommand);
         break;
       default:
         response = Mono.error(new ConnectException("redis command " + redisCommand + " is not supported"));
@@ -181,5 +190,29 @@ public class Writer {
       });
 
     return geoaddResult.then();
+  }
+
+  private Mono<Void> arbitrary(RedisArbitraryCommand arbitraryCommand) {
+    // Set up arbitrary command
+    final ProtocolKeyword protocolKeyword = new ProtocolKeyword() {
+      public final byte[] bytes = name().getBytes(StandardCharsets.US_ASCII);
+
+      @Override
+      public byte[] getBytes() {
+        return this.bytes;
+      }
+
+      @Override
+      public String name() {
+        return arbitraryCommand.getPayload().getCommand();
+      }
+    };
+    final CommandOutput<String, String, Void> commandOutput = new LettuceVoidOutput<>(StringCodec.UTF8);
+    final CommandArgs<String, String> commandArgs = new CommandArgs<>(StringCodec.UTF8)
+      .addValues(arbitraryCommand.getPayload().getArguments());
+
+    return (this.clusterEnabled)
+      ? this.redisClusterCommands.dispatch(protocolKeyword, commandOutput, commandArgs).then()
+      : this.redisStandaloneCommands.dispatch(protocolKeyword, commandOutput, commandArgs).then();
   }
 }
