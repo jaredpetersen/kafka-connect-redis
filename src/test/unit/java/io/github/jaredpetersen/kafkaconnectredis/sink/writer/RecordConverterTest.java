@@ -1,5 +1,6 @@
 package io.github.jaredpetersen.kafkaconnectredis.sink.writer;
 
+import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisArbitraryCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisExpireCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisExpireatCommand;
@@ -64,6 +65,12 @@ public class RecordConverterTest {
         .build())
       .required()
       .build())
+    .required()
+    .build();
+  private static final Schema REDIS_ARBITRARY_COMMAND_SCHEMA = SchemaBuilder.struct()
+    .name("io.github.jaredpetersen.kafkaconnectredis.RedisArbitraryCommand")
+    .field("command", SchemaBuilder.STRING_SCHEMA)
+    .field("arguments", SchemaBuilder.array(SchemaBuilder.STRING_SCHEMA).required().build())
     .required()
     .build();
 
@@ -280,6 +287,34 @@ public class RecordConverterTest {
             .latitude(37.502669d)
             .member("Catania")
             .build()))
+        .build())
+      .build();
+
+    final RecordConverter recordConverter = new RecordConverter();
+    final Mono<RedisCommand> redisCommandMono = recordConverter.convert(sinkRecord);
+
+    StepVerifier.create(redisCommandMono)
+      .expectNext(expectedRedisCommand)
+      .verifyComplete();
+  }
+
+  @Test
+  public void convertTransformsSinkRecordToRedisArbitraryCommand() {
+    final String topic = "rediscommands";
+    final int partition = 0;
+    final Schema keySchema = null;
+    final Object key = null;
+    final Schema valueSchema = REDIS_ARBITRARY_COMMAND_SCHEMA;
+    final Object value = new Struct(valueSchema)
+      .put("command", "LOLWUT")
+      .put("arguments", Arrays.asList("VERSION", "6"));
+    final long offset = 0L;
+    final SinkRecord sinkRecord = new SinkRecord(topic, partition, keySchema, key, valueSchema, value, offset);
+
+    final RedisCommand expectedRedisCommand = RedisArbitraryCommand.builder()
+      .payload(RedisArbitraryCommand.Payload.builder()
+        .command("LOLWUT")
+        .arguments(Arrays.asList("VERSION", "6"))
         .build())
       .build();
 
