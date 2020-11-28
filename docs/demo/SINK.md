@@ -18,7 +18,7 @@ curl --request POST \
             "value.converter": "io.confluent.connect.avro.AvroConverter",
             "value.converter.schema.registry.url": "http://kafka-schema-registry:8081",
             "tasks.max": "1",
-            "topics": "redis.commands.set,redis.commands.expire,redis.commands.expireat,redis.commands.pexpire,redis.commands.sadd,redis.commands.geoadd",
+            "topics": "redis.commands.set,redis.commands.expire,redis.commands.expireat,redis.commands.pexpire,redis.commands.sadd,redis.commands.geoadd,redis.commands.arbitrary",
             "redis.uri": "redis://IEPfIr0eLF7UsfwrIlzy80yUaBG258j9@redis-cluster",
             "redis.cluster.enabled": true
         }
@@ -112,6 +112,15 @@ kafka-avro-console-producer \
 >{"key":"Sicily","values":[{"longitude":13.361389,"latitude":13.361389,"member":"Palermo"},{"longitude":15.087269,"latitude":37.502669,"member":"Catania"}]}
 ```
 
+```bash
+kafka-avro-console-producer \
+    --broker-list kafka-broker-0.kafka-broker:9092 \
+    --property schema.registry.url='http://kafka-schema-registry:8081' \
+    --property value.schema='{"namespace":"io.github.jaredpetersen.kafkaconnectredis","name":"RedisArbitraryCommand","type":"record","fields":[{"name":"command","type":"string"},{"name":"arguments","type":{"type":"array","items":"string"}}]}' \
+    --topic redis.commands.arbitrary
+>{"command":"SET","arguments":["arbitrary", "value"]}
+```
+
 ### Connect JSON
 Create an interactive ephemeral query pod:
 ```bash
@@ -134,6 +143,7 @@ kafka-console-producer \
 >{"payload":{"key":"{user.1}.interests","values":["reading"]},"schema":{"name":"io.github.jaredpetersen.kafkaconnectredis.RedisSaddCommand","type":"struct","fields":[{"field":"key","type":"string","optional":false},{"field":"values","type":"array","items":{"type":"string"},"optional":false}]}}
 >{"payload":{"key":"{user.2}.interests","values":["sailing","woodworking","programming"]},"schema":{"name":"io.github.jaredpetersen.kafkaconnectredis.RedisSaddCommand","type":"struct","fields":[{"field":"key","type":"string","optional":false},{"field":"values","type":"array","items":{"type":"string"},"optional":false}]}}
 >{"payload":{"key":"Sicily","values":[{"longitude":13.361389,"latitude":13.361389,"member":"Palermo"},{"longitude":15.087269,"latitude":37.502669,"member":"Catania"}]},"schema":{"name":"io.github.jaredpetersen.kafkaconnectredis.RedisGeoaddCommand","type":"struct","fields":[{"field":"key","type":"string","optional":false},{"field":"values","type":"array","items":{"type":"struct","fields":[{"field":"longitude","type":"double","optional":false},{"field":"latitude","type":"double","optional":false},{"field":"member","type":"string","optional":false}]},"optional":false}]}}
+>{"payload":{"command":"SET","arguments":["arbitrary", "value"]},"schema":{"name":"io.github.jaredpetersen.kafkaconnectredis.RedisArbitraryCommand","type":"struct","fields":[{"field":"command","type":"string","optional":false},{"field":"arguments","type":"array","items":{"type":"string"},"optional":false}]}}
 ```
 
 ## Validate
@@ -160,4 +170,5 @@ PTTL product.waffles
 SMEMBERS {user.1}.interests
 SMEMBERS {user.2}.interests
 GEOPOS Sicily Catania
+ACL GETUSER kcr-demo-user
 ```

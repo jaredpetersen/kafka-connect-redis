@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
  * Void output of a Redis command used to "fire and forget".
  * <p />
  * Temporary stopgap until https://github.com/lettuce-io/lettuce-core/issues/1529 is officially supported.
+ *
  * @param <K> Key type.
  * @param <V> Value type.
  */
