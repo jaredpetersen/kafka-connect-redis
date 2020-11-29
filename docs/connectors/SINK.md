@@ -8,6 +8,7 @@ The following commands are supported at this time:
 - [PEXPIRE](https://redis.io/commands/pexpire)
 - [SADD](https://redis.io/commands/sadd)
 - [GEOADD](https://redis.io/commands/geoadd)
+- Arbitrary -- useful for Redis modules
 
 Support for additional write-based commands will be added in the future.
 
@@ -369,6 +370,52 @@ Keys are ignored.
                         "optional": false
                     }
                 ]
+            },
+            "optional": false
+        }
+    ]
+}
+```
+
+#### Arbitrary
+##### Avro
+```json
+{
+    "namespace": "io.github.jaredpetersen.kafkaconnectredis",
+    "name": "RedisArbitraryCommand",
+    "type": "record",
+    "fields": [
+        {
+            "name": "command",
+            "type": "string"
+        },
+        {
+            "name": "arguments",
+            "type": {
+                "type": "array",
+                "items": "string"
+            }
+        }
+    ]
+}
+```
+
+##### Connect JSON
+```json
+{
+    "name": "io.github.jaredpetersen.kafkaconnectredis.RedisArbitraryCommand",
+    "type": "struct",
+    "fields": [
+        {
+            "field": "command",
+            "type": "string",
+            "optional": false
+        },
+        {
+            "field": "arguments",
+            "type": "array",
+            "items": {
+              "type": "string"
             },
             "optional": false
         }

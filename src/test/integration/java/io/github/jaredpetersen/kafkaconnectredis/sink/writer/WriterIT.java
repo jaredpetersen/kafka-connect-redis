@@ -1,5 +1,6 @@
 package io.github.jaredpetersen.kafkaconnectredis.sink.writer;
 
+import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisArbitraryCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisExpireCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisExpireatCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisGeoaddCommand;
@@ -805,5 +806,59 @@ public class WriterIT {
             exception instanceof ConnectException
                 && exception.getMessage().equals("geoadd command does not contain member"))
         .verify();
+  }
+
+  @Test
+  public void writeArbitraryCommandAppliesCommandToStandalone() {
+    final RedisArbitraryCommand redisCommand = RedisArbitraryCommand.builder()
+      .payload(RedisArbitraryCommand.Payload.builder()
+        .command("SET")
+        .arguments(Arrays.asList("arbitrarykey", "arbitraryvalue", "EX", "25"))
+        .build())
+      .build();
+
+    final Writer writer = new Writer(REDIS_STANDALONE_COMMANDS);
+    final Mono<Void> write = writer.write(redisCommand);
+
+    StepVerifier
+      .create(write)
+      .verifyComplete();
+
+    StepVerifier
+      .create(REDIS_STANDALONE_COMMANDS.get("arbitrarykey"))
+      .expectNext("arbitraryvalue")
+      .verifyComplete();
+
+    StepVerifier
+      .create(REDIS_STANDALONE_COMMANDS.ttl("arbitrarykey"))
+      .expectNextMatches(ttl -> ttl <= 25L)
+      .verifyComplete();
+  }
+
+  @Test
+  public void writeArbitraryCommandAppliesCommandToCluster() {
+    final RedisArbitraryCommand redisCommand = RedisArbitraryCommand.builder()
+      .payload(RedisArbitraryCommand.Payload.builder()
+        .command("SET")
+        .arguments(Arrays.asList("arbitrarykey", "arbitraryvalue", "EX", "25"))
+        .build())
+      .build();
+
+    final Writer writer = new Writer(REDIS_CLUSTER_COMMANDS);
+    final Mono<Void> write = writer.write(redisCommand);
+
+    StepVerifier
+      .create(write)
+      .verifyComplete();
+
+    StepVerifier
+      .create(REDIS_CLUSTER_COMMANDS.get("arbitrarykey"))
+      .expectNext("arbitraryvalue")
+      .verifyComplete();
+
+    StepVerifier
+      .create(REDIS_CLUSTER_COMMANDS.ttl("arbitrarykey"))
+      .expectNextMatches(ttl -> ttl <= 25L)
+      .verifyComplete();
   }
 }

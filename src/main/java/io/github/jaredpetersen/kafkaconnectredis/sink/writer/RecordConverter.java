@@ -1,5 +1,6 @@
 package io.github.jaredpetersen.kafkaconnectredis.sink.writer;
 
+import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisArbitraryCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisExpireCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisExpireatCommand;
@@ -50,6 +51,9 @@ public class RecordConverter {
         break;
       case "io.github.jaredpetersen.kafkaconnectredis.RedisGeoaddCommand":
         redisCommandMono = convertGeoadd(recordValue);
+        break;
+      case "io.github.jaredpetersen.kafkaconnectredis.RedisArbitraryCommand":
+        redisCommandMono = convertArbitrary(recordValue);
         break;
       default:
         redisCommandMono = Mono.error(new ConnectException("unsupported command schema " + recordValueSchemaName));
@@ -161,5 +165,18 @@ public class RecordConverter {
           .payload(payload)
           .build();
       }));
+  }
+
+  private Mono<RedisCommand> convertArbitrary(Struct value) {
+    return Mono.fromCallable(() -> {
+      final RedisArbitraryCommand.Payload payload = RedisArbitraryCommand.Payload.builder()
+        .command(value.getString("command"))
+        .arguments(value.getArray("arguments"))
+        .build();
+
+      return RedisArbitraryCommand.builder()
+        .payload(payload)
+        .build();
+    });
   }
 }
