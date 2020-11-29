@@ -118,7 +118,9 @@ kafka-avro-console-producer \
     --property schema.registry.url='http://kafka-schema-registry:8081' \
     --property value.schema='{"namespace":"io.github.jaredpetersen.kafkaconnectredis","name":"RedisArbitraryCommand","type":"record","fields":[{"name":"command","type":"string"},{"name":"arguments","type":{"type":"array","items":"string"}}]}' \
     --topic redis.commands.arbitrary
->{"command":"SET","arguments":["arbitrary", "value"]}
+>{"command":"TS.CREATE","arguments":["temperature:3:11", "RETENTION", "60", "LABELS", "sensor_id", "2", "area_id", "32"]}
+>{"command":"TS.ADD","arguments":["temperature:3:11", "1548149181", "30"]}
+>{"command":"TS.ADD","arguments":["temperature:3:11", "1548149191", "42"]}
 ```
 
 ### Connect JSON
@@ -143,7 +145,9 @@ kafka-console-producer \
 >{"payload":{"key":"{user.1}.interests","values":["reading"]},"schema":{"name":"io.github.jaredpetersen.kafkaconnectredis.RedisSaddCommand","type":"struct","fields":[{"field":"key","type":"string","optional":false},{"field":"values","type":"array","items":{"type":"string"},"optional":false}]}}
 >{"payload":{"key":"{user.2}.interests","values":["sailing","woodworking","programming"]},"schema":{"name":"io.github.jaredpetersen.kafkaconnectredis.RedisSaddCommand","type":"struct","fields":[{"field":"key","type":"string","optional":false},{"field":"values","type":"array","items":{"type":"string"},"optional":false}]}}
 >{"payload":{"key":"Sicily","values":[{"longitude":13.361389,"latitude":13.361389,"member":"Palermo"},{"longitude":15.087269,"latitude":37.502669,"member":"Catania"}]},"schema":{"name":"io.github.jaredpetersen.kafkaconnectredis.RedisGeoaddCommand","type":"struct","fields":[{"field":"key","type":"string","optional":false},{"field":"values","type":"array","items":{"type":"struct","fields":[{"field":"longitude","type":"double","optional":false},{"field":"latitude","type":"double","optional":false},{"field":"member","type":"string","optional":false}]},"optional":false}]}}
->{"payload":{"command":"SET","arguments":["arbitrary", "value"]},"schema":{"name":"io.github.jaredpetersen.kafkaconnectredis.RedisArbitraryCommand","type":"struct","fields":[{"field":"command","type":"string","optional":false},{"field":"arguments","type":"array","items":{"type":"string"},"optional":false}]}}
+>{"payload":{"command":"TS.CREATE","arguments":["temperature:3:11", "RETENTION", "60", "LABELS", "sensor_id", "2", "area_id", "32"]},"schema":{"name":"io.github.jaredpetersen.kafkaconnectredis.RedisArbitraryCommand","type":"struct","fields":[{"field":"command","type":"string","optional":false},{"field":"arguments","type":"array","items":{"type":"string"},"optional":false}]}}
+>{"payload":{"command":"TS.ADD","arguments":["temperature:3:11", "1548149181", "30"]},"schema":{"name":"io.github.jaredpetersen.kafkaconnectredis.RedisArbitraryCommand","type":"struct","fields":[{"field":"command","type":"string","optional":false},{"field":"arguments","type":"array","items":{"type":"string"},"optional":false}]}}
+>{"payload":{"command":"TS.ADD","arguments":["temperature:3:11", "1548149191", "42"]},"schema":{"name":"io.github.jaredpetersen.kafkaconnectredis.RedisArbitraryCommand","type":"struct","fields":[{"field":"command","type":"string","optional":false},{"field":"arguments","type":"array","items":{"type":"string"},"optional":false}]}}
 ```
 
 ## Validate
@@ -170,5 +174,5 @@ PTTL product.waffles
 SMEMBERS {user.1}.interests
 SMEMBERS {user.2}.interests
 GEOPOS Sicily Catania
-ACL GETUSER kcr-demo-user
+TS.RANGE temperature:3:11 1548149180 1548149210 AGGREGATION avg 5
 ```

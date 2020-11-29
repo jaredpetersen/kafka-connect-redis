@@ -11,12 +11,23 @@ minikube start --cpus 2 --memory 10g
 ```
 
 ### Docker
-Now that we have Kubernetes set up locally, we'll need a Docker image that contains Kafka Connect Redis.
+Now that we have Kubernetes set up locally, we'll need some Docker images.
 
-Navigate to `demo/docker/` in this repository and run the following commands **in a separate terminal** to download the plugin and build the image for minikube:
+Open a new terminal we can use to build images for minikube. Run the following command to connect the terminal to minikube:
 ```bash
-curl -O https://oss.sonatype.org/service/local/repositories/releases/content/io/github/jaredpetersen/kafka-connect-redis/1.0.3/kafka-connect-redis-1.0.3.jar
 eval $(minikube docker-env)
+```
+
+We'll use this terminal for the rest of this section.
+
+Let's start by building Redis. Navigate to `demo/docker/redis` and run the following commands:
+```bash
+docker build -t jaredpetersen/redis:latest .
+```
+
+Next, we'll need to build a docker image for Kafka Connect Redis. Navigate to `demo/docker/kafka-connect-redis` and run the following commands:
+```bash
+curl -O https://oss.sonatype.org/service/local/repositories/releases/content/io/github/jaredpetersen/kafka-connect-redis/1.0.4/kafka-connect-redis-1.0.4.jar
 docker build -t jaredpetersen/kafka-connect-redis:latest .
 ```
 

@@ -16,9 +16,8 @@ spec:
     spec:
       containers:
       - name: redis
-        image: redis:6
-        args:
-        - /usr/local/etc/redis/redis.conf
+        image: jaredpetersen/redis:latest
+        imagePullPolicy: Never
         ports:
         - containerPort: 6379
           name: client
