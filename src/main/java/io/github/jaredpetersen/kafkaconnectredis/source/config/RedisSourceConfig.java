@@ -8,25 +8,25 @@ import org.apache.kafka.common.config.ConfigDef.Importance;
 import org.apache.kafka.common.config.ConfigDef.Type;
 
 public class RedisSourceConfig extends AbstractConfig {
-  private static final String TOPIC = "topic";
+  public static final String TOPIC = "topic";
   private static final String TOPIC_DOC = "Topic to write to.";
   private static final String TOPIC_DEFAULT = "redis";
   private final String topic;
 
-  private static final String REDIS_URI = "redis.uri";
+  public static final String REDIS_URI = "redis.uri";
   private static final String REDIS_URI_DOC = "Redis uri.";
   private final String redisUri;
 
-  private static final String REDIS_CLUSTER_ENABLED = "redis.cluster.enabled";
+  public static final String REDIS_CLUSTER_ENABLED = "redis.cluster.enabled";
   private static final String REDIS_CLUSTER_ENABLED_DOC = "Redis cluster mode enabled.";
   private static final boolean REDIS_CLUSTER_ENABLED_DEFAULT = false;
   private final boolean redisClusterEnabled;
 
-  private static final String REDIS_CHANNELS = "redis.channels";
+  public static final String REDIS_CHANNELS = "redis.channels";
   private static final String REDIS_CHANNELS_DOC = "Redis channel(s) to subscribe to, comma-separated.";
   private final List<String> redisChannels;
 
-  private static final String REDIS_CHANNELS_PATTERN_ENABLED = "redis.channels.pattern.enabled";
+  public static final String REDIS_CHANNELS_PATTERN_ENABLED = "redis.channels.pattern.enabled";
   private static final String REDIS_CHANNELS_PATTERN_ENABLED_DOC = "Redis channel(s) utilize patterns.";
   private final boolean redisChannelPatternEnabled;
 

@@ -10,6 +10,7 @@ import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -25,6 +26,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Testcontainers
 public class RedisSourceTaskIT {
@@ -230,6 +232,17 @@ public class RedisSourceTaskIT {
     final List<SourceRecord> sourceRecords = sourceTask.poll();
 
     assertEquals(0, sourceRecords.size());
+  }
+
+  @Test
+  public void startThrowsConnectExceptionForInvalidConfig() {
+    final RedisSourceTask sourceTask = new RedisSourceTask();
+
+    final Map<String, String> taskConfig = new HashMap<>();
+    taskConfig.put("redis.uri", REDIS_STANDALONE_URI);
+
+    final ConnectException thrown = assertThrows(ConnectException.class, () -> sourceTask.start(taskConfig));
+    assertEquals("task configuration error", thrown.getMessage());
   }
 
   @Test

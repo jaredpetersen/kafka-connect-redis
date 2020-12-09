@@ -15,6 +15,8 @@ import io.lettuce.core.cluster.pubsub.StatefulRedisClusterPubSubConnection;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import java.util.List;
 import java.util.Map;
+import org.apache.kafka.common.config.ConfigException;
+import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.source.SourceTask;
 import org.slf4j.Logger;
@@ -44,8 +46,16 @@ public class RedisSourceTask extends SourceTask {
   @Override
   public void start(Map<String, String> props) {
     // Map the task properties to config object
-    final RedisSourceConfig config = new RedisSourceConfig(props);
+    final RedisSourceConfig config;
 
+    try {
+      config = new RedisSourceConfig(props);
+    }
+    catch(ConfigException configException) {
+      throw new ConnectException("task configuration error", configException);
+    }
+
+    // Set up the pub/sub subscriber for Redis
     final RedisSubscriber redisSubscriber;
 
     if (config.isRedisClusterEnabled()) {
