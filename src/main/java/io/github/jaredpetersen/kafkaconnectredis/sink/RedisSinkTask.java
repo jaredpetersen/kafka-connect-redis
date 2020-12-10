@@ -12,6 +12,7 @@ import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
 import java.util.Collection;
 import java.util.Map;
+import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.sink.SinkTask;
@@ -43,8 +44,15 @@ public class RedisSinkTask extends SinkTask {
   @Override
   public void start(final Map<String, String> props) {
     // Map the task properties to config object
-    final RedisSinkConfig config = new RedisSinkConfig(props);
+    final RedisSinkConfig config;
 
+    try {
+      config = new RedisSinkConfig(props);
+    } catch(ConfigException configException) {
+      throw new ConnectException("task configuration error");
+    }
+
+    // Set up the writer
     if (config.isRedisClusterEnabled()) {
       this.redisClusterClient = RedisClusterClient.create(config.getRedisUri());
       this.redisClusterConnection = this.redisClusterClient.connect();

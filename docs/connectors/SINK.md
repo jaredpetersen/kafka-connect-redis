@@ -424,6 +424,9 @@ Keys are ignored.
 ```
 
 ## Configuration
+### Parallelization
+Splitting the workload between multiple tasks is possible via the configuration property `max.tasks`. The configured number will exactly determine the number of tasks that are created.
+
 ### Connector Properties
 | Name                    | Type    | Default | Importance | Description                                             |
 | ----------------------- | ------- | ------- | ---------- | ------------------------------------------------------- |

@@ -44,7 +44,8 @@ public class RedisSourceConnector extends SourceConnector {
   }
 
   @Override
-  public List<Map<String, String>> taskConfigs(final int maxTasks) {
+  public List<Map<String, String>> taskConfigs(final int
+                                                   maxTasks) {
     // Partition the configs based on channels
     final List<List<String>> partitionedRedisChannels = ConnectorUtils
       .groupPartitions(this.config.getRedisChannels(), Math.min(this.config.getRedisChannels().size(), maxTasks));

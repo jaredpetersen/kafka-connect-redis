@@ -82,7 +82,7 @@ In the case of subscribing to Redis keyspace notifications, it may be useful to 
 The plugin can be configured to use an alternative partitioning strategy if desired. Set the configuration property `connector.client.config.override.policy` to value `All` on the Kafka Connect worker (the overall Kafka Connect application that runs plugins). This will allow the override of the internal Kafka producer and consumer configurations. To override the partitioner for an individual connector plugin, add the configuration property `producer.override.partitioner.class` to the connector plugin with a value that points to a class implementing the [Partitioner](https://github.com/apache/kafka/blob/trunk/clients/src/main/java/org/apache/kafka/clients/producer/Partitioner.java) interface, e.g. `org.apache.kafka.clients.producer.internals.DefaultPartitioner`.
 
 ## Parallelization
-Splitting the workload between multiple tasks via the configuration property `max.tasks` is not supported at this time. Support for this will be added in the future.
+Splitting the workload between multiple tasks is possible via the configuration property `max.tasks`. The connector splits the work based on the number of configured channels/patterns. If the `max.tasks` configuration exceeds the number of channels/patterns, the number of channels/patterns will be used instead as the maximum.
 
 ## Configuration
 ### Connector Properties

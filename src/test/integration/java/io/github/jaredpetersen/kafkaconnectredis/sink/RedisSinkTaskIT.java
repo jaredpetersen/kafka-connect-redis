@@ -1,5 +1,6 @@
 package io.github.jaredpetersen.kafkaconnectredis.sink;
 
+import io.github.jaredpetersen.kafkaconnectredis.source.RedisSourceConnector;
 import io.github.jaredpetersen.kafkaconnectredis.util.VersionUtil;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
@@ -15,6 +16,7 @@ import java.util.Map;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.data.Struct;
+import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -29,6 +31,7 @@ import org.testcontainers.utility.MountableFile;
 import reactor.test.StepVerifier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Testcontainers
 public class RedisSinkTaskIT {
@@ -206,6 +209,17 @@ public class RedisSinkTaskIT {
         .create(REDIS_CLUSTER_COMMANDS.dbsize())
         .expectNext(0L)
         .verifyComplete();
+  }
+
+  @Test
+  public void startThrowsConnectExceptionForInvalidConfig() {
+    final RedisSinkTask sinkTask = new RedisSinkTask();
+
+    final Map<String, String> connectorConfig = new HashMap<>();
+    connectorConfig.put("redis.cluster.enabled", "false");
+
+    final ConnectException thrown = assertThrows(ConnectException.class, () -> sinkTask.start(connectorConfig));
+    assertEquals("task configuration error", thrown.getMessage());
   }
 
   @Test
