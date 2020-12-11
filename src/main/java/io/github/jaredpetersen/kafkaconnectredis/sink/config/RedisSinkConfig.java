@@ -8,11 +8,11 @@ import org.apache.kafka.common.config.ConfigDef.Type;
 
 public class RedisSinkConfig extends AbstractConfig {
   // TODO Store as password
-  private static final String REDIS_URI = "redis.uri";
+  public static final String REDIS_URI = "redis.uri";
   private static final String REDIS_URI_DOC = "Redis uri.";
   private final String redisUri;
 
-  private static final String REDIS_CLUSTER_ENABLED = "redis.cluster.enabled";
+  public static final String REDIS_CLUSTER_ENABLED = "redis.cluster.enabled";
   private static final String REDIS_CLUSTER_ENABLED_DOC = "Redis cluster mode enabled.";
   private static final boolean REDIS_CLUSTER_ENABLED_DEFAULT = false;
   private final boolean redisClusterEnabled;
