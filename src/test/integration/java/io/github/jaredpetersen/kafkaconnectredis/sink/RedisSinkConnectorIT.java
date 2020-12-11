@@ -1,13 +1,16 @@
 package io.github.jaredpetersen.kafkaconnectredis.sink;
 
 import io.github.jaredpetersen.kafkaconnectredis.sink.config.RedisSinkConfig;
+import io.github.jaredpetersen.kafkaconnectredis.source.RedisSourceConnector;
 import io.github.jaredpetersen.kafkaconnectredis.util.VersionUtil;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.kafka.connect.errors.ConnectException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class RedisSinkConnectorIT {
   @Test
@@ -40,6 +43,17 @@ public class RedisSinkConnectorIT {
     assertEquals(connectorConfig, taskConfigs.get(0));
     assertEquals(connectorConfig, taskConfigs.get(1));
     assertEquals(connectorConfig, taskConfigs.get(2));
+  }
+
+  @Test
+  public void startThrowsConnectExceptionForInvalidConfig() {
+    final RedisSourceConnector sourceConnector = new RedisSourceConnector();
+
+    final Map<String, String> connectorConfig = new HashMap<>();
+    connectorConfig.put("redis.uri", "redis://localhost:6379");
+
+    final ConnectException thrown = assertThrows(ConnectException.class, () -> sourceConnector.start(connectorConfig));
+    assertEquals("connector configuration error", thrown.getMessage());
   }
 
   @Test
