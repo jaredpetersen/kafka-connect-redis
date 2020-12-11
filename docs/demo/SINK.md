@@ -17,7 +17,7 @@ curl --request POST \
             "key.converter.schema.registry.url": "http://kafka-schema-registry:8081",
             "value.converter": "io.confluent.connect.avro.AvroConverter",
             "value.converter.schema.registry.url": "http://kafka-schema-registry:8081",
-            "tasks.max": "1",
+            "tasks.max": "3",
             "topics": "redis.commands.set,redis.commands.expire,redis.commands.expireat,redis.commands.pexpire,redis.commands.sadd,redis.commands.geoadd,redis.commands.arbitrary",
             "redis.uri": "redis://IEPfIr0eLF7UsfwrIlzy80yUaBG258j9@redis-cluster",
             "redis.cluster.enabled": true
