@@ -6,14 +6,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.kafka.common.config.ConfigDef;
+import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.connect.connector.Task;
+import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.sink.SinkConnector;
 
 /**
  * Entry point for Kafka Connect Redis Sink.
  */
 public class RedisSinkConnector extends SinkConnector {
-  private Map<String, String> config;
+  private RedisSinkConfig config;
 
   @Override
   public String version() {
@@ -22,7 +24,12 @@ public class RedisSinkConnector extends SinkConnector {
 
   @Override
   public void start(final Map<String, String> props) {
-    this.config = props;
+    try {
+      this.config = new RedisSinkConfig(props);
+    }
+    catch (ConfigException configException) {
+      throw new ConnectException("connector configuration error");
+    }
   }
 
   @Override
@@ -35,7 +42,7 @@ public class RedisSinkConnector extends SinkConnector {
     List<Map<String, String>> taskConfigs = new ArrayList<>(maxTasks);
 
     for (int configIndex = 0; configIndex < maxTasks; ++configIndex) {
-      taskConfigs.add(this.config);
+      taskConfigs.add(this.config.originalsStrings());
     }
 
     return taskConfigs;

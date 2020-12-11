@@ -10,6 +10,7 @@ import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -25,6 +26,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Testcontainers
 public class RedisSourceTaskIT {
@@ -100,6 +102,7 @@ public class RedisSourceTaskIT {
     final RedisSourceTask sourceTask = new RedisSourceTask();
 
     final Map<String, String> config = new HashMap<>();
+    config.put("topic", "mytopic");
     config.put("redis.uri", REDIS_STANDALONE_URI);
     config.put("redis.cluster.enabled", "false");
     config.put("redis.channels", "boats");
@@ -130,6 +133,7 @@ public class RedisSourceTaskIT {
     final RedisSourceTask sourceTask = new RedisSourceTask();
 
     final Map<String, String> config = new HashMap<>();
+    config.put("topic", "mytopic");
     config.put("redis.uri", REDIS_STANDALONE_URI);
     config.put("redis.cluster.enabled", "false");
     config.put("redis.channels", "boat*");
@@ -160,6 +164,7 @@ public class RedisSourceTaskIT {
     final RedisSourceTask sourceTask = new RedisSourceTask();
 
     final Map<String, String> config = new HashMap<>();
+    config.put("topic", "mytopic");
     config.put("redis.uri", REDIS_CLUSTER_URI);
     config.put("redis.cluster.enabled", "true");
     config.put("redis.channels", "boats");
@@ -190,6 +195,7 @@ public class RedisSourceTaskIT {
     final RedisSourceTask sourceTask = new RedisSourceTask();
 
     final Map<String, String> config = new HashMap<>();
+    config.put("topic", "mytopic");
     config.put("redis.uri", REDIS_CLUSTER_URI);
     config.put("redis.cluster.enabled", "true");
     config.put("redis.channels", "boat*");
@@ -220,6 +226,7 @@ public class RedisSourceTaskIT {
     final RedisSourceTask sourceTask = new RedisSourceTask();
 
     final Map<String, String> config = new HashMap<>();
+    config.put("topic", "mytopic");
     config.put("redis.uri", REDIS_STANDALONE_URI);
     config.put("redis.cluster.enabled", "false");
     config.put("redis.channels", "boats");
@@ -233,10 +240,22 @@ public class RedisSourceTaskIT {
   }
 
   @Test
+  public void startThrowsConnectExceptionForInvalidConfig() {
+    final RedisSourceTask sourceTask = new RedisSourceTask();
+
+    final Map<String, String> taskConfig = new HashMap<>();
+    taskConfig.put("redis.uri", REDIS_STANDALONE_URI);
+
+    final ConnectException thrown = assertThrows(ConnectException.class, () -> sourceTask.start(taskConfig));
+    assertEquals("task configuration error", thrown.getMessage());
+  }
+
+  @Test
   public void stopStopsStandalone() {
     final RedisSourceTask sourceTask = new RedisSourceTask();
 
     final Map<String, String> config = new HashMap<>();
+    config.put("topic", "mytopic");
     config.put("redis.uri", REDIS_STANDALONE_URI);
     config.put("redis.cluster.enabled", "false");
     config.put("redis.channels", "boats");
@@ -251,6 +270,7 @@ public class RedisSourceTaskIT {
     final RedisSourceTask sourceTask = new RedisSourceTask();
 
     final Map<String, String> config = new HashMap<>();
+    config.put("topic", "mytopic");
     config.put("redis.uri", REDIS_CLUSTER_URI);
     config.put("redis.cluster.enabled", "true");
     config.put("redis.channels", "boat*");
