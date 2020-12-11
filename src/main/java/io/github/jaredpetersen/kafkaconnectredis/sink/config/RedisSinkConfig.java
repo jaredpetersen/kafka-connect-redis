@@ -7,7 +7,6 @@ import org.apache.kafka.common.config.ConfigDef.Importance;
 import org.apache.kafka.common.config.ConfigDef.Type;
 
 public class RedisSinkConfig extends AbstractConfig {
-  // TODO Store as password
   public static final String REDIS_URI = "redis.uri";
   private static final String REDIS_URI_DOC = "Redis uri.";
   private final String redisUri;
