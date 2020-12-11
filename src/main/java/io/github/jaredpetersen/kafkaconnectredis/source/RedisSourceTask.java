@@ -55,7 +55,7 @@ public class RedisSourceTask extends SourceTask {
       throw new ConnectException("task configuration error", configException);
     }
 
-    // Set up the pub/sub subscriber for Redis
+    // Set up the subscriber for Redis
     final RedisSubscriber redisSubscriber;
 
     if (config.isRedisClusterEnabled()) {
