@@ -102,6 +102,7 @@ public class RedisSourceTaskIT {
     final RedisSourceTask sourceTask = new RedisSourceTask();
 
     final Map<String, String> config = new HashMap<>();
+    config.put("topic", "mytopic");
     config.put("redis.uri", REDIS_STANDALONE_URI);
     config.put("redis.cluster.enabled", "false");
     config.put("redis.channels", "boats");
@@ -132,6 +133,7 @@ public class RedisSourceTaskIT {
     final RedisSourceTask sourceTask = new RedisSourceTask();
 
     final Map<String, String> config = new HashMap<>();
+    config.put("topic", "mytopic");
     config.put("redis.uri", REDIS_STANDALONE_URI);
     config.put("redis.cluster.enabled", "false");
     config.put("redis.channels", "boat*");
@@ -162,6 +164,7 @@ public class RedisSourceTaskIT {
     final RedisSourceTask sourceTask = new RedisSourceTask();
 
     final Map<String, String> config = new HashMap<>();
+    config.put("topic", "mytopic");
     config.put("redis.uri", REDIS_CLUSTER_URI);
     config.put("redis.cluster.enabled", "true");
     config.put("redis.channels", "boats");
@@ -192,6 +195,7 @@ public class RedisSourceTaskIT {
     final RedisSourceTask sourceTask = new RedisSourceTask();
 
     final Map<String, String> config = new HashMap<>();
+    config.put("topic", "mytopic");
     config.put("redis.uri", REDIS_CLUSTER_URI);
     config.put("redis.cluster.enabled", "true");
     config.put("redis.channels", "boat*");
@@ -222,6 +226,7 @@ public class RedisSourceTaskIT {
     final RedisSourceTask sourceTask = new RedisSourceTask();
 
     final Map<String, String> config = new HashMap<>();
+    config.put("topic", "mytopic");
     config.put("redis.uri", REDIS_STANDALONE_URI);
     config.put("redis.cluster.enabled", "false");
     config.put("redis.channels", "boats");
@@ -250,6 +255,7 @@ public class RedisSourceTaskIT {
     final RedisSourceTask sourceTask = new RedisSourceTask();
 
     final Map<String, String> config = new HashMap<>();
+    config.put("topic", "mytopic");
     config.put("redis.uri", REDIS_STANDALONE_URI);
     config.put("redis.cluster.enabled", "false");
     config.put("redis.channels", "boats");
@@ -264,6 +270,7 @@ public class RedisSourceTaskIT {
     final RedisSourceTask sourceTask = new RedisSourceTask();
 
     final Map<String, String> config = new HashMap<>();
+    config.put("topic", "mytopic");
     config.put("redis.uri", REDIS_CLUSTER_URI);
     config.put("redis.cluster.enabled", "true");
     config.put("redis.channels", "boat*");

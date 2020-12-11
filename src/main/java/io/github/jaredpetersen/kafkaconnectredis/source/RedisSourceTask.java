@@ -51,7 +51,7 @@ public class RedisSourceTask extends SourceTask {
     try {
       config = new RedisSourceConfig(props);
     }
-    catch(ConfigException configException) {
+    catch (ConfigException configException) {
       throw new ConnectException("task configuration error", configException);
     }
 

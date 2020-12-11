@@ -1,6 +1,5 @@
 package io.github.jaredpetersen.kafkaconnectredis.sink;
 
-import io.github.jaredpetersen.kafkaconnectredis.source.RedisSourceConnector;
 import io.github.jaredpetersen.kafkaconnectredis.util.VersionUtil;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;

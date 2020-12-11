@@ -31,6 +31,7 @@ public class RedisSourceConnectorIT {
     final RedisSourceConnector sourceConnector = new RedisSourceConnector();
 
     final Map<String, String> connectorConfig = new HashMap<>();
+    connectorConfig.put("topic", "mytopic");
     connectorConfig.put("redis.uri", "redis://localhost:6379");
     connectorConfig.put("redis.cluster.enabled", "false");
     connectorConfig.put("redis.channels", "channel1,channel2,channel3");
@@ -49,18 +50,21 @@ public class RedisSourceConnectorIT {
     final RedisSourceConnector sourceConnector = new RedisSourceConnector();
 
     final Map<String, String> connectorConfig = new HashMap<>();
+    connectorConfig.put("topic", "mytopic");
     connectorConfig.put("redis.uri", "redis://localhost:6379");
     connectorConfig.put("redis.cluster.enabled", "false");
     connectorConfig.put("redis.channels", "channel1,channel2,channel3");
     connectorConfig.put("redis.channels.pattern.enabled", "false");
 
     final Map<String, String> expectedPartitionedConnectorConfigA = new HashMap<>();
+    expectedPartitionedConnectorConfigA.put("topic", "mytopic");
     expectedPartitionedConnectorConfigA.put("redis.uri", "redis://localhost:6379");
     expectedPartitionedConnectorConfigA.put("redis.cluster.enabled", "false");
     expectedPartitionedConnectorConfigA.put("redis.channels", "channel1,channel2");
     expectedPartitionedConnectorConfigA.put("redis.channels.pattern.enabled", "false");
 
     final Map<String, String> expectedPartitionedConnectorConfigB = new HashMap<>();
+    expectedPartitionedConnectorConfigB.put("topic", "mytopic");
     expectedPartitionedConnectorConfigB.put("redis.uri", "redis://localhost:6379");
     expectedPartitionedConnectorConfigB.put("redis.cluster.enabled", "false");
     expectedPartitionedConnectorConfigB.put("redis.channels", "channel3");
@@ -80,24 +84,28 @@ public class RedisSourceConnectorIT {
     final RedisSourceConnector sourceConnector = new RedisSourceConnector();
 
     final Map<String, String> connectorConfig = new HashMap<>();
+    connectorConfig.put("topic", "mytopic");
     connectorConfig.put("redis.uri", "redis://localhost:6379");
     connectorConfig.put("redis.cluster.enabled", "false");
     connectorConfig.put("redis.channels", "channel1,channel2,channel3");
     connectorConfig.put("redis.channels.pattern.enabled", "false");
 
     final Map<String, String> expectedPartitionedConnectorConfigA = new HashMap<>();
+    expectedPartitionedConnectorConfigA.put("topic", "mytopic");
     expectedPartitionedConnectorConfigA.put("redis.uri", "redis://localhost:6379");
     expectedPartitionedConnectorConfigA.put("redis.cluster.enabled", "false");
     expectedPartitionedConnectorConfigA.put("redis.channels", "channel1");
     expectedPartitionedConnectorConfigA.put("redis.channels.pattern.enabled", "false");
 
     final Map<String, String> expectedPartitionedConnectorConfigB = new HashMap<>();
+    expectedPartitionedConnectorConfigB.put("topic", "mytopic");
     expectedPartitionedConnectorConfigB.put("redis.uri", "redis://localhost:6379");
     expectedPartitionedConnectorConfigB.put("redis.cluster.enabled", "false");
     expectedPartitionedConnectorConfigB.put("redis.channels", "channel2");
     expectedPartitionedConnectorConfigB.put("redis.channels.pattern.enabled", "false");
 
     final Map<String, String> expectedPartitionedConnectorConfigC = new HashMap<>();
+    expectedPartitionedConnectorConfigC.put("topic", "mytopic");
     expectedPartitionedConnectorConfigC.put("redis.uri", "redis://localhost:6379");
     expectedPartitionedConnectorConfigC.put("redis.cluster.enabled", "false");
     expectedPartitionedConnectorConfigC.put("redis.channels", "channel3");

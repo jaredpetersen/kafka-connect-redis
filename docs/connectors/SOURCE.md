@@ -88,7 +88,7 @@ Splitting the workload between multiple tasks is possible via the configuration 
 ### Connector Properties
 | Name                              | Type    | Default        | Importance | Description                                             |
 | --------------------------------- | ------- | -------------- | ---------- | ------------------------------------------------------- |
-| `topic`                           | string  | `redis.events` | High       | Topic to write to.                                      |
+| `topic`                           | string  |                | High       | Topic to write to.                                      |
 | `redis.uri`                       | string  |                | High       | Redis connection information provided via a URI string. |
 | `redis.cluster.enabled`           | boolean | false          | High       | Target Redis is running as a cluster.                   |
 | `redis.channels`                  | string  |                | High       | Redis channels to subscribe to separated by commas.     |

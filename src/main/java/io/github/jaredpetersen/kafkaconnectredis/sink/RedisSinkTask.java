@@ -48,7 +48,8 @@ public class RedisSinkTask extends SinkTask {
 
     try {
       config = new RedisSinkConfig(props);
-    } catch(ConfigException configException) {
+    }
+    catch (ConfigException configException) {
       throw new ConnectException("task configuration error");
     }
 

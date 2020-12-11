@@ -10,7 +10,6 @@ import org.apache.kafka.common.config.ConfigDef.Type;
 public class RedisSourceConfig extends AbstractConfig {
   public static final String TOPIC = "topic";
   private static final String TOPIC_DOC = "Topic to write to.";
-  private static final String TOPIC_DEFAULT = "redis";
   private final String topic;
 
   public static final String REDIS_URI = "redis.uri";
@@ -34,7 +33,6 @@ public class RedisSourceConfig extends AbstractConfig {
     .define(
       TOPIC,
       Type.STRING,
-      TOPIC_DEFAULT,
       Importance.HIGH,
       TOPIC_DOC)
     .define(
