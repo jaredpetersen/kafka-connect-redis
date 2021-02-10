@@ -1,0 +1,85 @@
+version: "3"
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:6.0.0
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 2181
+    deploy:
+      restart_policy:
+        condition: on-failure
+    ports:
+      - 2181:2181
+
+  kafka-broker:
+    image: confluentinc/cp-kafka:6.0.0
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-broker:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    deploy:
+      restart_policy:
+        condition: on-failure
+    ports:
+      - 9092:9092
+
+  kafka-schema-registry:
+    image: confluentinc/cp-schema-registry:6.0.0
+    depends_on:
+      - zookeeper
+      - kafka-broker
+    environment:
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka-broker:9092
+      SCHEMA_REGISTRY_HOST_NAME: kafka-schema-registry
+    deploy:
+      restart_policy:
+        condition: on-failure
+    ports:
+      - 8081:8081
+
+  kafka-connect:
+    build:
+      context: ../docker/kafka-connect-redis
+    depends_on:
+      - kafka-broker
+      - kafka-schema-registry
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: kafka-broker:9092
+      CONNECT_REST_ADVERTISED_HOST_NAME: kafka-connect
+      CONNECT_REST_PORT: 8083
+      CONNECT_GROUP_ID: kafka-connect
+      CONNECT_PLUGIN_PATH: /usr/share/java/,/usr/share/confluent-hub-components/
+      CONNECT_CONFIG_STORAGE_TOPIC: kafka-connect.config
+      CONNECT_OFFSET_STORAGE_TOPIC: kafka-connect.offsets
+      CONNECT_STATUS_STORAGE_TOPIC: kafka-connect.status
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_KEY_CONVERTER: io.confluent.connect.avro.AvroConverter
+      CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: http://kafka-schema-registry:8081
+      CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "true"
+      CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://kafka-schema-registry:8081
+      CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "true"
+    deploy:
+      restart_policy:
+        condition: on-failure
+    ports:
+      - 8083:8083
+
+  redis:
+    build:
+      context: ../docker/redis
+    volumes:
+      - ./volumes/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    deploy:
+      restart_policy:
+        condition: on-failure
+    ports:
+      - 6379:6379
+      - 16379:16379
