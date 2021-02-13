@@ -1,5 +1,6 @@
 package io.github.jaredpetersen.kafkaconnectredis.sink;
 
+import io.github.jaredpetersen.kafkaconnectredis.testutil.RedisContainer;
 import io.github.jaredpetersen.kafkaconnectredis.util.VersionUtil;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
@@ -22,11 +23,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
-import org.testcontainers.utility.MountableFile;
 import reactor.test.StepVerifier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,17 +33,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Testcontainers
 public class RedisSinkTaskIT {
   @Container
-  private static final GenericContainer<?> REDIS_STANDALONE = new GenericContainer<>(DockerImageName.parse("redis:6"))
-    .withExposedPorts(6379)
-    .waitingFor(Wait.forLogMessage(".*Ready to accept connections.*\\n", 1));
+  private static final RedisContainer REDIS_STANDALONE = new RedisContainer();
 
   @Container
-  private static final GenericContainer<?> REDIS_CLUSTER = new GenericContainer<>(DockerImageName.parse("redis:6"))
-    .withCopyFileToContainer(MountableFile.forClasspathResource("redis/redis-cluster.conf"), "/data/redis.conf")
-    .withCopyFileToContainer(MountableFile.forClasspathResource("redis/nodes-cluster.conf"), "/data/nodes.conf")
-    .withCommand("redis-server", "/data/redis.conf")
-    .withExposedPorts(6379)
-    .waitingFor(Wait.forLogMessage(".*Cluster state changed: ok*\\n", 1));
+  private static final GenericContainer<?> REDIS_CLUSTER = new RedisContainer().withClusterMode();
 
   private static String REDIS_STANDALONE_URI;
   private static RedisClient REDIS_STANDALONE_CLIENT;

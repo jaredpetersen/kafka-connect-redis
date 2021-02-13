@@ -1,5 +1,6 @@
 package io.github.jaredpetersen.kafkaconnectredis.sink.writer;
 
+import io.github.jaredpetersen.kafkaconnectredis.testutil.RedisContainer;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisArbitraryCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisExpireCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisExpireatCommand;
@@ -22,28 +23,18 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
-import org.testcontainers.utility.MountableFile;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @Testcontainers
 public class WriterIT {
   @Container
-  private static final GenericContainer<?> REDIS_STANDALONE = new GenericContainer<>(DockerImageName.parse("redis:6"))
-      .withExposedPorts(6379)
-      .waitingFor(Wait.forLogMessage(".*Ready to accept connections.*\\n", 1));
+  private static final GenericContainer<?> REDIS_STANDALONE = new RedisContainer();
 
   @Container
-  private static final GenericContainer<?> REDIS_CLUSTER = new GenericContainer<>(DockerImageName.parse("redis:6"))
-      .withCopyFileToContainer(MountableFile.forClasspathResource("redis/redis-cluster.conf"), "/data/redis.conf")
-      .withCopyFileToContainer(MountableFile.forClasspathResource("redis/nodes-cluster.conf"), "/data/nodes.conf")
-      .withCommand("redis-server", "/data/redis.conf")
-      .withExposedPorts(6379)
-      .waitingFor(Wait.forLogMessage(".*Cluster state changed: ok*\\n", 1));
+  private static final RedisContainer REDIS_CLUSTER = new RedisContainer().withClusterMode();
 
   private static RedisClient REDIS_STANDALONE_CLIENT;
   private static StatefulRedisConnection<String, String> REDIS_STANDALONE_CONNECTION;

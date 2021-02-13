@@ -1,5 +1,6 @@
 package io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber;
 
+import io.github.jaredpetersen.kafkaconnectredis.testutil.RedisContainer;
 import io.github.jaredpetersen.kafkaconnectredis.source.listener.RedisMessage;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
@@ -11,12 +12,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
-import org.testcontainers.utility.MountableFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -24,12 +21,7 @@ import reactor.test.StepVerifier;
 @Testcontainers
 public class RedisClusterChannelSubscriberIT {
   @Container
-  private static final GenericContainer<?> REDIS_CLUSTER = new GenericContainer<>(DockerImageName.parse("redis:6"))
-    .withCopyFileToContainer(MountableFile.forClasspathResource("redis/redis-cluster.conf"), "/data/redis.conf")
-    .withCopyFileToContainer(MountableFile.forClasspathResource("redis/nodes-cluster.conf"), "/data/nodes.conf")
-    .withCommand("redis-server", "/data/redis.conf")
-    .withExposedPorts(6379)
-    .waitingFor(Wait.forLogMessage(".*Cluster state changed: ok*\\n", 1));
+  private static final RedisContainer REDIS_CLUSTER = new RedisContainer().withClusterMode();
 
   private static RedisClusterClient REDIS_CLUSTER_CLIENT;
   private static StatefulRedisClusterPubSubConnection<String, String> REDIS_CLUSTER_PUB_CONNECTION;
