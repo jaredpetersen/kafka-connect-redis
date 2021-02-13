@@ -35,12 +35,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Testcontainers
 public class RedisSinkTaskIT {
   @Container
-  private static final GenericContainer REDIS_STANDALONE = new GenericContainer(DockerImageName.parse("redis:6"))
+  private static final GenericContainer<?> REDIS_STANDALONE = new GenericContainer<>(DockerImageName.parse("redis:6"))
     .withExposedPorts(6379)
     .waitingFor(Wait.forLogMessage(".*Ready to accept connections.*\\n", 1));
 
   @Container
-  private static final GenericContainer REDIS_CLUSTER = new GenericContainer(DockerImageName.parse("redis:6"))
+  private static final GenericContainer<?> REDIS_CLUSTER = new GenericContainer<>(DockerImageName.parse("redis:6"))
     .withCopyFileToContainer(MountableFile.forClasspathResource("redis/redis-cluster.conf"), "/data/redis.conf")
     .withCopyFileToContainer(MountableFile.forClasspathResource("redis/nodes-cluster.conf"), "/data/nodes.conf")
     .withCommand("redis-server", "/data/redis.conf")

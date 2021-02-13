@@ -10,6 +10,8 @@ import io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber.Redi
 import io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber.RedisSubscriber;
 import io.github.jaredpetersen.kafkaconnectredis.util.VersionUtil;
 import io.lettuce.core.RedisClient;
+import io.lettuce.core.cluster.ClusterClientOptions;
+import io.lettuce.core.cluster.ClusterTopologyRefreshOptions;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.pubsub.StatefulRedisClusterPubSubConnection;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
@@ -60,6 +62,13 @@ public class RedisSourceTask extends SourceTask {
 
     if (config.isRedisClusterEnabled()) {
       this.redisClusterClient = RedisClusterClient.create(config.getRedisUri());
+      this.redisClusterClient.setOptions(ClusterClientOptions.builder()
+        .topologyRefreshOptions(ClusterTopologyRefreshOptions.builder()
+          .enableAllAdaptiveRefreshTriggers()
+          .enablePeriodicRefresh()
+          .build())
+        .build());
+
       this.redisClusterPubSubConnection = this.redisClusterClient.connectPubSub();
       this.redisClusterPubSubConnection.setNodeMessagePropagation(true);
 

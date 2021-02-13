@@ -23,7 +23,7 @@ import reactor.test.StepVerifier;
 @Testcontainers
 public class RedisPatternSubscriberIT {
   @Container
-  private static final GenericContainer REDIS_STANDALONE = new GenericContainer(DockerImageName.parse("redis:6"))
+  private static final GenericContainer<?> REDIS_STANDALONE = new GenericContainer<>(DockerImageName.parse("redis:6"))
     .withExposedPorts(6379)
     .waitingFor(Wait.forLogMessage(".*Ready to accept connections.*\\n", 1));
 

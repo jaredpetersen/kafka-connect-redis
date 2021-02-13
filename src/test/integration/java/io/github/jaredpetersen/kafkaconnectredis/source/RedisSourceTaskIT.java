@@ -31,12 +31,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Testcontainers
 public class RedisSourceTaskIT {
   @Container
-  private static final GenericContainer REDIS_STANDALONE = new GenericContainer(DockerImageName.parse("redis:6"))
+  private static final GenericContainer<?> REDIS_STANDALONE = new GenericContainer<>(DockerImageName.parse("redis:6"))
     .withExposedPorts(6379)
     .waitingFor(Wait.forLogMessage(".*Ready to accept connections.*\\n", 1));
 
   @Container
-  private static final GenericContainer REDIS_CLUSTER = new GenericContainer(DockerImageName.parse("redis:6"))
+  private static final GenericContainer<?> REDIS_CLUSTER = new GenericContainer<>(DockerImageName.parse("redis:6"))
     .withCopyFileToContainer(MountableFile.forClasspathResource("redis/redis-cluster.conf"), "/data/redis.conf")
     .withCopyFileToContainer(MountableFile.forClasspathResource("redis/nodes-cluster.conf"), "/data/nodes.conf")
     .withCommand("redis-server", "/data/redis.conf")
@@ -45,13 +45,11 @@ public class RedisSourceTaskIT {
 
   private static String REDIS_STANDALONE_URI;
   private static RedisClient REDIS_STANDALONE_CLIENT;
-  private static StatefulRedisPubSubConnection<String, String> REDIS_STANDALONE_PUB_CONNECTION;
   private static RedisReactiveCommands<String, String> REDIS_STANDALONE_PUB_COMMANDS;
   private static StatefulRedisPubSubConnection<String, String> REDIS_STANDALONE_SUB_CONNECTION;
 
   private static String REDIS_CLUSTER_URI;
   private static RedisClusterClient REDIS_CLUSTER_CLIENT;
-  private static StatefulRedisClusterPubSubConnection<String, String> REDIS_CLUSTER_PUB_CONNECTION;
   private static RedisClusterReactiveCommands<String, String> REDIS_CLUSTER_PUB_COMMANDS;
   private static StatefulRedisClusterPubSubConnection<String, String> REDIS_CLUSTER_SUB_CONNECTION;
 
@@ -60,16 +58,18 @@ public class RedisSourceTaskIT {
     REDIS_STANDALONE_URI = "redis://" + REDIS_STANDALONE.getHost() + ":" + REDIS_STANDALONE.getFirstMappedPort();
     REDIS_STANDALONE_CLIENT = RedisClient.create(REDIS_STANDALONE_URI);
 
-    REDIS_STANDALONE_PUB_CONNECTION = REDIS_STANDALONE_CLIENT.connectPubSub();
-    REDIS_STANDALONE_PUB_COMMANDS = REDIS_STANDALONE_PUB_CONNECTION.reactive();
+    final StatefulRedisPubSubConnection<String, String> redisStandalonePubConnection = REDIS_STANDALONE_CLIENT
+      .connectPubSub();
+    REDIS_STANDALONE_PUB_COMMANDS = redisStandalonePubConnection.reactive();
 
     REDIS_STANDALONE_SUB_CONNECTION = REDIS_STANDALONE_CLIENT.connectPubSub();
 
     REDIS_CLUSTER_URI = "redis://" + REDIS_CLUSTER.getHost() + ":" + REDIS_CLUSTER.getFirstMappedPort();
     REDIS_CLUSTER_CLIENT = RedisClusterClient.create(REDIS_CLUSTER_URI);
 
-    REDIS_CLUSTER_PUB_CONNECTION = REDIS_CLUSTER_CLIENT.connectPubSub();
-    REDIS_CLUSTER_PUB_COMMANDS = REDIS_CLUSTER_PUB_CONNECTION.reactive();
+    final StatefulRedisClusterPubSubConnection<String, String> redisClusterPubConnection = REDIS_CLUSTER_CLIENT
+      .connectPubSub();
+    REDIS_CLUSTER_PUB_COMMANDS = redisClusterPubConnection.reactive();
 
     REDIS_CLUSTER_SUB_CONNECTION = REDIS_CLUSTER_CLIENT.connectPubSub();
     REDIS_CLUSTER_SUB_CONNECTION.setNodeMessagePropagation(true);
