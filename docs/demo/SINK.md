@@ -1,13 +1,18 @@
 # Demo: Kafka Connect Sink
 ## Install Connector
-Send a request to the Kafka Connect REST API to configure it to use Kafka Connect Redis:
+Send a request to the Kafka Connect REST API to configure it to use Kafka Connect Redis.
+
+First, expose the Kafka Connect server:
+```bash
+kubectl -n kcr-demo port-forward service/kafka-connect :rest
+```
+
+Kubectl will choose an available port for you that you will need to use for the cURLs (`$PORT`).
 
 ### Avro
-**IMPORTANT:** The Avro demo utilizes multiple topics in order to work around [a bug in the Avro console producer](https://github.com/confluentinc/schema-registry/issues/898). A fix has been merged but Confluent has not published a new Docker image for it yet (6.1.0+). Kafka Connect Redis works with Avro on a single topic; this is just a problem with the console producer provided by Confluent.
-
 ```bash
 curl --request POST \
-    --url "$(minikube -n kcr-demo service kafka-connect --url)/connectors" \
+    --url "localhost:$PORT/connectors" \
     --header 'content-type: application/json' \
     --data '{
         "name": "demo-redis-sink-connector",
@@ -15,10 +20,12 @@ curl --request POST \
             "connector.class": "io.github.jaredpetersen.kafkaconnectredis.sink.RedisSinkConnector",
             "key.converter": "io.confluent.connect.avro.AvroConverter",
             "key.converter.schema.registry.url": "http://kafka-schema-registry:8081",
+            "key.converter.key.subject.name.strategy": "io.confluent.kafka.serializers.subject.TopicRecordNameStrategy",
             "value.converter": "io.confluent.connect.avro.AvroConverter",
             "value.converter.schema.registry.url": "http://kafka-schema-registry:8081",
+            "value.converter.value.subject.name.strategy": "io.confluent.kafka.serializers.subject.TopicRecordNameStrategy",
             "tasks.max": "3",
-            "topics": "redis.commands.set,redis.commands.expire,redis.commands.expireat,redis.commands.pexpire,redis.commands.sadd,redis.commands.geoadd,redis.commands.arbitrary",
+            "topics": "redis.commands",
             "redis.uri": "redis://IEPfIr0eLF7UsfwrIlzy80yUaBG258j9@redis-cluster",
             "redis.cluster.enabled": true
         }
@@ -28,7 +35,7 @@ curl --request POST \
 ### Connect JSON
 ```bash
 curl --request POST \
-    --url "$(minikube -n kcr-demo service kafka-connect --url)/connectors" \
+    --url "localhost:$PORT/connectors" \
     --header 'content-type: application/json' \
     --data '{
         "name": "demo-redis-sink-connector",
@@ -48,17 +55,18 @@ curl --request POST \
 ### Avro
 Create an interactive ephemeral query pod:
 ```bash
-kubectl -n kcr-demo run -it --rm kafka-write-records --image confluentinc/cp-schema-registry:6.0.0 --command /bin/bash
+kubectl -n kcr-demo run -it --rm kafka-write-records --image confluentinc/cp-schema-registry:6.1.0 --command /bin/bash
 ```
 
-Write records to the `redis.commands` topics:
+Write records to the `redis.commands` topic:
 
 ```bash
 kafka-avro-console-producer \
     --broker-list kafka-broker-0.kafka-broker:9092 \
     --property schema.registry.url='http://kafka-schema-registry:8081' \
+    --property value.subject.name.strategy='io.confluent.kafka.serializers.subject.TopicRecordNameStrategy' \
     --property value.schema='{"namespace":"io.github.jaredpetersen.kafkaconnectredis","name":"RedisSetCommand","type":"record","fields":[{"name":"key","type":"string"},{"name":"value","type":"string"},{"name":"expiration","type":["null",{"name":"RedisSetCommandExpiration","type":"record","fields":[{"name":"type","type":{"name":"RedisSetCommandExpirationType","type":"enum","symbols":["EX","PX","KEEPTTL"]}},{"name":"time","type":["null","long"]}]}],"default":null},{"name":"condition","type":["null",{"name":"RedisSetCommandCondition","type":"enum","symbols":["NX","XX","KEEPTTL"]}],"default":null}]}' \
-    --topic redis.commands.set
+    --topic redis.commands
 >{"key":"{user.1}.username","value":"jetpackmelon22","expiration":null,"condition":null}
 >{"key":"{user.2}.username","value":"anchorgoat74","expiration":{"io.github.jaredpetersen.kafkaconnectredis.RedisSetCommandExpiration":{"type":"EX","time":{"long":2100}}},"condition":{"io.github.jaredpetersen.kafkaconnectredis.RedisSetCommandCondition":"NX"}}
 >{"key":"product.milk","value":"$2.29","expiration":null,"condition":null}
@@ -70,8 +78,9 @@ kafka-avro-console-producer \
 kafka-avro-console-producer \
     --broker-list kafka-broker-0.kafka-broker:9092 \
     --property schema.registry.url='http://kafka-schema-registry:8081' \
+    --property value.subject.name.strategy='io.confluent.kafka.serializers.subject.TopicRecordNameStrategy' \
     --property value.schema='{"namespace":"io.github.jaredpetersen.kafkaconnectredis","name":"RedisExpireCommand","type":"record","fields":[{"name":"key","type":"string"},{"name":"seconds","type":"long"}]}' \
-    --topic redis.commands.expire
+    --topic redis.commands
 >{"key":"product.milk","seconds":1800}
 ```
 
@@ -79,8 +88,9 @@ kafka-avro-console-producer \
 kafka-avro-console-producer \
     --broker-list kafka-broker-0.kafka-broker:9092 \
     --property schema.registry.url='http://kafka-schema-registry:8081' \
+    --property value.subject.name.strategy='io.confluent.kafka.serializers.subject.TopicRecordNameStrategy' \
     --property value.schema='{"namespace":"io.github.jaredpetersen.kafkaconnectredis","name":"RedisExpireatCommand","type":"record","fields":[{"name":"key","type":"string"},{"name":"timestamp","type":"long"}]}' \
-    --topic redis.commands.expireat
+    --topic redis.commands
 >{"key":"product.bread","timestamp":4130464553}
 ```
 
@@ -88,8 +98,9 @@ kafka-avro-console-producer \
 kafka-avro-console-producer \
     --broker-list kafka-broker-0.kafka-broker:9092 \
     --property schema.registry.url='http://kafka-schema-registry:8081' \
+    --property value.subject.name.strategy='io.confluent.kafka.serializers.subject.TopicRecordNameStrategy' \
     --property value.schema='{"namespace":"io.github.jaredpetersen.kafkaconnectredis","name":"RedisPexpireCommand","type":"record","fields":[{"name":"key","type":"string"},{"name":"milliseconds","type":"long"}]}' \
-    --topic redis.commands.pexpire
+    --topic redis.commands
 >{"key":"product.waffles","milliseconds":1800000}
 ```
 
@@ -97,8 +108,9 @@ kafka-avro-console-producer \
 kafka-avro-console-producer \
     --broker-list kafka-broker-0.kafka-broker:9092 \
     --property schema.registry.url='http://kafka-schema-registry:8081' \
+    --property value.subject.name.strategy='io.confluent.kafka.serializers.subject.TopicRecordNameStrategy' \
     --property value.schema='{"namespace":"io.github.jaredpetersen.kafkaconnectredis","name":"RedisSaddCommand","type":"record","fields":[{"name":"key","type":"string"},{"name":"values","type":{"type":"array","items":"string"}}]}' \
-    --topic redis.commands.sadd
+    --topic redis.commands
 >{"key":"{user.1}.interests","values":["reading"]}
 >{"key":"{user.2}.interests","values":["sailing","woodworking","programming"]}
 ```
@@ -107,8 +119,9 @@ kafka-avro-console-producer \
 kafka-avro-console-producer \
     --broker-list kafka-broker-0.kafka-broker:9092 \
     --property schema.registry.url='http://kafka-schema-registry:8081' \
+    --property value.subject.name.strategy='io.confluent.kafka.serializers.subject.TopicRecordNameStrategy' \
     --property value.schema='{"namespace":"io.github.jaredpetersen.kafkaconnectredis","name":"RedisGeoaddCommand","type":"record","fields":[{"name":"key","type":"string"},{"name":"values","type":{"type":"array","items":{"name":"RedisGeoaddCommandGeolocation","type":"record","fields":[{"name":"longitude","type":"double"},{"name":"latitude","type":"double"},{"name":"member","type":"string"}]}}}]}' \
-    --topic redis.commands.geoadd
+    --topic redis.commands
 >{"key":"Sicily","values":[{"longitude":13.361389,"latitude":13.361389,"member":"Palermo"},{"longitude":15.087269,"latitude":37.502669,"member":"Catania"}]}
 ```
 
@@ -116,8 +129,9 @@ kafka-avro-console-producer \
 kafka-avro-console-producer \
     --broker-list kafka-broker-0.kafka-broker:9092 \
     --property schema.registry.url='http://kafka-schema-registry:8081' \
+    --property value.subject.name.strategy='io.confluent.kafka.serializers.subject.TopicRecordNameStrategy' \
     --property value.schema='{"namespace":"io.github.jaredpetersen.kafkaconnectredis","name":"RedisArbitraryCommand","type":"record","fields":[{"name":"command","type":"string"},{"name":"arguments","type":{"type":"array","items":"string"}}]}' \
-    --topic redis.commands.arbitrary
+    --topic redis.commands
 >{"command":"TS.CREATE","arguments":["temperature:3:11", "RETENTION", "60", "LABELS", "sensor_id", "2", "area_id", "32"]}
 >{"command":"TS.ADD","arguments":["temperature:3:11", "1548149181", "30"]}
 >{"command":"TS.ADD","arguments":["temperature:3:11", "1548149191", "42"]}
@@ -126,7 +140,7 @@ kafka-avro-console-producer \
 ### Connect JSON
 Create an interactive ephemeral query pod:
 ```bash
-kubectl -n kcr-demo run -it --rm kafka-write-records --image confluentinc/cp-kafka:6.0.0 --command /bin/bash
+kubectl -n kcr-demo run -it --rm kafka-write-records --image confluentinc/cp-kafka:6.1.0 --command /bin/bash
 ```
 
 Write records to the `redis.commands` topic:

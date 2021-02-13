@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: zookeeper
-        image: confluentinc/cp-zookeeper:6.0.0
+        image: confluentinc/cp-zookeeper:6.1.0
         # Use downward api after https://github.com/kubernetes/kubernetes/pull/68719 is merged
         command:
         - /bin/bash
