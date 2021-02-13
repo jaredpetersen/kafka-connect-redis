@@ -30,11 +30,7 @@ public class RedisPatternSubscriberIT {
 
   @BeforeAll
   static void setupAll() {
-    final String redisClusterUri = "redis://"
-      + REDIS_STANDALONE.getHost()
-      + ":"
-      + REDIS_STANDALONE.getFirstMappedPort();
-    REDIS_STANDALONE_CLIENT = RedisClient.create(redisClusterUri);
+    REDIS_STANDALONE_CLIENT = RedisClient.create(REDIS_STANDALONE.getUri());
 
     REDIS_STANDALONE_PUB_CONNECTION = REDIS_STANDALONE_CLIENT.connectPubSub();
     REDIS_STANDALONE_PUB_COMMANDS = REDIS_STANDALONE_PUB_CONNECTION.reactive();

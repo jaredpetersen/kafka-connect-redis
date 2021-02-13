@@ -22,7 +22,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Mono;
@@ -31,7 +30,7 @@ import reactor.test.StepVerifier;
 @Testcontainers
 public class WriterIT {
   @Container
-  private static final GenericContainer<?> REDIS_STANDALONE = new RedisContainer();
+  private static final RedisContainer REDIS_STANDALONE = new RedisContainer();
 
   @Container
   private static final RedisContainer REDIS_CLUSTER = new RedisContainer().withClusterMode();
@@ -46,16 +45,11 @@ public class WriterIT {
 
   @BeforeAll
   static void setupAll() {
-    final String redisStandaloneUri = "redis://"
-      + REDIS_STANDALONE.getHost()
-      + ":"
-      + REDIS_STANDALONE.getFirstMappedPort();
-    REDIS_STANDALONE_CLIENT = RedisClient.create(redisStandaloneUri);
+    REDIS_STANDALONE_CLIENT = RedisClient.create(REDIS_STANDALONE.getUri());
     REDIS_STANDALONE_CONNECTION = REDIS_STANDALONE_CLIENT.connect();
     REDIS_STANDALONE_COMMANDS = REDIS_STANDALONE_CONNECTION.reactive();
 
-    final String redisClusterUri = "redis://" + REDIS_CLUSTER.getHost() + ":" + REDIS_CLUSTER.getFirstMappedPort();
-    REDIS_CLUSTER_CLIENT = RedisClusterClient.create(redisClusterUri);
+    REDIS_CLUSTER_CLIENT = RedisClusterClient.create(REDIS_CLUSTER.getUri());
     REDIS_CLUSTER_CONNECTION = REDIS_CLUSTER_CLIENT.connect();
     REDIS_CLUSTER_COMMANDS = REDIS_CLUSTER_CONNECTION.reactive();
   }

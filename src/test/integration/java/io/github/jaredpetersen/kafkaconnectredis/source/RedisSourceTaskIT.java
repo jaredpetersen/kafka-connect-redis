@@ -45,7 +45,7 @@ public class RedisSourceTaskIT {
 
   @BeforeAll
   static void setupAll() {
-    REDIS_STANDALONE_URI = "redis://" + REDIS_STANDALONE.getHost() + ":" + REDIS_STANDALONE.getFirstMappedPort();
+    REDIS_STANDALONE_URI = REDIS_STANDALONE.getUri();
     REDIS_STANDALONE_CLIENT = RedisClient.create(REDIS_STANDALONE_URI);
 
     final StatefulRedisPubSubConnection<String, String> redisStandalonePubConnection = REDIS_STANDALONE_CLIENT
@@ -54,7 +54,7 @@ public class RedisSourceTaskIT {
 
     REDIS_STANDALONE_SUB_CONNECTION = REDIS_STANDALONE_CLIENT.connectPubSub();
 
-    REDIS_CLUSTER_URI = "redis://" + REDIS_CLUSTER.getHost() + ":" + REDIS_CLUSTER.getFirstMappedPort();
+    REDIS_CLUSTER_URI = REDIS_CLUSTER.getUri();
     REDIS_CLUSTER_CLIENT = RedisClusterClient.create(REDIS_CLUSTER_URI);
 
     final StatefulRedisClusterPubSubConnection<String, String> redisClusterPubConnection = REDIS_CLUSTER_CLIENT
