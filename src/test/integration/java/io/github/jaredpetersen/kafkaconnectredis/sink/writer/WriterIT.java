@@ -1,6 +1,5 @@
 package io.github.jaredpetersen.kafkaconnectredis.sink.writer;
 
-import io.github.jaredpetersen.kafkaconnectredis.testutil.RedisContainer;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisArbitraryCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisExpireCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisExpireatCommand;
@@ -8,6 +7,7 @@ import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisGeoaddC
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisPexpireCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisSaddCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisSetCommand;
+import io.github.jaredpetersen.kafkaconnectredis.testutil.RedisContainer;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.SetArgs;
 import io.lettuce.core.api.StatefulRedisConnection;

@@ -1,7 +1,7 @@
 package io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber;
 
-import io.github.jaredpetersen.kafkaconnectredis.testutil.RedisContainer;
 import io.github.jaredpetersen.kafkaconnectredis.source.listener.RedisMessage;
+import io.github.jaredpetersen.kafkaconnectredis.testutil.RedisContainer;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.reactive.RedisReactiveCommands;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
