@@ -27,7 +27,7 @@ docker build -t jaredpetersen/redis:latest .
 
 Next, we'll need to build a docker image for Kafka Connect Redis. Navigate to `demo/docker/kafka-connect-redis` and run the following commands:
 ```bash
-curl -O https://repo1.maven.org/maven2/io/github/jaredpetersen/kafka-connect-redis/1.1.0/kafka-connect-redis-1.1.0.jar
+curl -O https://repo1.maven.org/maven2/io/github/jaredpetersen/kafka-connect-redis/1.2.0/kafka-connect-redis-1.2.0.jar
 docker build -t jaredpetersen/kafka-connect-redis:latest .
 ```
 
