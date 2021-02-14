@@ -2,10 +2,17 @@
 ## Install Connector
 Send a request to the Kafka Connect REST API to configure it to use Kafka Connect Redis. We'll be listening to all keyspace and keyevent notifications in Redis by using the channel pattern `__key*__:*`.
 
+First, expose the Kafka Connect server:
+```bash
+kubectl -n kcr-demo port-forward service/kafka-connect :rest
+```
+
+Kubectl will choose an available port for you that you will need to use for the cURLs (`$PORT`).
+
 ### Avro
 ```bash
 curl --request POST \
-    --url "$(minikube -n kcr-demo service kafka-connect --url)/connectors" \
+    --url "localhost:$PORT/connectors" \
     --header 'content-type: application/json' \
     --data '{
         "name": "demo-redis-source-connector",
@@ -28,7 +35,7 @@ curl --request POST \
 ### Connect JSON
 ```bash
 curl --request POST \
-    --url "$(minikube -n kcr-demo service kafka-connect --url)/connectors" \
+    --url "localhost:$PORT/connectors" \
     --header 'content-type: application/json' \
     --data '{
         "name": "demo-redis-source-connector",
@@ -75,7 +82,7 @@ SMEMBERS {user.2}.interests
 ### Avro
 Create an interactive ephemeral query pod:
 ```bash
-kubectl -n kcr-demo run -it --rm kafka-tail-records --image confluentinc/cp-schema-registry:6.0.0 --command /bin/bash
+kubectl -n kcr-demo run -it --rm kafka-tail-records --image confluentinc/cp-schema-registry:6.1.0 --command /bin/bash
 ```
 
 Tail the topic, starting from the beginning:
@@ -92,7 +99,7 @@ kafka-avro-console-consumer \
 ### Connect JSON
 Create an interactive ephemeral query pod:
 ```bash
-kubectl -n kcr-demo run -it --rm kafka-tail-records --image confluentinc/cp-kafka:6.0.0 --command /bin/bash
+kubectl -n kcr-demo run -it --rm kafka-tail-records --image confluentinc/cp-kafka:6.1.0 --command /bin/bash
 ```
 
 Tail the topic, starting from the beginning:
