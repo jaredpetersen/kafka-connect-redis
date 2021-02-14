@@ -50,8 +50,6 @@ spec:
           value: http://kafka-schema-registry:8081
         - name: CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE
           value: "true"
-        - name: CONNECT_VALUE_SUBJECT_NAME_STRATEGY
-          value: ''
         readinessProbe:
           httpGet:
             path: /
