@@ -1,6 +1,7 @@
 package io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber;
 
 import io.github.jaredpetersen.kafkaconnectredis.source.listener.RedisMessage;
+import io.github.jaredpetersen.kafkaconnectredis.testutil.RedisContainer;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
 import io.lettuce.core.cluster.pubsub.StatefulRedisClusterPubSubConnection;
@@ -11,12 +12,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
-import org.testcontainers.utility.MountableFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -24,12 +21,7 @@ import reactor.test.StepVerifier;
 @Testcontainers
 public class RedisClusterPatternSubscriberIT {
   @Container
-  private static final GenericContainer REDIS_CLUSTER = new GenericContainer(DockerImageName.parse("redis:6"))
-    .withCopyFileToContainer(MountableFile.forClasspathResource("redis/redis-cluster.conf"), "/data/redis.conf")
-    .withCopyFileToContainer(MountableFile.forClasspathResource("redis/nodes-cluster.conf"), "/data/nodes.conf")
-    .withCommand("redis-server", "/data/redis.conf")
-    .withExposedPorts(6379)
-    .waitingFor(Wait.forLogMessage(".*Cluster state changed: ok*\\n", 1));
+  private static final RedisContainer REDIS_CLUSTER = new RedisContainer().withClusterMode();
 
   private static RedisClusterClient REDIS_CLUSTER_CLIENT;
   private static StatefulRedisClusterPubSubConnection<String, String> REDIS_CLUSTER_PUB_CONNECTION;
@@ -38,8 +30,7 @@ public class RedisClusterPatternSubscriberIT {
 
   @BeforeAll
   static void setupAll() {
-    final String redisClusterUri = "redis://" + REDIS_CLUSTER.getHost() + ":" + REDIS_CLUSTER.getFirstMappedPort();
-    REDIS_CLUSTER_CLIENT = RedisClusterClient.create(redisClusterUri);
+    REDIS_CLUSTER_CLIENT = RedisClusterClient.create(REDIS_CLUSTER.getUri());
 
     REDIS_CLUSTER_PUB_CONNECTION = REDIS_CLUSTER_CLIENT.connectPubSub();
     REDIS_CLUSTER_PUB_COMMANDS = REDIS_CLUSTER_PUB_CONNECTION.reactive();

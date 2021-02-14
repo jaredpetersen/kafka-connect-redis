@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: kafka-broker
-        image: confluentinc/cp-kafka:6.0.0
+        image: confluentinc/cp-kafka:6.1.0
         command:
         - /bin/bash
         args:

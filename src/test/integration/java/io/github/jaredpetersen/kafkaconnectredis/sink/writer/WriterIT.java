@@ -7,6 +7,7 @@ import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisGeoaddC
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisPexpireCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisSaddCommand;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisSetCommand;
+import io.github.jaredpetersen.kafkaconnectredis.testutil.RedisContainer;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.SetArgs;
 import io.lettuce.core.api.StatefulRedisConnection;
@@ -21,29 +22,18 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
-import org.testcontainers.utility.MountableFile;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @Testcontainers
 public class WriterIT {
   @Container
-  private static final GenericContainer REDIS_STANDALONE = new GenericContainer(DockerImageName.parse("redis:6"))
-      .withExposedPorts(6379)
-      .waitingFor(Wait.forLogMessage(".*Ready to accept connections.*\\n", 1));
+  private static final RedisContainer REDIS_STANDALONE = new RedisContainer();
 
   @Container
-  private static final GenericContainer REDIS_CLUSTER = new GenericContainer(DockerImageName.parse("redis:6"))
-      .withCopyFileToContainer(MountableFile.forClasspathResource("redis/redis-cluster.conf"), "/data/redis.conf")
-      .withCopyFileToContainer(MountableFile.forClasspathResource("redis/nodes-cluster.conf"), "/data/nodes.conf")
-      .withCommand("redis-server", "/data/redis.conf")
-      .withExposedPorts(6379)
-      .waitingFor(Wait.forLogMessage(".*Cluster state changed: ok*\\n", 1));
+  private static final RedisContainer REDIS_CLUSTER = new RedisContainer().withClusterMode();
 
   private static RedisClient REDIS_STANDALONE_CLIENT;
   private static StatefulRedisConnection<String, String> REDIS_STANDALONE_CONNECTION;
@@ -55,16 +45,11 @@ public class WriterIT {
 
   @BeforeAll
   static void setupAll() {
-    final String redisStandaloneUri = "redis://"
-      + REDIS_STANDALONE.getHost()
-      + ":"
-      + REDIS_STANDALONE.getFirstMappedPort();
-    REDIS_STANDALONE_CLIENT = RedisClient.create(redisStandaloneUri);
+    REDIS_STANDALONE_CLIENT = RedisClient.create(REDIS_STANDALONE.getUri());
     REDIS_STANDALONE_CONNECTION = REDIS_STANDALONE_CLIENT.connect();
     REDIS_STANDALONE_COMMANDS = REDIS_STANDALONE_CONNECTION.reactive();
 
-    final String redisClusterUri = "redis://" + REDIS_CLUSTER.getHost() + ":" + REDIS_CLUSTER.getFirstMappedPort();
-    REDIS_CLUSTER_CLIENT = RedisClusterClient.create(redisClusterUri);
+    REDIS_CLUSTER_CLIENT = RedisClusterClient.create(REDIS_CLUSTER.getUri());
     REDIS_CLUSTER_CONNECTION = REDIS_CLUSTER_CLIENT.connect();
     REDIS_CLUSTER_COMMANDS = REDIS_CLUSTER_CONNECTION.reactive();
   }

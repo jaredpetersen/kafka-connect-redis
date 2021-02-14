@@ -13,6 +13,7 @@ import io.lettuce.core.api.reactive.RedisReactiveCommands;
 import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
 import io.lettuce.core.codec.StringCodec;
 import io.lettuce.core.output.CommandOutput;
+import io.lettuce.core.output.VoidOutput;
 import io.lettuce.core.protocol.CommandArgs;
 import io.lettuce.core.protocol.ProtocolKeyword;
 import java.nio.charset.StandardCharsets;
@@ -207,7 +208,7 @@ public class Writer {
         return arbitraryCommand.getPayload().getCommand();
       }
     };
-    final CommandOutput<String, String, Void> commandOutput = new LettuceVoidOutput<>(StringCodec.UTF8);
+    final CommandOutput<String, String, Void> commandOutput = new VoidOutput<>();
     final CommandArgs<String, String> commandArgs = new CommandArgs<>(StringCodec.UTF8)
       .addValues(arbitraryCommand.getPayload().getArguments());
 

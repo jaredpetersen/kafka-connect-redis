@@ -1,6 +1,7 @@
 package io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber;
 
 import io.github.jaredpetersen.kafkaconnectredis.source.listener.RedisMessage;
+import io.github.jaredpetersen.kafkaconnectredis.testutil.RedisContainer;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.reactive.RedisReactiveCommands;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
@@ -11,11 +12,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -23,9 +21,7 @@ import reactor.test.StepVerifier;
 @Testcontainers
 public class RedisPatternSubscriberIT {
   @Container
-  private static final GenericContainer REDIS_STANDALONE = new GenericContainer(DockerImageName.parse("redis:6"))
-    .withExposedPorts(6379)
-    .waitingFor(Wait.forLogMessage(".*Ready to accept connections.*\\n", 1));
+  private static final RedisContainer REDIS_STANDALONE = new RedisContainer();
 
   private static RedisClient REDIS_STANDALONE_CLIENT;
   private static StatefulRedisPubSubConnection<String, String> REDIS_STANDALONE_PUB_CONNECTION;
@@ -34,11 +30,7 @@ public class RedisPatternSubscriberIT {
 
   @BeforeAll
   static void setupAll() {
-    final String redisClusterUri = "redis://"
-      + REDIS_STANDALONE.getHost()
-      + ":"
-      + REDIS_STANDALONE.getFirstMappedPort();
-    REDIS_STANDALONE_CLIENT = RedisClient.create(redisClusterUri);
+    REDIS_STANDALONE_CLIENT = RedisClient.create(REDIS_STANDALONE.getUri());
 
     REDIS_STANDALONE_PUB_CONNECTION = REDIS_STANDALONE_CLIENT.connectPubSub();
     REDIS_STANDALONE_PUB_COMMANDS = REDIS_STANDALONE_PUB_CONNECTION.reactive();

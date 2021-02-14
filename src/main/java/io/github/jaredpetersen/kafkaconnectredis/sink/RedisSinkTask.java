@@ -7,6 +7,8 @@ import io.github.jaredpetersen.kafkaconnectredis.util.VersionUtil;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.reactive.RedisReactiveCommands;
+import io.lettuce.core.cluster.ClusterClientOptions;
+import io.lettuce.core.cluster.ClusterTopologyRefreshOptions;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
@@ -56,6 +58,13 @@ public class RedisSinkTask extends SinkTask {
     // Set up the writer
     if (config.isRedisClusterEnabled()) {
       this.redisClusterClient = RedisClusterClient.create(config.getRedisUri());
+      this.redisClusterClient.setOptions(ClusterClientOptions.builder()
+        .topologyRefreshOptions(ClusterTopologyRefreshOptions.builder()
+          .enableAllAdaptiveRefreshTriggers()
+          .enablePeriodicRefresh()
+          .build())
+        .build());
+
       this.redisClusterConnection = this.redisClusterClient.connect();
 
       final RedisClusterReactiveCommands<String, String> redisClusterCommands = this.redisClusterConnection.reactive();
