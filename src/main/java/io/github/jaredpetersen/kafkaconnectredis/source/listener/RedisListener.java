@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import reactor.core.Disposable;
 import reactor.core.scheduler.Schedulers;
 
+// TODO check if we can use lombok annotation here for logging
 public class RedisListener {
   private final Queue<RedisMessage> queue = new ConcurrentLinkedQueue<>();
   private final RedisSubscriber redisSubscriber;
