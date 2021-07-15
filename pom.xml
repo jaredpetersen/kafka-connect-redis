@@ -220,7 +220,7 @@
             <configuration>
               <name>redis-connector</name>
               <title>Redis Connector (Sink and Source)</title>
-              <documentationUrl>${project.url}/blob/main/README.md</documentationUrl>
+              <documentationUrl>${project.url}</documentationUrl>
               <ownerLogo>docs/logos/jaredpetersen-logo.png</ownerLogo>
               <ownerUsername>jaredpetersen</ownerUsername>
               <ownerType>user</ownerType>
@@ -229,6 +229,17 @@
               <supportProviderName>Open Source Community</supportProviderName>
               <supportSummary>Support provided through community involvement.</supportSummary>
               <supportUrl>${project.issueManagement.url}</supportUrl>
+              <fileSets>
+                <fileSet>
+                  <directory>${project.basedir}</directory>
+                  <outputDirectory>doc</outputDirectory>
+                  <includes>
+                    <include>README.md</include>
+                    <include>LICENSE.md</include>
+                    <include>CHANGELOG.md</include>
+                  </includes>
+                </fileSet>
+              </fileSets>
               <confluentControlCenterIntegration>true</confluentControlCenterIntegration>
               <componentTypes>
                 <componentType>source</componentType>
