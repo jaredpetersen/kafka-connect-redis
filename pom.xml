@@ -8,8 +8,8 @@
   <version>1.2.0</version>
   <packaging>jar</packaging>
 
-  <name>kafka-connect-redis</name>
-  <description>Kafka Connect source and sink connector for Redis</description>
+  <name>Kafka Redis Connector (Sink and Source)</name>
+  <description>Kafka sink and source connector for Redis</description>
   <url>https://github.com/jaredpetersen/kafka-connect-redis</url>
 
   <licenses>
@@ -218,7 +218,8 @@
               <goal>kafka-connect</goal>
             </goals>
             <configuration>
-              <title>Kafka Connect Redis</title>
+              <name>redis-connector</name>
+              <title>Redis Connector (Sink and Source)</title>
               <documentationUrl>${project.url}/blob/main/README.md</documentationUrl>
               <ownerLogo>docs/logos/jaredpetersen-logo.png</ownerLogo>
               <ownerUsername>jaredpetersen</ownerUsername>
@@ -252,7 +253,7 @@
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
-          <finalName>${project.name}-${project.version}</finalName>
+          <finalName>${project.artifactId}-${project.version}</finalName>
           <appendAssemblyId>false</appendAssemblyId>
         </configuration>
         <executions>
