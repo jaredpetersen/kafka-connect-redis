@@ -14,8 +14,8 @@ import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.junit.jupiter.api.Test;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RecordConverterTest {
   private static final Schema REDIS_SET_COMMAND_SCHEMA = SchemaBuilder.struct()
@@ -95,11 +95,9 @@ public class RecordConverterTest {
       .build();
 
     final RecordConverter recordConverter = new RecordConverter();
-    final Mono<RedisCommand> redisCommandMono = recordConverter.convert(sinkRecord);
-
-    StepVerifier.create(redisCommandMono)
-      .expectNext(expectedRedisCommand)
-      .verifyComplete();
+    final RedisCommand redisCommand = recordConverter.convert(sinkRecord);
+    
+    assertEquals(expectedRedisCommand, redisCommand);
   }
 
   @Test
@@ -132,11 +130,9 @@ public class RecordConverterTest {
       .build();
 
     final RecordConverter recordConverter = new RecordConverter();
-    final Mono<RedisCommand> redisCommandMono = recordConverter.convert(sinkRecord);
+    final RedisCommand redisCommand = recordConverter.convert(sinkRecord);
 
-    StepVerifier.create(redisCommandMono)
-      .expectNext(expectedRedisCommand)
-      .verifyComplete();
+    assertEquals(expectedRedisCommand, redisCommand);
   }
 
   @Test
@@ -160,11 +156,9 @@ public class RecordConverterTest {
       .build();
 
     final RecordConverter recordConverter = new RecordConverter();
-    final Mono<RedisCommand> redisCommandMono = recordConverter.convert(sinkRecord);
+    final RedisCommand redisCommand = recordConverter.convert(sinkRecord);
 
-    StepVerifier.create(redisCommandMono)
-      .expectNext(expectedRedisCommand)
-      .verifyComplete();
+    assertEquals(expectedRedisCommand, redisCommand);
   }
 
   @Test
@@ -188,11 +182,9 @@ public class RecordConverterTest {
       .build();
 
     final RecordConverter recordConverter = new RecordConverter();
-    final Mono<RedisCommand> redisCommandMono = recordConverter.convert(sinkRecord);
+    final RedisCommand redisCommand = recordConverter.convert(sinkRecord);
 
-    StepVerifier.create(redisCommandMono)
-      .expectNext(expectedRedisCommand)
-      .verifyComplete();
+    assertEquals(expectedRedisCommand, redisCommand);
   }
 
   @Test
@@ -216,11 +208,9 @@ public class RecordConverterTest {
       .build();
 
     final RecordConverter recordConverter = new RecordConverter();
-    final Mono<RedisCommand> redisCommandMono = recordConverter.convert(sinkRecord);
+    final RedisCommand redisCommand = recordConverter.convert(sinkRecord);
 
-    StepVerifier.create(redisCommandMono)
-      .expectNext(expectedRedisCommand)
-      .verifyComplete();
+    assertEquals(expectedRedisCommand, redisCommand);
   }
 
   @Test
@@ -244,11 +234,9 @@ public class RecordConverterTest {
       .build();
 
     final RecordConverter recordConverter = new RecordConverter();
-    final Mono<RedisCommand> redisCommandMono = recordConverter.convert(sinkRecord);
+    final RedisCommand redisCommand = recordConverter.convert(sinkRecord);
 
-    StepVerifier.create(redisCommandMono)
-        .expectNext(expectedRedisCommand)
-        .verifyComplete();
+    assertEquals(expectedRedisCommand, redisCommand);
   }
 
   @Test
@@ -291,11 +279,9 @@ public class RecordConverterTest {
       .build();
 
     final RecordConverter recordConverter = new RecordConverter();
-    final Mono<RedisCommand> redisCommandMono = recordConverter.convert(sinkRecord);
+    final RedisCommand redisCommand = recordConverter.convert(sinkRecord);
 
-    StepVerifier.create(redisCommandMono)
-      .expectNext(expectedRedisCommand)
-      .verifyComplete();
+    assertEquals(expectedRedisCommand, redisCommand);
   }
 
   @Test
@@ -319,10 +305,8 @@ public class RecordConverterTest {
       .build();
 
     final RecordConverter recordConverter = new RecordConverter();
-    final Mono<RedisCommand> redisCommandMono = recordConverter.convert(sinkRecord);
+    final RedisCommand redisCommand = recordConverter.convert(sinkRecord);
 
-    StepVerifier.create(redisCommandMono)
-      .expectNext(expectedRedisCommand)
-      .verifyComplete();
+    assertEquals(expectedRedisCommand, redisCommand);
   }
 }

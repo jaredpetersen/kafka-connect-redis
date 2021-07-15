@@ -29,7 +29,7 @@ public class RedisClusterChannelSubscriberIT {
   private static StatefulRedisClusterPubSubConnection<String, String> REDIS_CLUSTER_SUB_CONNECTION;
 
   @BeforeAll
-  static void setupAll() {
+  static void beforeAll() {
     REDIS_CLUSTER_CLIENT = RedisClusterClient.create(REDIS_CLUSTER.getUri());
 
     REDIS_CLUSTER_PUB_CONNECTION = REDIS_CLUSTER_CLIENT.connectPubSub();
@@ -40,12 +40,12 @@ public class RedisClusterChannelSubscriberIT {
   }
 
   @AfterEach
-  public void cleanupEach() {
+  public void afterEach() {
     REDIS_CLUSTER_PUB_COMMANDS.flushall().block();
   }
 
   @AfterAll
-  static void cleanupAll() {
+  static void afterAll() {
     REDIS_CLUSTER_SUB_CONNECTION.close();
     REDIS_CLUSTER_CLIENT.shutdown();
   }

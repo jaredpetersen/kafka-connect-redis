@@ -72,6 +72,7 @@
       <version>6.1.4.RELEASE</version>
     </dependency>
 
+   <!-- TODO Remove this -->
     <dependency>
       <groupId>io.projectreactor</groupId>
       <artifactId>reactor-core</artifactId>

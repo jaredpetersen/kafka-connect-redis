@@ -29,7 +29,7 @@ public class RedisChannelSubscriberIT {
   private static StatefulRedisPubSubConnection<String, String> REDIS_STANDALONE_SUB_CONNECTION;
 
   @BeforeAll
-  static void setupAll() {
+  static void beforeAll() {
     REDIS_STANDALONE_CLIENT = RedisClient.create(REDIS_STANDALONE.getUri());
 
     REDIS_STANDALONE_PUB_CONNECTION = REDIS_STANDALONE_CLIENT.connectPubSub();
@@ -39,12 +39,12 @@ public class RedisChannelSubscriberIT {
   }
 
   @AfterEach
-  public void cleanupEach() {
+  public void afterEach() {
     REDIS_STANDALONE_PUB_COMMANDS.flushall().block();
   }
 
   @AfterAll
-  static void cleanupAll() {
+  static void afterAll() {
     REDIS_STANDALONE_SUB_CONNECTION.close();
     REDIS_STANDALONE_CLIENT.shutdown();
   }

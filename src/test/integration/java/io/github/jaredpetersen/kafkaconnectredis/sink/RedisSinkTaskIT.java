@@ -4,10 +4,10 @@ import io.github.jaredpetersen.kafkaconnectredis.testutil.RedisContainer;
 import io.github.jaredpetersen.kafkaconnectredis.util.VersionUtil;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.api.reactive.RedisReactiveCommands;
+import io.lettuce.core.api.sync.RedisCommands;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
-import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
+import io.lettuce.core.cluster.api.sync.RedisClusterCommands;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,7 +24,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import reactor.test.StepVerifier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -40,12 +39,12 @@ public class RedisSinkTaskIT {
   private static String REDIS_STANDALONE_URI;
   private static RedisClient REDIS_STANDALONE_CLIENT;
   private static StatefulRedisConnection<String, String> REDIS_STANDALONE_CONNECTION;
-  private static RedisReactiveCommands<String, String> REDIS_STANDALONE_COMMANDS;
+  private static RedisCommands<String, String> REDIS_STANDALONE_COMMANDS;
 
   private static String REDIS_CLUSTER_URI;
   private static RedisClusterClient REDIS_CLUSTER_CLIENT;
   private static StatefulRedisClusterConnection<String, String> REDIS_CLUSTER_CONNECTION;
-  private static RedisClusterReactiveCommands<String, String> REDIS_CLUSTER_COMMANDS;
+  private static RedisClusterCommands<String, String> REDIS_CLUSTER_COMMANDS;
 
   private static final Schema REDIS_SET_COMMAND_SCHEMA = SchemaBuilder.struct()
     .name("io.github.jaredpetersen.kafkaconnectredis.RedisSetCommand")
@@ -60,26 +59,26 @@ public class RedisSinkTaskIT {
     .build();
 
   @BeforeAll
-  static void setupAll() {
+  static void beforeAll() {
     REDIS_STANDALONE_URI = REDIS_STANDALONE.getUri();
     REDIS_STANDALONE_CLIENT = RedisClient.create(REDIS_STANDALONE_URI);
     REDIS_STANDALONE_CONNECTION = REDIS_STANDALONE_CLIENT.connect();
-    REDIS_STANDALONE_COMMANDS = REDIS_STANDALONE_CONNECTION.reactive();
+    REDIS_STANDALONE_COMMANDS = REDIS_STANDALONE_CONNECTION.sync();
 
     REDIS_CLUSTER_URI = REDIS_CLUSTER.getUri();
     REDIS_CLUSTER_CLIENT = RedisClusterClient.create(REDIS_CLUSTER_URI);
     REDIS_CLUSTER_CONNECTION = REDIS_CLUSTER_CLIENT.connect();
-    REDIS_CLUSTER_COMMANDS = REDIS_CLUSTER_CONNECTION.reactive();
+    REDIS_CLUSTER_COMMANDS = REDIS_CLUSTER_CONNECTION.sync();
   }
 
   @AfterEach
-  public void cleanupEach() {
-    REDIS_STANDALONE_COMMANDS.flushall().block();
-    REDIS_CLUSTER_COMMANDS.flushall().block();
+  public void afterEach() {
+    REDIS_STANDALONE_COMMANDS.flushall();
+    REDIS_CLUSTER_COMMANDS.flushall();
   }
 
   @AfterAll
-  static void cleanupAll() {
+  static void afterAll() {
     REDIS_STANDALONE_CONNECTION.close();
     REDIS_STANDALONE_CLIENT.shutdown();
 
@@ -113,17 +112,14 @@ public class RedisSinkTaskIT {
     final long offset = 0L;
     final SinkRecord sinkRecord = new SinkRecord(topic, partition, keySchema, key, valueSchema, value, offset);
 
-    final List<SinkRecord> sinkRecords = Arrays.asList(sinkRecord);
+    final List<SinkRecord> sinkRecords = Collections.singletonList(sinkRecord);
 
     // Configure task and write records
     final RedisSinkTask sinkTask = new RedisSinkTask();
     sinkTask.start(config);
     sinkTask.put(sinkRecords);
 
-    StepVerifier
-        .create(REDIS_STANDALONE_COMMANDS.get("{user.1}.username"))
-        .expectNext("jetpackmelon22")
-        .verifyComplete();
+    assertEquals("jetpackmelon22", REDIS_STANDALONE_COMMANDS.get("{user.1}.username"));
   }
 
   @Test
@@ -152,10 +148,7 @@ public class RedisSinkTaskIT {
     sinkTask.start(config);
     sinkTask.put(sinkRecords);
 
-    StepVerifier
-        .create(REDIS_CLUSTER_COMMANDS.get("{user.1}.username"))
-        .expectNext("jetpackmelon22")
-        .verifyComplete();
+    assertEquals("jetpackmelon22", REDIS_CLUSTER_COMMANDS.get("{user.1}.username"));
   }
 
   @Test
@@ -173,10 +166,7 @@ public class RedisSinkTaskIT {
     sinkTask.start(config);
     sinkTask.put(sinkRecords);
 
-    StepVerifier
-        .create(REDIS_STANDALONE_COMMANDS.dbsize())
-        .expectNext(0L)
-        .verifyComplete();
+    assertEquals(0L, REDIS_STANDALONE_COMMANDS.dbsize());
   }
 
   @Test
@@ -194,10 +184,7 @@ public class RedisSinkTaskIT {
     sinkTask.start(config);
     sinkTask.put(sinkRecords);
 
-    StepVerifier
-        .create(REDIS_CLUSTER_COMMANDS.dbsize())
-        .expectNext(0L)
-        .verifyComplete();
+    assertEquals(0L, REDIS_CLUSTER_COMMANDS.dbsize());
   }
 
   @Test

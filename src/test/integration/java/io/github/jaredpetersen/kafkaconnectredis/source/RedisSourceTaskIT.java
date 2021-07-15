@@ -44,7 +44,7 @@ public class RedisSourceTaskIT {
   private static StatefulRedisClusterPubSubConnection<String, String> REDIS_CLUSTER_SUB_CONNECTION;
 
   @BeforeAll
-  static void setupAll() {
+  static void beforeAll() {
     REDIS_STANDALONE_URI = REDIS_STANDALONE.getUri();
     REDIS_STANDALONE_CLIENT = RedisClient.create(REDIS_STANDALONE_URI);
 
@@ -66,13 +66,13 @@ public class RedisSourceTaskIT {
   }
 
   @AfterEach
-  public void cleanupEach() {
+  public void afterEach() {
     REDIS_STANDALONE_PUB_COMMANDS.flushall().block();
     REDIS_CLUSTER_PUB_COMMANDS.flushall().block();
   }
 
   @AfterAll
-  static void cleanupAll() {
+  static void afterAll() {
     REDIS_STANDALONE_SUB_CONNECTION.close();
     REDIS_STANDALONE_CLIENT.shutdown();
 
