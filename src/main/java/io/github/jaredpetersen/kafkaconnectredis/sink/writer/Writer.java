@@ -24,11 +24,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Writer {
+  private static final Logger LOG = LoggerFactory.getLogger(Writer.class);
+
   private final RedisCommands<String, String> redisStandaloneCommands;
   private final RedisClusterCommands<String, String> redisClusterCommands;
   private final boolean clusterEnabled;
-
-  private static final Logger LOG = LoggerFactory.getLogger(Writer.class);
 
   /**
    * Set up writer to interact with standalone Redis.

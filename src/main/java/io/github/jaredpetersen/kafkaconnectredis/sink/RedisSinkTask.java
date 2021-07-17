@@ -26,6 +26,9 @@ import org.slf4j.LoggerFactory;
  * Kafka Connect Task for Kafka Connect Redis Sink.
  */
 public class RedisSinkTask extends SinkTask {
+  private static final RecordConverter RECORD_CONVERTER = new RecordConverter();
+  private static final Logger LOG = LoggerFactory.getLogger(RedisSinkTask.class);
+
   private RedisClient redisStandaloneClient;
   private StatefulRedisConnection<String, String> redisStandaloneConnection;
 
@@ -33,10 +36,6 @@ public class RedisSinkTask extends SinkTask {
   private StatefulRedisClusterConnection<String, String> redisClusterConnection;
 
   private Writer writer;
-
-  private static final RecordConverter RECORD_CONVERTER = new RecordConverter();
-
-  private static final Logger LOG = LoggerFactory.getLogger(RedisSinkTask.class);
 
   @Override
   public String version() {

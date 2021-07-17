@@ -72,13 +72,6 @@
       <version>6.1.4.RELEASE</version>
     </dependency>
 
-   <!-- TODO Remove this -->
-    <dependency>
-      <groupId>io.projectreactor</groupId>
-      <artifactId>reactor-core</artifactId>
-      <version>3.4.2</version>
-    </dependency>
-
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
@@ -88,8 +81,8 @@
 
     <dependency>
       <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-nop</artifactId>
-      <version>1.7.30</version>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.7.31</version>
       <scope>test</scope>
     </dependency>
 
@@ -120,12 +113,6 @@
       <scope>test</scope>
     </dependency>
 
-    <dependency>
-      <groupId>io.projectreactor</groupId>
-      <artifactId>reactor-test</artifactId>
-      <version>3.4.2</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>

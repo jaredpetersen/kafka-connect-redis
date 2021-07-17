@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class RedisSinkConfigTest {
+class RedisSinkConfigTest {
   @Test
-  public void isRedisClusterEnabledReturnsDefaultStatus() {
+  void isRedisClusterEnabledReturnsDefaultStatus() {
     final Map<String, Object> originalConfig = new HashMap<>();
     originalConfig.put("redis.uri", "redis://localhost:6379");
 
@@ -18,7 +18,7 @@ public class RedisSinkConfigTest {
   }
 
   @Test
-  public void getRedisUriReturnsUri() {
+  void getRedisUriReturnsUri() {
     final Map<String, Object> originalConfig = new HashMap<>();
     originalConfig.put("redis.uri", "redis://localhost:6379");
 
@@ -28,7 +28,7 @@ public class RedisSinkConfigTest {
   }
 
   @Test
-  public void isRedisClusterEnabledReturnsStatus() {
+  void isRedisClusterEnabledReturnsStatus() {
     final Map<String, Object> originalConfig = new HashMap<>();
     originalConfig.put("redis.uri", "redis://localhost:6379");
     originalConfig.put("redis.cluster.enabled", true);

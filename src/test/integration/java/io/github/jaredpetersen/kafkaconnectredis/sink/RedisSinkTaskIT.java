@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Testcontainers
-public class RedisSinkTaskIT {
+class RedisSinkTaskIT {
   @Container
   private static final RedisContainer REDIS_STANDALONE = new RedisContainer();
 
@@ -72,7 +72,7 @@ public class RedisSinkTaskIT {
   }
 
   @AfterEach
-  public void afterEach() {
+  void afterEach() {
     REDIS_STANDALONE_COMMANDS.flushall();
     REDIS_CLUSTER_COMMANDS.flushall();
   }
@@ -87,14 +87,14 @@ public class RedisSinkTaskIT {
   }
 
   @Test
-  public void versionReturnsVersion() {
+  void versionReturnsVersion() {
     final RedisSinkTask sinkTask = new RedisSinkTask();
 
     assertEquals(VersionUtil.getVersion(), sinkTask.version());
   }
 
   @Test
-  public void putRecordsAppliesCommandsToStandalone() {
+  void putRecordsAppliesCommandsToStandalone() {
     // Set up task config
     final Map<String, String> config = new HashMap<>();
     config.put("redis.uri", REDIS_STANDALONE_URI);
@@ -123,7 +123,7 @@ public class RedisSinkTaskIT {
   }
 
   @Test
-  public void putRecordsAppliesCommandsToCluster() {
+  void putRecordsAppliesCommandsToCluster() {
     // Set up task config
     final Map<String, String> config = new HashMap<>();
     config.put("redis.uri", REDIS_CLUSTER_URI);
@@ -152,7 +152,7 @@ public class RedisSinkTaskIT {
   }
 
   @Test
-  public void putEmptyRecordsDoesNothingToStandalone() {
+  void putEmptyRecordsDoesNothingToStandalone() {
     // Set up task config
     final Map<String, String> config = new HashMap<>();
     config.put("redis.uri", REDIS_STANDALONE_URI);
@@ -170,7 +170,7 @@ public class RedisSinkTaskIT {
   }
 
   @Test
-  public void putEmptyRecordsDoesNothingToCluster() {
+  void putEmptyRecordsDoesNothingToCluster() {
     // Set up task config
     final Map<String, String> config = new HashMap<>();
     config.put("redis.uri", REDIS_CLUSTER_URI);
@@ -188,7 +188,7 @@ public class RedisSinkTaskIT {
   }
 
   @Test
-  public void startThrowsConnectExceptionForInvalidConfig() {
+  void startThrowsConnectExceptionForInvalidConfig() {
     final RedisSinkTask sinkTask = new RedisSinkTask();
 
     final Map<String, String> connectorConfig = new HashMap<>();
@@ -199,7 +199,7 @@ public class RedisSinkTaskIT {
   }
 
   @Test
-  public void stopClosesStandalone() {
+  void stopClosesStandalone() {
     // Set up task config
     final Map<String, String> config = new HashMap<>();
     config.put("redis.uri", REDIS_STANDALONE_URI);
@@ -214,7 +214,7 @@ public class RedisSinkTaskIT {
   }
 
   @Test
-  public void stopClosesCluster() {
+  void stopClosesCluster() {
     // Set up task config
     final Map<String, String> config = new HashMap<>();
     config.put("redis.uri", REDIS_CLUSTER_URI);

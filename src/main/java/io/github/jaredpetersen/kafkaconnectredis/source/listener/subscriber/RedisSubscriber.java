@@ -1,28 +1,24 @@
 package io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber;
 
 import io.github.jaredpetersen.kafkaconnectredis.source.listener.RedisMessage;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
-public interface RedisSubscriber {
-  /**
-   * Subscribe to Redis Pub/Sub channels.
-   *
-   * @return Mono to indicate subscription is complete.
-   */
-  Mono<Void> subscribe();
+/**
+ * Abstract Redis subscriber to help facilitate internal caching of emitted messages.
+ */
+public abstract class RedisSubscriber {
+  final ConcurrentLinkedQueue<RedisMessage> messageQueue;
 
-  /**
-   * Unsubscribe from Redis Pub/Sub channels.
-   *
-   * @return Mono to indicate unsubscription is complete.
-   */
-  Mono<Void> unsubscribe();
+  public RedisSubscriber(ConcurrentLinkedQueue<RedisMessage> messageQueue) {
+    this.messageQueue = messageQueue;
+  }
 
   /**
-   * Listen to subscribed Redis Pub/Sub channels and emit messages reactively.f
+   * Retrieve a single cached message that was emitted to the subscriber and remove it from the cache.
    *
-   * @return Flux of emitted Redis subscription messages.
+   * @return Cached message or null if nothing is available
    */
-  Flux<RedisMessage> observe();
+  public RedisMessage poll() {
+    return messageQueue.poll();
+  }
 }

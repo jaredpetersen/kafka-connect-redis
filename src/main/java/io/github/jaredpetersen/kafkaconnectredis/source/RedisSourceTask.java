@@ -2,7 +2,7 @@ package io.github.jaredpetersen.kafkaconnectredis.source;
 
 import io.github.jaredpetersen.kafkaconnectredis.source.config.RedisSourceConfig;
 import io.github.jaredpetersen.kafkaconnectredis.source.listener.RecordConverter;
-import io.github.jaredpetersen.kafkaconnectredis.source.listener.RedisListener;
+import io.github.jaredpetersen.kafkaconnectredis.source.listener.RedisMessage;
 import io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber.RedisChannelSubscriber;
 import io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber.RedisClusterChannelSubscriber;
 import io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber.RedisClusterPatternSubscriber;
@@ -15,6 +15,7 @@ import io.lettuce.core.cluster.ClusterTopologyRefreshOptions;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.pubsub.StatefulRedisClusterPubSubConnection;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.kafka.common.config.ConfigException;
@@ -23,22 +24,22 @@ import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.source.SourceTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import reactor.core.publisher.Flux;
 
 /**
  * Kafka Connect Task for Kafka Connect Redis Sink.
  */
 public class RedisSourceTask extends SourceTask {
+  private static final long MAX_POLL_SIZE = 10_000L;
+  private static final Logger LOG = LoggerFactory.getLogger(RedisSourceTask.class);
+
   private RedisClient redisStandaloneClient;
   private StatefulRedisPubSubConnection<String, String> redisStandalonePubSubConnection;
 
   private RedisClusterClient redisClusterClient;
   private StatefulRedisClusterPubSubConnection<String, String> redisClusterPubSubConnection;
 
-  private RedisListener redisListener;
+  private RedisSubscriber redisSubscriber;
   private RecordConverter recordConverter;
-
-  private static final Logger LOG = LoggerFactory.getLogger(RedisSourceTask.class);
 
   @Override
   public String version() {
@@ -58,19 +59,17 @@ public class RedisSourceTask extends SourceTask {
     }
 
     // Set up the subscriber for Redis
-    final RedisSubscriber redisSubscriber;
-
     if (config.isRedisClusterEnabled()) {
-      this.redisClusterClient = RedisClusterClient.create(config.getRedisUri());
-      this.redisClusterClient.setOptions(ClusterClientOptions.builder()
+      redisClusterClient = RedisClusterClient.create(config.getRedisUri());
+      redisClusterClient.setOptions(ClusterClientOptions.builder()
         .topologyRefreshOptions(ClusterTopologyRefreshOptions.builder()
           .enableAllAdaptiveRefreshTriggers()
           .enablePeriodicRefresh()
           .build())
         .build());
 
-      this.redisClusterPubSubConnection = this.redisClusterClient.connectPubSub();
-      this.redisClusterPubSubConnection.setNodeMessagePropagation(true);
+      redisClusterPubSubConnection = redisClusterClient.connectPubSub();
+      redisClusterPubSubConnection.setNodeMessagePropagation(true);
 
       redisSubscriber = (config.isRedisChannelPatternEnabled())
         ? new RedisClusterPatternSubscriber(
@@ -81,8 +80,8 @@ public class RedisSourceTask extends SourceTask {
             config.getRedisChannels());
     }
     else {
-      this.redisStandaloneClient = RedisClient.create(config.getRedisUri());
-      this.redisStandalonePubSubConnection = this.redisStandaloneClient.connectPubSub();
+      redisStandaloneClient = RedisClient.create(config.getRedisUri());
+      redisStandalonePubSubConnection = redisStandaloneClient.connectPubSub();
 
       redisSubscriber = (config.isRedisChannelPatternEnabled())
         ? new RedisPatternSubscriber(
@@ -93,19 +92,37 @@ public class RedisSourceTask extends SourceTask {
             config.getRedisChannels());
     }
 
-    this.redisListener = new RedisListener(redisSubscriber);
-    this.redisListener.start();
-
-    this.recordConverter = new RecordConverter(config.getTopic());
+    recordConverter = new RecordConverter(config.getTopic());
   }
 
   @Override
   public List<SourceRecord> poll() {
-    final List<SourceRecord> sourceRecords = Flux
-      .fromIterable(this.redisListener.poll())
-      .flatMapSequential(this.recordConverter::convert)
-      .collectList()
-      .block();
+    final List<SourceRecord> sourceRecords = new ArrayList<>();
+
+    while (true) {
+      final RedisMessage redisMessage = redisSubscriber.poll();
+
+      // No more events left, stop iterating
+      if (redisMessage == null) {
+        break;
+      }
+
+      final SourceRecord sourceRecord;
+
+      try {
+        sourceRecord = recordConverter.convert(redisMessage);
+      }
+      catch (Exception exception) {
+        throw new ConnectException("failed to convert redis message", exception);
+      }
+
+      sourceRecords.add(sourceRecord);
+
+      // Subscription events may come in faster than we can iterate over them here so return early once we hit the max
+      if (sourceRecords.size() >= MAX_POLL_SIZE) {
+        break;
+      }
+    }
 
     if (sourceRecords.size() > 1) {
       LOG.info("writing {} record(s) to kafka", sourceRecords.size());
@@ -116,22 +133,20 @@ public class RedisSourceTask extends SourceTask {
 
   @Override
   public void stop() {
-    this.redisListener.stop();
-
     // Close out Redis standalone
-    if (this.redisStandalonePubSubConnection != null) {
-      this.redisStandalonePubSubConnection.close();
+    if (redisStandalonePubSubConnection != null) {
+      redisStandalonePubSubConnection.close();
     }
-    if (this.redisStandaloneClient != null) {
-      this.redisStandaloneClient.shutdown();
+    if (redisStandaloneClient != null) {
+      redisStandaloneClient.shutdown();
     }
 
     // Close out Redis cluster
-    if (this.redisClusterPubSubConnection != null) {
-      this.redisClusterPubSubConnection.close();
+    if (redisClusterPubSubConnection != null) {
+      redisClusterPubSubConnection.close();
     }
-    if (this.redisClusterClient != null) {
-      this.redisClusterClient.shutdown();
+    if (redisClusterClient != null) {
+      redisClusterClient.shutdown();
     }
   }
 }

@@ -3,12 +3,16 @@ package io.github.jaredpetersen.kafkaconnectredis.source.listener;
 import java.time.Instant;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
+import org.apache.kafka.connect.source.SourceRecord;
 import org.junit.jupiter.api.Test;
-import reactor.test.StepVerifier;
 
-public class RecordConverterTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class RecordConverterTest {
   @Test
-  public void convertTransformsRedisMessageToSourceRecord() {
+  void convertTransformsRedisMessageToSourceRecord() {
     final RedisMessage redisMessage = RedisMessage.builder()
       .channel("mychannel")
       .pattern("mypattern")
@@ -17,19 +21,17 @@ public class RecordConverterTest {
     final String topic = "mytopic";
 
     final RecordConverter recordConverter = new RecordConverter(topic);
+    final SourceRecord sourceRecord = recordConverter.convert(redisMessage);
 
-    StepVerifier
-      .create(recordConverter.convert(redisMessage))
-      .expectNextMatches(sourceRecord ->
-        sourceRecord.sourcePartition().size() == 0
-          && sourceRecord.sourceOffset().size() == 0
-          && sourceRecord.topic().equals(topic)
-          && sourceRecord.kafkaPartition() == null
-          && sourceRecord.keySchema().type() == Schema.Type.STRUCT
-          && ((Struct) sourceRecord.key()).getString("channel").equals("mychannel")
-          && ((Struct) sourceRecord.key()).getString("pattern").equals("mypattern")
-          && sourceRecord.valueSchema().type() == Schema.Type.STRUCT
-          && ((Struct) sourceRecord.value()).getString("message").equals("some message")
-          && sourceRecord.timestamp() <= Instant.now().getEpochSecond());
+    assertTrue(sourceRecord.sourcePartition().isEmpty());
+    assertTrue(sourceRecord.sourceOffset().isEmpty());
+    assertEquals(topic, sourceRecord.topic());
+    assertNull(sourceRecord.kafkaPartition());
+    assertEquals(Schema.Type.STRUCT, sourceRecord.keySchema().type());
+    assertEquals(redisMessage.getChannel(), ((Struct) sourceRecord.key()).getString("channel"));
+    assertEquals(redisMessage.getPattern(), ((Struct) sourceRecord.key()).getString("pattern"));
+    assertEquals(Schema.Type.STRUCT, sourceRecord.valueSchema().type());
+    assertEquals(redisMessage.getMessage(), ((Struct) sourceRecord.value()).getString("message"));
+    assertTrue(sourceRecord.timestamp() <= Instant.now().getEpochSecond());
   }
 }

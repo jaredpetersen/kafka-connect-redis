@@ -1,49 +1,26 @@
 package io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber;
 
-import io.github.jaredpetersen.kafkaconnectredis.source.listener.RedisMessage;
 import io.lettuce.core.cluster.pubsub.StatefulRedisClusterPubSubConnection;
 import java.util.List;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class RedisClusterPatternSubscriber implements RedisSubscriber {
-  private final StatefulRedisClusterPubSubConnection<String, String> redisClusterPubSubConnection;
-  private final List<String> patterns;
-
+/**
+ * Redis cluster-aware pub/sub subscriber that listens to patterns and caches the retrieved messages for later
+ * retrieval.
+ */
+public class RedisClusterPatternSubscriber extends RedisSubscriber {
+  /**
+   * Create a cluster-aware subscriber that listens to patterns.
+   *
+   * @param redisClusterPubSubConnection Cluster pub/sub connection used to facilitate the subscription
+   * @param patterns Patterns to subscribe and listen to
+   */
   public RedisClusterPatternSubscriber(
-      StatefulRedisClusterPubSubConnection<String, String> redisClusterPubSubConnection,
-      List<String> patterns) {
-    this.redisClusterPubSubConnection = redisClusterPubSubConnection;
-    this.patterns = patterns;
-  }
-
-  @Override
-  public Mono<Void> subscribe() {
-    return redisClusterPubSubConnection.reactive()
-      .upstream()
-      .commands()
-      .psubscribe(patterns.toArray(new String[0]))
-      .flux()
-      .then();
-  }
-
-  @Override
-  public Mono<Void> unsubscribe() {
-    return redisClusterPubSubConnection.reactive()
-      .upstream()
-      .commands()
-      .punsubscribe(patterns.toArray(new String[0]))
-      .flux()
-      .then();
-  }
-
-  @Override
-  public Flux<RedisMessage> observe() {
-    return redisClusterPubSubConnection.reactive().observePatterns()
-      .map(channelMessage -> RedisMessage.builder()
-        .channel(channelMessage.getChannel())
-        .pattern(channelMessage.getPattern())
-        .message(channelMessage.getMessage())
-        .build());
+    StatefulRedisClusterPubSubConnection<String, String> redisClusterPubSubConnection,
+    List<String> patterns
+  ) {
+    super(new ConcurrentLinkedQueue<>());
+    redisClusterPubSubConnection.addListener(new RedisClusterListener(this.messageQueue));
+    redisClusterPubSubConnection.sync().upstream().commands().psubscribe(patterns.toArray(new String[0]));
   }
 }

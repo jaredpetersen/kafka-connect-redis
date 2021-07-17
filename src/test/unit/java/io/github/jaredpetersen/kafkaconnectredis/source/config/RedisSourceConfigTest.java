@@ -10,9 +10,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-public class RedisSourceConfigTest {
+class RedisSourceConfigTest {
   @Test
-  public void getTopicReturnsTopic() {
+  void getTopicReturnsTopic() {
     final Map<String, Object> originalConfig = new HashMap<>();
     originalConfig.put("topic", "mytopic");
     originalConfig.put("redis.uri", "redis://localhost:6379");
@@ -25,7 +25,7 @@ public class RedisSourceConfigTest {
   }
 
   @Test
-  public void getRedisUriReturnsUri() {
+  void getRedisUriReturnsUri() {
     final Map<String, Object> originalConfig = new HashMap<>();
     originalConfig.put("topic", "mytopic");
     originalConfig.put("redis.uri", "redis://localhost:6379");
@@ -38,7 +38,7 @@ public class RedisSourceConfigTest {
   }
 
   @Test
-  public void isRedisClusterEnabledReturnsDefaultStatus() {
+  void isRedisClusterEnabledReturnsDefaultStatus() {
     final Map<String, Object> originalConfig = new HashMap<>();
     originalConfig.put("topic", "mytopic");
     originalConfig.put("redis.uri", "redis://localhost:6379");
@@ -66,7 +66,7 @@ public class RedisSourceConfigTest {
   }
 
   @Test
-  public void getRedisChannelsReturnsChannels() {
+  void getRedisChannelsReturnsChannels() {
     final Map<String, Object> originalConfig = new HashMap<>();
     originalConfig.put("topic", "mytopic");
     originalConfig.put("redis.uri", "redis://localhost:6379");

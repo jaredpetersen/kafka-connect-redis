@@ -11,23 +11,23 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class RedisSourceConnectorIT {
+class RedisSourceConnectorIT {
   @Test
-  public void versionReturnsVersion() {
+  void versionReturnsVersion() {
     final RedisSourceConnector sourceConnector = new RedisSourceConnector();
 
     assertEquals(VersionUtil.getVersion(), sourceConnector.version());
   }
 
   @Test
-  public void taskClassReturnsTaskClass() {
+  void taskClassReturnsTaskClass() {
     final RedisSourceConnector sourceConnector = new RedisSourceConnector();
 
     assertEquals(RedisSourceTask.class, sourceConnector.taskClass());
   }
 
   @Test
-  public void taskConfigsReturnsTaskConfigs() {
+  void taskConfigsReturnsTaskConfigs() {
     final RedisSourceConnector sourceConnector = new RedisSourceConnector();
 
     final Map<String, String> connectorConfig = new HashMap<>();
@@ -46,7 +46,7 @@ public class RedisSourceConnectorIT {
   }
 
   @Test
-  public void taskConfigsReturnsPartitionedTaskConfigs() {
+  void taskConfigsReturnsPartitionedTaskConfigs() {
     final RedisSourceConnector sourceConnector = new RedisSourceConnector();
 
     final Map<String, String> connectorConfig = new HashMap<>();
@@ -80,7 +80,7 @@ public class RedisSourceConnectorIT {
   }
 
   @Test
-  public void taskConfigsReturnsPartitionedTaskConfigsWithExcessiveMaxTask() {
+  void taskConfigsReturnsPartitionedTaskConfigsWithExcessiveMaxTask() {
     final RedisSourceConnector sourceConnector = new RedisSourceConnector();
 
     final Map<String, String> connectorConfig = new HashMap<>();
@@ -122,7 +122,7 @@ public class RedisSourceConnectorIT {
   }
 
   @Test
-  public void startThrowsConnectExceptionForInvalidConfig() {
+  void startThrowsConnectExceptionForInvalidConfig() {
     final RedisSourceConnector sourceConnector = new RedisSourceConnector();
 
     final Map<String, String> connectorConfig = new HashMap<>();
@@ -133,13 +133,13 @@ public class RedisSourceConnectorIT {
   }
 
   @Test
-  public void stopDoesNothing() {
+  void stopDoesNothing() {
     final RedisSourceConnector sourceConnector = new RedisSourceConnector();
     sourceConnector.stop();
   }
 
   @Test
-  public void configReturnsConfigDefinition() {
+  void configReturnsConfigDefinition() {
     final RedisSourceConnector sourceConnector = new RedisSourceConnector();
 
     assertEquals(RedisSourceConfig.CONFIG_DEF, sourceConnector.config());

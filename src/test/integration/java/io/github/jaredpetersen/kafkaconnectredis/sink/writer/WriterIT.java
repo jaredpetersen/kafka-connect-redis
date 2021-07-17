@@ -102,7 +102,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeSetCommandAppliesCommandToStandalone() {
+  void writeSetCommandAppliesCommandToStandalone() {
     final RedisSetCommand redisCommand = RedisSetCommand.builder()
         .payload(RedisSetCommand.Payload.builder()
             .key("{user.1}.username")
@@ -117,7 +117,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeSetCommandAppliesCommandToCluster() {
+  void writeSetCommandAppliesCommandToCluster() {
     final RedisSetCommand redisCommand = RedisSetCommand.builder()
         .payload(RedisSetCommand.Payload.builder()
             .key("{user.1}.username")
@@ -132,7 +132,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeSetWithExpireSecondsCommandAppliesCommandToStandalone() {
+  void writeSetWithExpireSecondsCommandAppliesCommandToStandalone() {
     final RedisSetCommand redisCommand = RedisSetCommand.builder()
         .payload(RedisSetCommand.Payload.builder()
             .key("{user.1}.username")
@@ -155,7 +155,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeSetWithExpireSecondsCommandAppliesCommandToCluster() {
+  void writeSetWithExpireSecondsCommandAppliesCommandToCluster() {
     final RedisSetCommand redisCommand = RedisSetCommand.builder()
         .payload(RedisSetCommand.Payload.builder()
             .key("{user.1}.username")
@@ -178,7 +178,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeSetWithExpireMillisecondsCommandAppliesCommandToStandalone() {
+  void writeSetWithExpireMillisecondsCommandAppliesCommandToStandalone() {
     final RedisSetCommand redisCommand = RedisSetCommand.builder()
         .payload(RedisSetCommand.Payload.builder()
             .key("{user.1}.username")
@@ -201,7 +201,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeSetWithExpireMillisecondsCommandAppliesCommandToCluster() {
+  void writeSetWithExpireMillisecondsCommandAppliesCommandToCluster() {
     final RedisSetCommand redisCommand = RedisSetCommand.builder()
         .payload(RedisSetCommand.Payload.builder()
             .key("{user.1}.username")
@@ -224,7 +224,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeSetWithExpireKeepTtlCommandAppliesCommandToStandalone() {
+  void writeSetWithExpireKeepTtlCommandAppliesCommandToStandalone() {
     final String key = "{user.1}.username";
     final long originalPttl = 21_000L;
 
@@ -248,7 +248,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeSetWithExpireKeepTtlCommandAppliesCommandToCluster() {
+  void writeSetWithExpireKeepTtlCommandAppliesCommandToCluster() {
     final String key = "{user.1}.username";
     final long originalPttl = 21_000L;
 
@@ -272,7 +272,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeSetWithNxConditionCommandAppliesCommandToStandalone() {
+  void writeSetWithNxConditionCommandAppliesCommandToStandalone() {
     final String key = "{user.1}.username";
 
     REDIS_STANDALONE_COMMANDS.set(key, "artistjanitor90");
@@ -297,7 +297,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeSetWithNxConditionCommandAppliesCommandToCluster() {
+  void writeSetWithNxConditionCommandAppliesCommandToCluster() {
     final String key = "{user.1}.username";
 
     REDIS_CLUSTER_COMMANDS.set(key, "artistjanitor90");
@@ -322,7 +322,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeSetWithXxConditionCommandAppliesCommandToStandalone() {
+  void writeSetWithXxConditionCommandAppliesCommandToStandalone() {
     final String key = "{user.1}.username";
 
     REDIS_STANDALONE_COMMANDS.set(key, "artistjanitor90");
@@ -349,7 +349,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeSetWithXxConditionCommandAppliesCommandToCluster() {
+  void writeSetWithXxConditionCommandAppliesCommandToCluster() {
     final String key = "{user.1}.username";
 
     REDIS_CLUSTER_COMMANDS.set(key, "artistjanitor90");
@@ -376,7 +376,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeExpireCommandAppliesCommandToStandalone() {
+  void writeExpireCommandAppliesCommandToStandalone() {
     final RedisExpireCommand redisCommand = RedisExpireCommand.builder()
       .payload(RedisExpireCommand.Payload.builder()
         .key("product.milk")
@@ -395,7 +395,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeExpireCommandAppliesCommandToCluster() {
+  void writeExpireCommandAppliesCommandToCluster() {
     final RedisExpireCommand redisCommand = RedisExpireCommand.builder()
       .payload(RedisExpireCommand.Payload.builder()
         .key("product.milk")
@@ -414,7 +414,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeExpireatCommandAppliesCommandToStandalone() {
+  void writeExpireatCommandAppliesCommandToStandalone() {
     final long secondsIntoFuture = 50L;
     final long timestamp = Instant.now().plusSeconds(secondsIntoFuture).getEpochSecond();
     final RedisExpireatCommand redisCommand = RedisExpireatCommand.builder()
@@ -435,7 +435,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeExpireatCommandAppliesCommandToCluster() {
+  void writeExpireatCommandAppliesCommandToCluster() {
     final long secondsIntoFuture = 50L;
     final long timestamp = Instant.now().plusSeconds(secondsIntoFuture).getEpochSecond();
     final RedisExpireatCommand redisCommand = RedisExpireatCommand.builder()
@@ -456,7 +456,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writePexpireCommandAppliesCommandToStandalone() {
+  void writePexpireCommandAppliesCommandToStandalone() {
     final RedisPexpireCommand redisCommand = RedisPexpireCommand.builder()
       .payload(RedisPexpireCommand.Payload.builder()
         .key("product.milk")
@@ -475,7 +475,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writePexpireCommandAppliesCommandToCluster() {
+  void writePexpireCommandAppliesCommandToCluster() {
     final RedisPexpireCommand redisCommand = RedisPexpireCommand.builder()
       .payload(RedisPexpireCommand.Payload.builder()
         .key("product.milk")
@@ -494,7 +494,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeSaddCommandAppliesCommandToStandalone() {
+  void writeSaddCommandAppliesCommandToStandalone() {
     final RedisSaddCommand redisCommand = RedisSaddCommand.builder()
         .payload(RedisSaddCommand.Payload.builder()
             .key("boats")
@@ -510,7 +510,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeSaddCommandAppliesCommandToCluster() {
+  void writeSaddCommandAppliesCommandToCluster() {
     final RedisSaddCommand redisCommand = RedisSaddCommand.builder()
         .payload(RedisSaddCommand.Payload.builder()
             .key("boats")
@@ -526,7 +526,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeGeoaddCommandAppliesCommandToStandalone() {
+  void writeGeoaddCommandAppliesCommandToStandalone() {
     final RedisGeoaddCommand redisCommand = RedisGeoaddCommand.builder()
         .payload(RedisGeoaddCommand.Payload.builder()
             .key("Sicily")
@@ -562,7 +562,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeGeoaddCommandAppliesCommandToCluster() {
+  void writeGeoaddCommandAppliesCommandToCluster() {
     final RedisGeoaddCommand redisCommand = RedisGeoaddCommand.builder()
         .payload(RedisGeoaddCommand.Payload.builder()
             .key("Sicily")
@@ -598,7 +598,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeGeoaddCommandRetunsErrorForMissingMember() {
+  void writeGeoaddCommandRetunsErrorForMissingMember() {
     final RedisGeoaddCommand redisCommand = RedisGeoaddCommand.builder()
         .payload(RedisGeoaddCommand.Payload.builder()
             .key("Sicily")
@@ -623,7 +623,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeArbitraryCommandAppliesCommandToStandalone() {
+  void writeArbitraryCommandAppliesCommandToStandalone() {
     final RedisArbitraryCommand redisCommand = RedisArbitraryCommand.builder()
       .payload(RedisArbitraryCommand.Payload.builder()
         .command("SET")
@@ -639,7 +639,7 @@ public class WriterIT {
   }
 
   @Test
-  public void writeArbitraryCommandAppliesCommandToCluster() {
+  void writeArbitraryCommandAppliesCommandToCluster() {
     final RedisArbitraryCommand redisCommand = RedisArbitraryCommand.builder()
       .payload(RedisArbitraryCommand.Payload.builder()
         .command("SET")

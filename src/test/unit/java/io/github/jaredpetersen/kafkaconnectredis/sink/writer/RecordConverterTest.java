@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class RecordConverterTest {
+class RecordConverterTest {
   private static final Schema REDIS_SET_COMMAND_SCHEMA = SchemaBuilder.struct()
     .name("io.github.jaredpetersen.kafkaconnectredis.RedisSetCommand")
     .field("key", SchemaBuilder.STRING_SCHEMA)
@@ -75,7 +75,7 @@ public class RecordConverterTest {
     .build();
 
   @Test
-  public void convertTransformsPartialSinkRecordToRedisSetCommand() {
+  void convertTransformsPartialSinkRecordToRedisSetCommand() {
     final String topic = "rediscommands";
     final int partition = 0;
     final Schema keySchema = null;
@@ -101,7 +101,7 @@ public class RecordConverterTest {
   }
 
   @Test
-  public void convertTransformsSinkRecordToRedisSetCommand() {
+  void convertTransformsSinkRecordToRedisSetCommand() {
     final String topic = "rediscommands";
     final int partition = 0;
     final Schema keySchema = null;
@@ -136,7 +136,7 @@ public class RecordConverterTest {
   }
 
   @Test
-  public void convertTransformsSinkRecordToRedisExpireCommand() {
+  void convertTransformsSinkRecordToRedisExpireCommand() {
     final String topic = "rediscommands";
     final int partition = 0;
     final Schema keySchema = null;
@@ -162,7 +162,7 @@ public class RecordConverterTest {
   }
 
   @Test
-  public void convertTransformsSinkRecordToRedisExpireatCommand() {
+  void convertTransformsSinkRecordToRedisExpireatCommand() {
     final String topic = "rediscommands";
     final int partition = 0;
     final Schema keySchema = null;
@@ -188,7 +188,7 @@ public class RecordConverterTest {
   }
 
   @Test
-  public void convertTransformsSinkRecordToRedisPexpireCommand() {
+  void convertTransformsSinkRecordToRedisPexpireCommand() {
     final String topic = "rediscommands";
     final int partition = 0;
     final Schema keySchema = null;
@@ -214,7 +214,7 @@ public class RecordConverterTest {
   }
 
   @Test
-  public void convertTransformsSinkRecordToRedisSaddCommand() {
+  void convertTransformsSinkRecordToRedisSaddCommand() {
     final String topic = "rediscommands";
     final int partition = 0;
     final Schema keySchema = null;
@@ -240,7 +240,7 @@ public class RecordConverterTest {
   }
 
   @Test
-  public void convertTransformsSinkRecordToRedisGeoaddCommand() {
+  void convertTransformsSinkRecordToRedisGeoaddCommand() {
     final String topic = "rediscommands";
     final int partition = 0;
     final Schema keySchema = null;
@@ -285,7 +285,7 @@ public class RecordConverterTest {
   }
 
   @Test
-  public void convertTransformsSinkRecordToRedisArbitraryCommand() {
+  void convertTransformsSinkRecordToRedisArbitraryCommand() {
     final String topic = "rediscommands";
     final int partition = 0;
     final Schema keySchema = null;
