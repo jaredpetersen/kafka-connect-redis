@@ -4,14 +4,14 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class VersionUtilIT {
+class VersionUtilIT {
   @Test
-  public void constructorDoesNothing() {
+  void constructorDoesNothing() {
     new VersionUtil();
   }
 
   @Test
-  public void getVersionReturnsVersion() {
+  void getVersionReturnsVersion() {
     final String version = VersionUtil.getVersion();
     assertTrue(version.matches("[0-9]+\\.[0-9]+\\.[0-9]+"));
   }

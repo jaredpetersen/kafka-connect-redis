@@ -4,13 +4,13 @@ import lombok.Builder;
 import lombok.Value;
 
 @Value
-@Builder(builderClassName = "Builder")
+@Builder
 public class RedisPexpireCommand implements RedisCommand {
   Command command = Command.PEXPIRE;
   Payload payload;
 
   @Value
-  @lombok.Builder(builderClassName = "Builder")
+  @lombok.Builder
   public static class Payload {
     String key;
     long milliseconds;

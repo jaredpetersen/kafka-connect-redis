@@ -5,11 +5,11 @@
 
   <groupId>io.github.jaredpetersen</groupId>
   <artifactId>kafka-connect-redis</artifactId>
-  <version>1.2.0</version>
+  <version>1.2.1</version>
   <packaging>jar</packaging>
 
-  <name>kafka-connect-redis</name>
-  <description>Kafka Connect source and sink connector for Redis</description>
+  <name>Kafka Redis Connector (Sink and Source)</name>
+  <description>Kafka sink and source connector for Redis</description>
   <url>https://github.com/jaredpetersen/kafka-connect-redis</url>
 
   <licenses>
@@ -62,69 +62,57 @@
     <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>connect-api</artifactId>
-      <version>2.7.0</version>
+      <version>2.8.0</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>io.lettuce</groupId>
       <artifactId>lettuce-core</artifactId>
-      <version>6.0.2.RELEASE</version>
-    </dependency>
-
-    <dependency>
-      <groupId>io.projectreactor</groupId>
-      <artifactId>reactor-core</artifactId>
-      <version>3.4.2</version>
+      <version>6.1.4.RELEASE</version>
     </dependency>
 
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.18</version>
+      <version>1.18.20</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-nop</artifactId>
-      <version>1.7.30</version>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.7.31</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>5.7.1</version>
+      <version>5.7.2</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>3.7.7</version>
+      <version>3.11.2</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>testcontainers</artifactId>
-      <version>1.15.2</version>
+      <version>1.15.3</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>1.15.2</version>
+      <version>1.15.3</version>
       <scope>test</scope>
     </dependency>
 
-    <dependency>
-      <groupId>io.projectreactor</groupId>
-      <artifactId>reactor-test</artifactId>
-      <version>3.4.2</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>
@@ -218,8 +206,9 @@
               <goal>kafka-connect</goal>
             </goals>
             <configuration>
-              <title>Kafka Connect Redis</title>
-              <documentationUrl>${project.url}/blob/main/README.md</documentationUrl>
+              <name>redis-connector</name>
+              <title>Redis Connector (Sink and Source)</title>
+              <documentationUrl>${project.url}</documentationUrl>
               <ownerLogo>docs/logos/jaredpetersen-logo.png</ownerLogo>
               <ownerUsername>jaredpetersen</ownerUsername>
               <ownerType>user</ownerType>
@@ -228,6 +217,17 @@
               <supportProviderName>Open Source Community</supportProviderName>
               <supportSummary>Support provided through community involvement.</supportSummary>
               <supportUrl>${project.issueManagement.url}</supportUrl>
+              <fileSets>
+                <fileSet>
+                  <directory>${project.basedir}</directory>
+                  <outputDirectory>doc</outputDirectory>
+                  <includes>
+                    <include>README.md</include>
+                    <include>LICENSE.md</include>
+                    <include>CHANGELOG.md</include>
+                  </includes>
+                </fileSet>
+              </fileSets>
               <confluentControlCenterIntegration>true</confluentControlCenterIntegration>
               <componentTypes>
                 <componentType>source</componentType>
@@ -252,7 +252,7 @@
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
-          <finalName>${project.name}-${project.version}</finalName>
+          <finalName>${project.artifactId}-${project.version}</finalName>
           <appendAssemblyId>false</appendAssemblyId>
         </configuration>
         <executions>

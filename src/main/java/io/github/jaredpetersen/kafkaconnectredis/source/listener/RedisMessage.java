@@ -4,9 +4,9 @@ import lombok.Builder;
 import lombok.Value;
 
 @Value
-@Builder(builderClassName = "Builder")
+@Builder
 public class RedisMessage {
-  String channel;
   String pattern;
+  String channel;
   String message;
 }

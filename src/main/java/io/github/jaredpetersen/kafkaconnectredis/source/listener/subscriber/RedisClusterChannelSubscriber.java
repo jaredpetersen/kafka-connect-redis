@@ -1,48 +1,26 @@
 package io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber;
 
-import io.github.jaredpetersen.kafkaconnectredis.source.listener.RedisMessage;
 import io.lettuce.core.cluster.pubsub.StatefulRedisClusterPubSubConnection;
 import java.util.List;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class RedisClusterChannelSubscriber implements RedisSubscriber {
-  private final StatefulRedisClusterPubSubConnection<String, String> redisClusterPubSubConnection;
-  private final List<String> channels;
-
+/**
+ * Redis cluster-aware pub/sub subscriber that listens to channels and caches the retrieved messages for later
+ * retrieval.
+ */
+public class RedisClusterChannelSubscriber extends RedisSubscriber {
+  /**
+   * Create a cluster-aware subscriber that listens to channels.
+   *
+   * @param redisClusterPubSubConnection Cluster pub/sub connection used to facilitate the subscription
+   * @param channels Channels to subscribe and listen to
+   */
   public RedisClusterChannelSubscriber(
-      StatefulRedisClusterPubSubConnection<String, String> redisClusterPubSubConnection,
-      List<String> channels) {
-    this.redisClusterPubSubConnection = redisClusterPubSubConnection;
-    this.channels = channels;
-  }
-
-  @Override
-  public Mono<Void> subscribe() {
-    return redisClusterPubSubConnection.reactive()
-      .upstream()
-      .commands()
-      .subscribe(channels.toArray(new String[0]))
-      .flux()
-      .then();
-  }
-
-  @Override
-  public Mono<Void> unsubscribe() {
-    return redisClusterPubSubConnection.reactive()
-      .upstream()
-      .commands()
-      .unsubscribe(channels.toArray(new String[0]))
-      .flux()
-      .then();
-  }
-
-  @Override
-  public Flux<RedisMessage> observe() {
-    return redisClusterPubSubConnection.reactive().observeChannels()
-      .map(channelMessage -> RedisMessage.builder()
-        .channel(channelMessage.getChannel())
-        .message(channelMessage.getMessage())
-        .build());
+    StatefulRedisClusterPubSubConnection<String, String> redisClusterPubSubConnection,
+    List<String> channels
+  ) {
+    super(new ConcurrentLinkedQueue<>());
+    redisClusterPubSubConnection.addListener(new RedisClusterListener(this.messageQueue));
+    redisClusterPubSubConnection.sync().upstream().commands().subscribe(channels.toArray(new String[0]));
   }
 }

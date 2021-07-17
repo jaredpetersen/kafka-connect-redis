@@ -3,161 +3,133 @@ package io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber;
 import io.github.jaredpetersen.kafkaconnectredis.source.listener.RedisMessage;
 import io.github.jaredpetersen.kafkaconnectredis.testutil.RedisContainer;
 import io.lettuce.core.cluster.RedisClusterClient;
-import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
+import io.lettuce.core.cluster.api.sync.RedisClusterCommands;
 import io.lettuce.core.cluster.pubsub.StatefulRedisClusterPubSubConnection;
-import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Testcontainers
-public class RedisClusterChannelSubscriberIT {
+class RedisClusterChannelSubscriberIT {
   @Container
   private static final RedisContainer REDIS_CLUSTER = new RedisContainer().withClusterMode();
 
   private static RedisClusterClient REDIS_CLUSTER_CLIENT;
   private static StatefulRedisClusterPubSubConnection<String, String> REDIS_CLUSTER_PUB_CONNECTION;
-  private static RedisClusterReactiveCommands<String, String> REDIS_CLUSTER_PUB_COMMANDS;
+  private static RedisClusterCommands<String, String> REDIS_CLUSTER_PUB_COMMANDS;
   private static StatefulRedisClusterPubSubConnection<String, String> REDIS_CLUSTER_SUB_CONNECTION;
 
   @BeforeAll
-  static void setupAll() {
+  static void beforeAll() {
     REDIS_CLUSTER_CLIENT = RedisClusterClient.create(REDIS_CLUSTER.getUri());
+  }
 
+  @BeforeEach
+  void beforeEach() {
     REDIS_CLUSTER_PUB_CONNECTION = REDIS_CLUSTER_CLIENT.connectPubSub();
-    REDIS_CLUSTER_PUB_COMMANDS = REDIS_CLUSTER_PUB_CONNECTION.reactive();
+    REDIS_CLUSTER_PUB_COMMANDS = REDIS_CLUSTER_PUB_CONNECTION.sync();
 
     REDIS_CLUSTER_SUB_CONNECTION = REDIS_CLUSTER_CLIENT.connectPubSub();
     REDIS_CLUSTER_SUB_CONNECTION.setNodeMessagePropagation(true);
   }
 
   @AfterEach
-  public void cleanupEach() {
-    REDIS_CLUSTER_PUB_COMMANDS.flushall().block();
+  void afterEach() {
+    REDIS_CLUSTER_PUB_COMMANDS.flushall();
+    REDIS_CLUSTER_PUB_CONNECTION.close();
+    REDIS_CLUSTER_SUB_CONNECTION.close();
   }
 
   @AfterAll
-  static void cleanupAll() {
-    REDIS_CLUSTER_SUB_CONNECTION.close();
+  static void afterAll() {
     REDIS_CLUSTER_CLIENT.shutdown();
   }
 
-  @Test
-  public void subscribeSubscribesToChannels() {
-    final List<String> channels = Arrays.asList("podcasts", "podcasters");
-    final RedisSubscriber redisSubscriber = new RedisClusterChannelSubscriber(REDIS_CLUSTER_SUB_CONNECTION, channels);
+  /**
+   * Poll the RedisSubscriber until there aren't any messages left to retrieve.
+   *
+   * @param redisSubscriber RedisSubscriber to poll
+   * @return Redis messages retrieved by polling
+   */
+  static List<RedisMessage> pollUntilEmpty(RedisSubscriber redisSubscriber) {
+    final List<RedisMessage> retrievedMessages = new ArrayList<>();
 
-    StepVerifier
-      .create(REDIS_CLUSTER_PUB_CONNECTION.reactive().pubsubNumsub(channels.toArray(new String[0])))
-      .expectNextMatches(channelMap ->
-        channelMap.get(channels.get(0)) == 0L && channelMap.get(channels.get(1)) == 0L)
-      .verifyComplete();
+    while (true) {
+      final RedisMessage message = redisSubscriber.poll();
 
-    StepVerifier
-      .create(redisSubscriber.subscribe())
-      .verifyComplete();
+      if (message == null) {
+        break;
+      }
 
-    StepVerifier
-      .create(REDIS_CLUSTER_PUB_CONNECTION.reactive().pubsubNumsub(channels.toArray(new String[0])))
-      .expectNextMatches(channelMap ->
-        channelMap.get(channels.get(0)) == 1L && channelMap.get(channels.get(1)) == 1L)
-      .verifyComplete();
+      retrievedMessages.add(message);
+    }
+
+    return retrievedMessages;
   }
 
   @Test
-  public void unsubscribeUnsubscribesFromChannels() {
-    final List<String> channels = Arrays.asList("podcasts", "podcasters");
-    final RedisSubscriber redisSubscriber = new RedisClusterChannelSubscriber(REDIS_CLUSTER_SUB_CONNECTION, channels);
-
-    StepVerifier
-      .create(redisSubscriber.subscribe())
-      .verifyComplete();
-
-    StepVerifier
-      .create(REDIS_CLUSTER_PUB_CONNECTION.reactive().pubsubNumsub(channels.toArray(new String[0])))
-      .expectNextMatches(channelMap ->
-        channelMap.get(channels.get(0)) == 1L && channelMap.get(channels.get(1)) == 1L)
-      .verifyComplete();
-
-    StepVerifier
-      .create(redisSubscriber.unsubscribe())
-      .verifyComplete();
-
-    StepVerifier
-      .create(REDIS_CLUSTER_PUB_CONNECTION.reactive().pubsubNumsub(channels.toArray(new String[0])))
-      .expectNextMatches(channelMap ->
-        channelMap.get(channels.get(0)) == 0 && channelMap.get(channels.get(1)) == 0)
-      .verifyComplete();
-  }
-
-  @Test
-  public void observeRetrievesPubSubMessages() {
+  void pollRetrievesCachedMessagesFromSingleChannelPubSub() throws InterruptedException {
     final String channel = "podcasts";
     final RedisSubscriber redisSubscriber = new RedisClusterChannelSubscriber(
       REDIS_CLUSTER_SUB_CONNECTION,
-      Arrays.asList(channel));
+      Collections.singletonList(channel));
 
-    final Mono<Void> publish = Flux
-      .range(1, 5)
-      .flatMapSequential(id -> REDIS_CLUSTER_PUB_COMMANDS.publish("podcasts", "podcast-" + id))
-      .then();
+    final List<RedisMessage> expectedRedisMessages = IntStream.range(0, 5)
+      .mapToObj(i -> RedisMessage.builder()
+        .channel("podcasts")
+        .message(UUID.randomUUID().toString())
+        .build())
+      .collect(Collectors.toList());
 
-    StepVerifier
-      .create(redisSubscriber.subscribe())
-      .verifyComplete();
+    for (RedisMessage redisMessage : expectedRedisMessages) {
+      REDIS_CLUSTER_PUB_COMMANDS.publish(redisMessage.getChannel(), redisMessage.getMessage());
+    }
 
-    final StepVerifier observeVerifier = StepVerifier
-      .create(redisSubscriber.observe())
-      .expectNext(RedisMessage.builder().channel(channel).message("podcast-1").build())
-      .expectNext(RedisMessage.builder().channel(channel).message("podcast-2").build())
-      .expectNext(RedisMessage.builder().channel(channel).message("podcast-3").build())
-      .expectNext(RedisMessage.builder().channel(channel).message("podcast-4").build())
-      .expectNext(RedisMessage.builder().channel(channel).message("podcast-5").build())
-      .expectNoEvent(Duration.ofSeconds(2L))
-      .thenCancel()
-      .verifyLater();
+    // Subscription is async and we want to make sure all of the messages are available
+    Thread.sleep(2000);
 
-    StepVerifier
-      .create(publish)
-      .verifyComplete();
+    final List<RedisMessage> retrievedMessages = pollUntilEmpty(redisSubscriber);
 
-    observeVerifier.verify();
+    assertEquals(expectedRedisMessages, retrievedMessages);
   }
 
   @Test
-  public void observeRetrievesPubSubMessagesFromMultipleChannels() {
+  void pollRetrievesCachedMessagesFromMultipleChannelPubSub() throws InterruptedException {
     final List<String> channels = Arrays.asList("podcasts", "podcasters");
     final RedisSubscriber redisSubscriber = new RedisClusterChannelSubscriber(REDIS_CLUSTER_SUB_CONNECTION, channels);
 
-    final Mono<Void> publish = Flux
-      .range(1, 5)
-      .flatMapSequential(id -> REDIS_CLUSTER_PUB_COMMANDS.publish("podcasts", "podcast-" + id)
-        .then(REDIS_CLUSTER_PUB_COMMANDS.publish("podcasters", "podcaster-" + id)))
-      .then();
+    final List<RedisMessage> expectedRedisMessages = IntStream.range(0, 5)
+      .mapToObj(i -> {
+        final String channel = (i % 2 == 0) ? "podcasts" : "podcasters";
+        return RedisMessage.builder()
+          .channel(channel)
+          .message(UUID.randomUUID().toString())
+          .build();
+      })
+      .collect(Collectors.toList());
 
-    StepVerifier
-      .create(redisSubscriber.subscribe())
-      .verifyComplete();
+    for (RedisMessage redisMessage : expectedRedisMessages) {
+      REDIS_CLUSTER_PUB_COMMANDS.publish(redisMessage.getChannel(), redisMessage.getMessage());
+    }
 
-    final StepVerifier observeVerifier = StepVerifier
-      .create(redisSubscriber.observe())
-      .expectNextCount(10)
-      .expectNoEvent(Duration.ofSeconds(2L))
-      .thenCancel()
-      .verifyLater();
+    // Subscription is async and we want to make sure all of the messages are available
+    Thread.sleep(2000);
 
-    StepVerifier
-      .create(publish)
-      .verifyComplete();
+    final List<RedisMessage> retrievedMessages = pollUntilEmpty(redisSubscriber);
 
-    observeVerifier.verify();
+    assertEquals(expectedRedisMessages, retrievedMessages);
   }
 }

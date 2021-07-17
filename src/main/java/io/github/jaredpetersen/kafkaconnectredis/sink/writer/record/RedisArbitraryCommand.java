@@ -5,13 +5,13 @@ import lombok.Builder;
 import lombok.Value;
 
 @Value
-@Builder(builderClassName = "Builder")
+@Builder
 public class RedisArbitraryCommand implements RedisCommand {
   Command command = Command.ARBITRARY;
   Payload payload;
 
   @Value
-  @lombok.Builder(builderClassName = "Builder")
+  @lombok.Builder
   public static class Payload {
     String command;
     List<String> arguments;

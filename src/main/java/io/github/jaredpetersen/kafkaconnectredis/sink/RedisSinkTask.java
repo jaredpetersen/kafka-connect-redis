@@ -3,29 +3,31 @@ package io.github.jaredpetersen.kafkaconnectredis.sink;
 import io.github.jaredpetersen.kafkaconnectredis.sink.config.RedisSinkConfig;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.RecordConverter;
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.Writer;
+import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisCommand;
 import io.github.jaredpetersen.kafkaconnectredis.util.VersionUtil;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.api.reactive.RedisReactiveCommands;
+import io.lettuce.core.api.sync.RedisCommands;
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.ClusterTopologyRefreshOptions;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
-import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
+import io.lettuce.core.cluster.api.sync.RedisClusterCommands;
 import java.util.Collection;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.sink.SinkTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import reactor.core.publisher.Flux;
 
 /**
  * Kafka Connect Task for Kafka Connect Redis Sink.
  */
+@Slf4j
 public class RedisSinkTask extends SinkTask {
+  private static final RecordConverter RECORD_CONVERTER = new RecordConverter();
+
   private RedisClient redisStandaloneClient;
   private StatefulRedisConnection<String, String> redisStandaloneConnection;
 
@@ -33,10 +35,6 @@ public class RedisSinkTask extends SinkTask {
   private StatefulRedisClusterConnection<String, String> redisClusterConnection;
 
   private Writer writer;
-
-  private static final RecordConverter RECORD_CONVERTER = new RecordConverter();
-
-  private static final Logger LOG = LoggerFactory.getLogger(RedisSinkTask.class);
 
   @Override
   public String version() {
@@ -67,14 +65,14 @@ public class RedisSinkTask extends SinkTask {
 
       this.redisClusterConnection = this.redisClusterClient.connect();
 
-      final RedisClusterReactiveCommands<String, String> redisClusterCommands = this.redisClusterConnection.reactive();
+      final RedisClusterCommands<String, String> redisClusterCommands = this.redisClusterConnection.sync();
       this.writer = new Writer(redisClusterCommands);
     }
     else {
       this.redisStandaloneClient = RedisClient.create(config.getRedisUri());
       this.redisStandaloneConnection = this.redisStandaloneClient.connect();
 
-      final RedisReactiveCommands<String, String> redisStandaloneCommands = this.redisStandaloneConnection.reactive();
+      final RedisCommands<String, String> redisStandaloneCommands = this.redisStandaloneConnection.sync();
       this.writer = new Writer(redisStandaloneCommands);
     }
   }
@@ -88,14 +86,27 @@ public class RedisSinkTask extends SinkTask {
     LOG.info("writing {} record(s) to redis", records.size());
     LOG.debug("records: {}", records);
 
-    Flux
-        .fromIterable(records)
-        .flatMapSequential(RECORD_CONVERTER::convert)
-        .onErrorMap(error -> new ConnectException("failed to convert record", error))
-        .flatMapSequential(redisCommand -> this.writer.write(redisCommand))
-        .onErrorMap(error -> new ConnectException("failed to write record", error))
-        .then()
-        .block();
+    for (SinkRecord record : records) {
+      put(record);
+    }
+  }
+
+  private void put(SinkRecord record) {
+    final RedisCommand redisCommand;
+
+    try {
+      redisCommand = RECORD_CONVERTER.convert(record);
+    }
+    catch (Exception exception) {
+      throw new ConnectException("failed to convert record", exception);
+    }
+
+    try {
+      writer.write(redisCommand);
+    }
+    catch (Exception exception) {
+      throw new ConnectException("failed to write record", exception);
+    }
   }
 
   @Override

@@ -2,14 +2,13 @@ package io.github.jaredpetersen.kafkaconnectredis.util;
 
 import java.io.IOException;
 import java.util.Properties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Provide version information.
  */
+@Slf4j
 public class VersionUtil {
-  private static final Logger LOGGER = LoggerFactory.getLogger(VersionUtil.class);
   private static final Properties PROPERTIES = new Properties();
 
   static {
@@ -17,7 +16,7 @@ public class VersionUtil {
       PROPERTIES.load(VersionUtil.class.getClassLoader().getResourceAsStream("kafka-connect-redis.properties"));
     }
     catch (IOException exception) {
-      LOGGER.error("failed to load properties", exception);
+      LOG.error("failed to load properties", exception);
     }
   }
 

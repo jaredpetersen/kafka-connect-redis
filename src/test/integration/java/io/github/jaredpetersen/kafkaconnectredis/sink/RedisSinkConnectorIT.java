@@ -1,7 +1,6 @@
 package io.github.jaredpetersen.kafkaconnectredis.sink;
 
 import io.github.jaredpetersen.kafkaconnectredis.sink.config.RedisSinkConfig;
-import io.github.jaredpetersen.kafkaconnectredis.source.RedisSourceConnector;
 import io.github.jaredpetersen.kafkaconnectredis.util.VersionUtil;
 import java.util.HashMap;
 import java.util.List;
@@ -14,21 +13,21 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class RedisSinkConnectorIT {
   @Test
-  public void versionReturnsVersion() {
+  void versionReturnsVersion() {
     final RedisSinkConnector sinkConnector = new RedisSinkConnector();
 
     assertEquals(VersionUtil.getVersion(), sinkConnector.version());
   }
 
   @Test
-  public void taskClassReturnsTaskClass() {
+  void taskClassReturnsTaskClass() {
     final RedisSinkConnector sinkConnector = new RedisSinkConnector();
 
     assertEquals(RedisSinkTask.class, sinkConnector.taskClass());
   }
 
   @Test
-  public void taskConfigsReturnsTaskConfigs() {
+  void taskConfigsReturnsTaskConfigs() {
     final RedisSinkConnector sinkConnector = new RedisSinkConnector();
 
     final Map<String, String> connectorConfig = new HashMap<>();
@@ -46,24 +45,23 @@ public class RedisSinkConnectorIT {
   }
 
   @Test
-  public void startThrowsConnectExceptionForInvalidConfig() {
-    final RedisSourceConnector sourceConnector = new RedisSourceConnector();
+  void startThrowsConnectExceptionForInvalidConfig() {
+    final RedisSinkConnector sinkConnector = new RedisSinkConnector();
 
     final Map<String, String> connectorConfig = new HashMap<>();
-    connectorConfig.put("redis.uri", "redis://localhost:6379");
 
-    final ConnectException thrown = assertThrows(ConnectException.class, () -> sourceConnector.start(connectorConfig));
+    final ConnectException thrown = assertThrows(ConnectException.class, () -> sinkConnector.start(connectorConfig));
     assertEquals("connector configuration error", thrown.getMessage());
   }
 
   @Test
-  public void stopDoesNothing() {
+  void stopDoesNothing() {
     final RedisSinkConnector sinkConnector = new RedisSinkConnector();
     sinkConnector.stop();
   }
 
   @Test
-  public void configReturnsConfigDefinition() {
+  void configReturnsConfigDefinition() {
     final RedisSinkConnector sinkConnector = new RedisSinkConnector();
 
     assertEquals(RedisSinkConfig.CONFIG_DEF, sinkConnector.config());

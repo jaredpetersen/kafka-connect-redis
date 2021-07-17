@@ -4,13 +4,13 @@ import lombok.Builder;
 import lombok.Value;
 
 @Value
-@Builder(builderClassName = "Builder")
+@Builder
 public class RedisSetCommand implements RedisCommand {
   Command command = Command.SET;
   Payload payload;
 
   @Value
-  @lombok.Builder(builderClassName = "Builder")
+  @lombok.Builder
   public static class Payload {
     public enum Condition { NX, XX }
 
@@ -20,7 +20,7 @@ public class RedisSetCommand implements RedisCommand {
     Condition condition;
 
     @Value
-    @lombok.Builder(builderClassName = "Builder")
+    @lombok.Builder
     public static class Expiration {
       public enum Type { EX, PX, KEEPTTL }
 
