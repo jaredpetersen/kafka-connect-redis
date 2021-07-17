@@ -136,6 +136,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: target/components/packages/jaredpetersen-kafka-connect-redis-${{ steps.deploy.outputs.version }}.zip
-          asset_name: jaredpetersen-kafka-connect-redis-${{ steps.deploy.outputs.version }}.zip
+          asset_path: target/components/packages/jaredpetersen-redis-connector-${{ steps.deploy.outputs.version }}.zip
+          asset_name: jaredpetersen-redis-connector-${{ steps.deploy.outputs.version }}.zip
           asset_content_type: application/zip
