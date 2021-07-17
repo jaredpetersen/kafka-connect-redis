@@ -2,12 +2,10 @@ package io.github.jaredpetersen.kafkaconnectredis.source.listener.subscriber;
 
 import io.github.jaredpetersen.kafkaconnectredis.source.listener.RedisMessage;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 abstract class RedisListener {
-  private static final Logger LOG = LoggerFactory.getLogger(RedisListener.class);
-
   private final ConcurrentLinkedQueue<RedisMessage> messageQueue;
 
   public RedisListener(ConcurrentLinkedQueue<RedisMessage> messageQueue) {

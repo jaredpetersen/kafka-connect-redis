@@ -15,19 +15,18 @@ import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.cluster.api.sync.RedisClusterCommands;
 import java.util.Collection;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.sink.SinkTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Kafka Connect Task for Kafka Connect Redis Sink.
  */
+@Slf4j
 public class RedisSinkTask extends SinkTask {
   private static final RecordConverter RECORD_CONVERTER = new RecordConverter();
-  private static final Logger LOG = LoggerFactory.getLogger(RedisSinkTask.class);
 
   private RedisClient redisStandaloneClient;
   private StatefulRedisConnection<String, String> redisStandaloneConnection;

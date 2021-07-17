@@ -10,15 +10,13 @@ import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisSaddCom
 import io.github.jaredpetersen.kafkaconnectredis.sink.writer.record.RedisSetCommand;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.sink.SinkRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class RecordConverter {
-  private static final Logger LOG = LoggerFactory.getLogger(RecordConverter.class);
-
   /**
    * Convert sink record to Redis command.
    *

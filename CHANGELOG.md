@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.2.1] - 2021-07-17
 ### Changed
 - Modified Confluent archive to follow new standards
-- Updated Lettuce dependency
 - Stopped using reactive Lettuce
+- Upgraded various dependencies
 
 ## [1.2.0] - 2021-02-13
 ### Added

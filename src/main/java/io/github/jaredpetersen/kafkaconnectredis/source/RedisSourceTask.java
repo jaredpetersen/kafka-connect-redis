@@ -18,19 +18,18 @@ import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.source.SourceTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Kafka Connect Task for Kafka Connect Redis Sink.
  */
+@Slf4j
 public class RedisSourceTask extends SourceTask {
   private static final long MAX_POLL_SIZE = 10_000L;
-  private static final Logger LOG = LoggerFactory.getLogger(RedisSourceTask.class);
 
   private RedisClient redisStandaloneClient;
   private StatefulRedisPubSubConnection<String, String> redisStandalonePubSubConnection;

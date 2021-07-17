@@ -19,13 +19,11 @@ import io.lettuce.core.protocol.ProtocolKeyword;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.connect.errors.ConnectException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class Writer {
-  private static final Logger LOG = LoggerFactory.getLogger(Writer.class);
-
   private final RedisCommands<String, String> redisStandaloneCommands;
   private final RedisClusterCommands<String, String> redisClusterCommands;
   private final boolean clusterEnabled;
