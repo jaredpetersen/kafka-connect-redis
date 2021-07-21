@@ -27,6 +27,12 @@ public class RedisClusterChannelSubscriber extends RedisSubscriber {
     subscribeChannels(redisClusterPubSubConnection, channels);
   }
 
+  /**
+   * Subscribe to the provided channels. Re-issue subscriptions asynchronously when the cluster topology changes.
+   *
+   * @param redisClusterPubSubConnection Cluster pub/sub connection used to facilitate the subscription
+   * @param channels Channels to subscribe and listen to
+   */
   private void subscribeChannels(
     StatefulRedisClusterPubSubConnection<String, String> redisClusterPubSubConnection,
     List<String> channels
