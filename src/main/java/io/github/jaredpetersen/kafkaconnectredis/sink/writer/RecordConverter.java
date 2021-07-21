@@ -24,7 +24,7 @@ public class RecordConverter {
    * @return Redis command.
    */
   public RedisCommand convert(SinkRecord sinkRecord) {
-    LOG.debug("converting record {}", sinkRecord);
+    LOG.debug("Converting record {}", sinkRecord);
 
     final Struct recordValue = (Struct) sinkRecord.value();
     final String recordValueSchemaName = recordValue.schema().name();

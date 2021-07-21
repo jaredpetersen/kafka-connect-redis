@@ -56,7 +56,7 @@ public class Writer {
    * @param redisCommand Command to apply
    */
   public void write(RedisCommand redisCommand) {
-    LOG.debug("writing {}", redisCommand);
+    LOG.debug("Writing {}", redisCommand);
 
     switch (redisCommand.getCommand()) {
       case SET:

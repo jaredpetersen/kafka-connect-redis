@@ -44,7 +44,7 @@ public class RedisClusterChannelSubscriber extends RedisSubscriber {
       .filter(event -> event instanceof ClusterTopologyChangedEvent)
       .doOnNext(event -> {
         // Lettuce does its best to determine when the topology changed but there's always a possibility that
-        LOG.info("redis cluster topology changed, issuing new subscriptions");
+        LOG.info("Redis cluster topology changed, issuing new subscriptions");
 
         redisClusterPubSubConnection.sync()
           .upstream()
