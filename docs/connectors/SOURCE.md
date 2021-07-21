@@ -1,6 +1,8 @@
 # Kafka Connect Redis - Source
 Subscribes to Redis channels/patterns (including [keyspace notifications](https://redis.io/topics/notifications)) and writes the received messages to Kafka.
 
+**WARNING** Delivery of keyspace notifications is not reliable for Redis clusters. Keyspace notifications are node-local and adding new upstream nodes to your Redis cluster will likely involve a short period where events on the new node are not picked up until the connector discovers the node and issues a SUBSCRIBE command to it. This is a limitation of keyspace notifications that the Redis organization would like to overcome in the future.
+
 ## Record Schema
 
 ### Key

@@ -123,7 +123,7 @@ public class RedisSourceTask extends SourceTask {
       }
     }
 
-    if (sourceRecords.size() > 1) {
+    if (sourceRecords.size() >= 1) {
       LOG.info("writing {} record(s) to kafka", sourceRecords.size());
     }
 
