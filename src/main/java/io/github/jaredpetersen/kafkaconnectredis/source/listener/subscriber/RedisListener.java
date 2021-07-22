@@ -36,7 +36,7 @@ abstract class RedisListener {
   }
 
   public void psubscribed(String pattern) {
-    LOG.info("PSubscribed to pattern {}", pattern);
+    LOG.info("Subscribed to pattern {}", pattern);
   }
 
   public void unsubscribed(String channel) {

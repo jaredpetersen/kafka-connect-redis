@@ -66,7 +66,7 @@ Next, you need to add the new node to the cluster configuration.
 
 Find the IP address number of the new node:
 ```bash
-kubectl -n kcr-demo get pod redis-cluster-3 -o jsonpath='{.status.podIP}'
+kubectl -n kcr-demo get pod redis-cluster-### -o jsonpath='{.status.podIP}'
 ```
 
 Find the IP address of one of the nodes already in the cluster:
@@ -79,29 +79,34 @@ Create Redis client pod so that we can update the cluster configuration:
 kubectl -n kcr-demo run -it --rm redis-client --image redis:6 -- /bin/bash
 ```
 
-Save those two IP addresses as environment variables:
+Save those two IP addresses -- and the Redis cluster password while we're at it -- as environment variables:
 ```bash
 NEW_NODE=newnodeipaddress:6379
 EXISTING_NODE=existingnodeipaddress:6379
+PASSWORD=IEPfIr0eLF7UsfwrIlzy80yUaBG258j9
 ```
 
 Add the node to the cluster using the IP address information you collected earlier:
 ```bash
-redis-cli --pass IEPfIr0eLF7UsfwrIlzy80yUaBG258j9 --cluster add-node $NEW_NODE $EXISTING_NODE
+redis-cli --pass $PASSWORD --cluster add-node $NEW_NODE $EXISTING_NODE
 ```
 
 Connect to the cluster and confirm that there is now an additional entry in the cluster listing:
 ```bash
-redis-cli -c -u 'redis://IEPfIr0eLF7UsfwrIlzy80yUaBG258j9@redis-cluster'
+redis-cli -c -a $PASSWORD -u "redis://redis-cluster"
 redis-cluster:6379> CLUSTER NODES
 ```
 
 The new upstream node doesn't have any slots assigned to it. Without slots being assigned, it can't store any data. Let's fix that by rebalancing the cluster:
 ```bash
-redis-cli --pass IEPfIr0eLF7UsfwrIlzy80yUaBG258j9 --cluster rebalance $EXISTING_NODE --cluster-use-empty-masters
+redis-cli --pass $PASSWORD --cluster rebalance $EXISTING_NODE --cluster-use-empty-masters
 ```
 
-You're done! The new node has been added and slots will have been appropriately re-assigned.
+Then confirm that the new node has been assigned slots:
+```bash
+redis-cli -c -a $PASSWORD -u "redis://redis-cluster"
+redis-cluster:6379> CLUSTER NODES
+```
 
 ## Usage
 [Source Connector](SOURCE.md)

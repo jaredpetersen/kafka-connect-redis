@@ -53,6 +53,38 @@ curl --request POST \
     }'
 ```
 
+## Listen to Topic
+### Avro
+Create an interactive ephemeral query pod:
+```bash
+kubectl -n kcr-demo run -it --rm kafka-tail-records --image confluentinc/cp-schema-registry:6.1.0 --command /bin/bash
+```
+
+Tail the topic, starting from the beginning:
+```bash
+kafka-avro-console-consumer \
+    --bootstrap-server kafka-broker-0.kafka-broker:9092 \
+    --property schema.registry.url='http://kafka-schema-registry:8081' \
+    --property print.key=true \
+    --property key.separator='|' \
+    --topic redis.events
+```
+
+### Connect JSON
+Create an interactive ephemeral query pod:
+```bash
+kubectl -n kcr-demo run -it --rm kafka-tail-records --image confluentinc/cp-kafka:6.1.0 --command /bin/bash
+```
+
+Tail the topic, starting from the beginning:
+```bash
+kafka-console-consumer \
+    --bootstrap-server kafka-broker-0.kafka-broker:9092 \
+    --property print.key=true \
+    --property key.separator='|' \
+    --topic redis.events
+```
+
 ## Create Redis Events
 Create Redis client pod:
 ```bash
@@ -76,38 +108,4 @@ GET {user.1}.username
 GET {user.2}.username
 SMEMBERS {user.1}.interests
 SMEMBERS {user.2}.interests
-```
-
-## Validate
-### Avro
-Create an interactive ephemeral query pod:
-```bash
-kubectl -n kcr-demo run -it --rm kafka-tail-records --image confluentinc/cp-schema-registry:6.1.0 --command /bin/bash
-```
-
-Tail the topic, starting from the beginning:
-```bash
-kafka-avro-console-consumer \
-    --bootstrap-server kafka-broker-0.kafka-broker:9092 \
-    --property schema.registry.url='http://kafka-schema-registry:8081' \
-    --property print.key=true \
-    --property key.separator='|' \
-    --topic redis.events \
-    --from-beginning
-```
-
-### Connect JSON
-Create an interactive ephemeral query pod:
-```bash
-kubectl -n kcr-demo run -it --rm kafka-tail-records --image confluentinc/cp-kafka:6.1.0 --command /bin/bash
-```
-
-Tail the topic, starting from the beginning:
-```bash
-kafka-console-consumer \
-    --bootstrap-server kafka-broker-0.kafka-broker:9092 \
-    --property print.key=true \
-    --property key.separator='|' \
-    --topic redis.events \
-    --from-beginning
 ```
