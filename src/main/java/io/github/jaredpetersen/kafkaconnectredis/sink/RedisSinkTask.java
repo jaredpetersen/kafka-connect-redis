@@ -83,8 +83,8 @@ public class RedisSinkTask extends SinkTask {
       return;
     }
 
-    LOG.info("writing {} record(s) to redis", records.size());
-    LOG.debug("records: {}", records);
+    LOG.info("Writing {} record(s) to redis", records.size());
+    LOG.debug("Records: {}", records);
 
     for (SinkRecord record : records) {
       put(record);

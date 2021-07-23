@@ -32,18 +32,18 @@ abstract class RedisListener {
   }
 
   public void subscribed(String channel) {
-    LOG.info("subscribed to channel {}", channel);
+    LOG.info("Subscribed to channel {}", channel);
   }
 
   public void psubscribed(String pattern) {
-    LOG.info("psubscribed to pattern {}", pattern);
+    LOG.info("Subscribed to pattern {}", pattern);
   }
 
   public void unsubscribed(String channel) {
-    LOG.info("unsubscribed from channel {}", channel);
+    LOG.info("Unsubscribed from channel {}", channel);
   }
 
   public void punsubscribed(String pattern) {
-    LOG.info("unsubscribed from pattern {}", pattern);
+    LOG.info("Unsubscribed from pattern {}", pattern);
   }
 }

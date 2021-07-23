@@ -16,7 +16,7 @@ public class VersionUtil {
       PROPERTIES.load(VersionUtil.class.getClassLoader().getResourceAsStream("kafka-connect-redis.properties"));
     }
     catch (IOException exception) {
-      LOG.error("failed to load properties", exception);
+      LOG.error("Failed to load properties", exception);
     }
   }
 
