@@ -7,7 +7,7 @@ First, expose the Kafka Connect server:
 kubectl -n kcr-demo port-forward service/kafka-connect :rest
 ```
 
-Kubectl will choose an available port for you that you will need to use for the cURLs (`$PORT`).
+Kubectl will choose an available port for you that you will need to use for the cURLs. Set this port to `$PORT`.
 
 ### Avro
 ```bash
