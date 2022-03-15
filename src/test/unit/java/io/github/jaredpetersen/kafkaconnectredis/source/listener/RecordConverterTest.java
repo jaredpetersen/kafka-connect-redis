@@ -32,6 +32,6 @@ class RecordConverterTest {
     assertEquals(redisMessage.getPattern(), ((Struct) sourceRecord.key()).getString("pattern"));
     assertEquals(Schema.Type.STRUCT, sourceRecord.valueSchema().type());
     assertEquals(redisMessage.getMessage(), ((Struct) sourceRecord.value()).getString("message"));
-    assertTrue(sourceRecord.timestamp() <= Instant.now().getEpochSecond());
+    assertTrue(sourceRecord.timestamp() <= Instant.now().toEpochMilli());
   }
 }

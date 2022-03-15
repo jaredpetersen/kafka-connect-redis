@@ -55,7 +55,7 @@ public class RecordConverter {
       key,
       VALUE_SCHEMA,
       value,
-      Instant.now().getEpochSecond()
+      Instant.now().toEpochMilli()
     );
   }
 }
