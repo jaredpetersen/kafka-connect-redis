@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.3] - 2022-03-15
 ### Fixed
-- Fixed a bug with record timestamps for the source connector -- switched from incorrect epoch second to epoch millisecond
+- Fixed a bug with record timestamps for the source connector -- switched from epoch seconds (incorrect) to epoch milliseconds
 
 ## [1.2.2] - 2021-07-22
 ### Changed
