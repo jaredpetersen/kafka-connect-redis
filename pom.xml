@@ -5,7 +5,7 @@
 
   <groupId>io.github.jaredpetersen</groupId>
   <artifactId>kafka-connect-redis</artifactId>
-  <version>1.2.2</version>
+  <version>1.2.3</version>
   <packaging>jar</packaging>
 
   <name>Kafka Redis Connector (Sink and Source)</name>
