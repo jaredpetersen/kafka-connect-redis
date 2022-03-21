@@ -3,6 +3,7 @@ package io.github.jaredpetersen.kafkaconnectredis.source.listener;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.data.Struct;
@@ -11,6 +12,7 @@ import org.apache.kafka.connect.source.SourceRecord;
 public class RecordConverter {
   private static final Schema KEY_SCHEMA = SchemaBuilder.struct()
     .name("io.github.jaredpetersen.kafkaconnectredis.RedisSubscriptionEventKey")
+    .field("nodeId", Schema.OPTIONAL_STRING_SCHEMA)
     .field("channel", Schema.STRING_SCHEMA)
     .field("pattern", Schema.OPTIONAL_STRING_SCHEMA);
   private static final Schema VALUE_SCHEMA = SchemaBuilder.struct()
@@ -43,6 +45,7 @@ public class RecordConverter {
     final Struct key = new Struct(KEY_SCHEMA)
       .put("channel", redisMessage.getChannel())
       .put("pattern", redisMessage.getPattern());
+    Optional.ofNullable(redisMessage.getNodeId()).map(n -> key.put("nodeId", n));
     final Struct value = new Struct(VALUE_SCHEMA)
       .put("message", redisMessage.getMessage());
 

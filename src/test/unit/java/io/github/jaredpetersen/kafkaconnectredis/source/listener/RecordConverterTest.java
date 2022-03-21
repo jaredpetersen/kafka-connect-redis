@@ -1,6 +1,7 @@
 package io.github.jaredpetersen.kafkaconnectredis.source.listener;
 
 import java.time.Instant;
+import java.util.UUID;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
@@ -13,7 +14,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class RecordConverterTest {
   @Test
   void convertTransformsRedisMessageToSourceRecord() {
+    final String nodeId = UUID.randomUUID().toString();
     final RedisMessage redisMessage = RedisMessage.builder()
+      .nodeId(nodeId)
       .channel("mychannel")
       .pattern("mypattern")
       .message("some message")
@@ -28,6 +31,7 @@ class RecordConverterTest {
     assertEquals(topic, sourceRecord.topic());
     assertNull(sourceRecord.kafkaPartition());
     assertEquals(Schema.Type.STRUCT, sourceRecord.keySchema().type());
+    assertEquals(redisMessage.getNodeId(), ((Struct) sourceRecord.key()).getString("nodeId"));
     assertEquals(redisMessage.getChannel(), ((Struct) sourceRecord.key()).getString("channel"));
     assertEquals(redisMessage.getPattern(), ((Struct) sourceRecord.key()).getString("pattern"));
     assertEquals(Schema.Type.STRUCT, sourceRecord.valueSchema().type());

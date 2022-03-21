@@ -6,6 +6,7 @@ import lombok.Value;
 @Value
 @Builder
 public class RedisMessage {
+  String nodeId;
   String pattern;
   String channel;
   String message;

@@ -29,6 +29,13 @@ public class RedisSourceConfig extends AbstractConfig {
   private static final String REDIS_CHANNELS_PATTERN_ENABLED_DOC = "Redis channel(s) utilize patterns.";
   private final boolean redisChannelPatternEnabled;
 
+  public static final String MAX_POLL_RECORDS = "max.poll.records";
+  private static final String MAX_POLL_RECORDS_DOC = "The maximum number of records returned in a single "
+    + "call to poll(). Note, that <code>max.poll.records</code> does not impact the underlying fetching behavior. "
+    + "The consumer will cache the records from each fetch request and returns them incrementally from each poll.";
+  private static final long MAX_POLL_RECORDS_DEFAULT = 10_000;
+  private final long maxPollRecords;
+
   public static final ConfigDef CONFIG_DEF = new ConfigDef()
     .define(
       TOPIC,
@@ -55,7 +62,13 @@ public class RedisSourceConfig extends AbstractConfig {
       REDIS_CHANNELS_PATTERN_ENABLED,
       Type.BOOLEAN,
       Importance.HIGH,
-      REDIS_CHANNELS_PATTERN_ENABLED_DOC);
+      REDIS_CHANNELS_PATTERN_ENABLED_DOC)
+    .define(
+      MAX_POLL_RECORDS,
+      Type.LONG,
+      MAX_POLL_RECORDS_DEFAULT,
+      Importance.MEDIUM,
+      MAX_POLL_RECORDS_DOC);
 
   /**
    * Configuration for Redis Source.
@@ -70,6 +83,7 @@ public class RedisSourceConfig extends AbstractConfig {
     this.redisClusterEnabled = getBoolean(REDIS_CLUSTER_ENABLED);
     this.redisChannels = getList(REDIS_CHANNELS);
     this.redisChannelPatternEnabled = getBoolean(REDIS_CHANNELS_PATTERN_ENABLED);
+    this.maxPollRecords = getLong(MAX_POLL_RECORDS);
   }
 
   /**
@@ -115,5 +129,14 @@ public class RedisSourceConfig extends AbstractConfig {
    */
   public boolean isRedisChannelPatternEnabled() {
     return this.redisChannelPatternEnabled;
+  }
+
+  /**
+   * Get maximum records in a batch.
+   *
+   * @return Maximum records in a batch.
+   */
+  public long getMaxPollRecords() {
+    return this.maxPollRecords;
   }
 }

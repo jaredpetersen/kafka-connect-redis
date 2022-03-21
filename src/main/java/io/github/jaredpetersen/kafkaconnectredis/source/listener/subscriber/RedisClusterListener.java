@@ -4,7 +4,9 @@ import io.github.jaredpetersen.kafkaconnectredis.source.listener.RedisMessage;
 import io.lettuce.core.cluster.models.partitions.RedisClusterNode;
 import io.lettuce.core.cluster.pubsub.RedisClusterPubSubListener;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 class RedisClusterListener extends RedisListener implements RedisClusterPubSubListener<String, String>  {
   public RedisClusterListener(ConcurrentLinkedQueue<RedisMessage> messageQueue) {
     super(messageQueue);
@@ -12,12 +14,30 @@ class RedisClusterListener extends RedisListener implements RedisClusterPubSubLi
 
   @Override
   public void message(RedisClusterNode node, String channel, String message) {
-    message(channel, message);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Received channel {} from node {}", channel, node.getNodeId());
+    }
+    final RedisMessage redisMessage = RedisMessage.builder()
+      .nodeId(node.getNodeId())
+      .channel(channel)
+      .message(message)
+      .build();
+
+    messageQueue.add(redisMessage);
   }
 
-  @Override
   public void message(RedisClusterNode node, String pattern, String channel, String message) {
-    message(pattern, channel, message);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Received channel {} from node {}", channel, node.getNodeId());
+    }
+    final RedisMessage redisMessage = RedisMessage.builder()
+      .nodeId(node.getNodeId())
+      .pattern(pattern)
+      .channel(channel)
+      .message(message)
+      .build();
+
+    messageQueue.add(redisMessage);
   }
 
   @Override

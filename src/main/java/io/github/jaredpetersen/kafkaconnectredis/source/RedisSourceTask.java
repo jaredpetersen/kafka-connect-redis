@@ -18,6 +18,10 @@ import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.connect.errors.ConnectException;
@@ -29,7 +33,7 @@ import org.apache.kafka.connect.source.SourceTask;
  */
 @Slf4j
 public class RedisSourceTask extends SourceTask {
-  private static final long MAX_POLL_SIZE = 10_000L;
+  private long maxPollSize;
 
   private RedisClient redisStandaloneClient;
   private StatefulRedisPubSubConnection<String, String> redisStandalonePubSubConnection;
@@ -57,8 +61,12 @@ public class RedisSourceTask extends SourceTask {
       throw new ConnectException("task configuration error", configException);
     }
 
+    maxPollSize = config.getMaxPollRecords();
+    LOG.info("Using max poll size of {}", maxPollSize);
+
     // Set up the subscriber for Redis
     if (config.isRedisClusterEnabled()) {
+      LOG.info("Creating cluster Redis client");
       redisClusterClient = RedisClusterClient.create(config.getRedisUri());
       redisClusterClient.setOptions(ClusterClientOptions.builder()
         .topologyRefreshOptions(ClusterTopologyRefreshOptions.builder()
@@ -96,38 +104,44 @@ public class RedisSourceTask extends SourceTask {
 
   @Override
   public List<SourceRecord> poll() {
-    final List<SourceRecord> sourceRecords = new ArrayList<>();
+    final AtomicBoolean breakTask = new AtomicBoolean(false);
+    final ConcurrentLinkedQueue<SourceRecord> sourceRecords = new ConcurrentLinkedQueue<>();
 
-    while (true) {
-      final RedisMessage redisMessage = redisSubscriber.poll();
+    while (!breakTask.get()) {
+      final CompletableFuture<RedisMessage> redisMessageFut =
+        CompletableFuture.supplyAsync(() -> redisSubscriber.poll());
+      CompletableFuture<SourceRecord> sourceRecordFut =
+        redisMessageFut.thenApply(
+          redisMessage ->
+            Optional.ofNullable(redisMessage)
+              .map(recordConverter::convert)
+              .orElseGet(() -> {
+                // No more events left, stop iterating
+                breakTask.set(true);
+                return null;
+              }));
 
-      // No more events left, stop iterating
-      if (redisMessage == null) {
-        break;
-      }
-
-      final SourceRecord sourceRecord;
-
-      try {
-        sourceRecord = recordConverter.convert(redisMessage);
-      }
-      catch (Exception exception) {
-        throw new ConnectException("failed to convert redis message", exception);
-      }
-
-      sourceRecords.add(sourceRecord);
-
-      // Subscription events may come in faster than we can iterate over them here so return early once we hit the max
-      if (sourceRecords.size() >= MAX_POLL_SIZE) {
-        break;
-      }
+      CompletableFuture<SourceRecord> recordAddFut =
+        sourceRecordFut.whenComplete(
+          (sourceRecord, exception) -> {
+            if (exception != null) {
+              throw new ConnectException("failed to convert redis message", exception);
+            }
+            else if (sourceRecord != null) {
+              sourceRecords.offer(sourceRecord);
+              if (sourceRecords.size() >= maxPollSize) {
+                breakTask.set(true);
+              }
+            }
+          });
+      recordAddFut.join();
     }
 
     if (sourceRecords.size() >= 1) {
       LOG.info("Writing {} record(s) to kafka", sourceRecords.size());
     }
 
-    return sourceRecords;
+    return new ArrayList<>(sourceRecords);
   }
 
   @Override

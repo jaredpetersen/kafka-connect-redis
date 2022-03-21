@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 abstract class RedisListener {
-  private final ConcurrentLinkedQueue<RedisMessage> messageQueue;
+  protected final ConcurrentLinkedQueue<RedisMessage> messageQueue;
 
   public RedisListener(ConcurrentLinkedQueue<RedisMessage> messageQueue) {
     this.messageQueue = messageQueue;

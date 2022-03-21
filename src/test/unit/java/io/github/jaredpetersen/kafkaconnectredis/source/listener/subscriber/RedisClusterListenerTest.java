@@ -18,15 +18,17 @@ class RedisClusterListenerTest {
     final ConcurrentLinkedQueue<RedisMessage> queue = new ConcurrentLinkedQueue<>();
     final RedisClusterListener redisClusterListener = new RedisClusterListener(queue);
 
+    final String nodeId = UUID.randomUUID().toString();
     final String channel = "books";
     final String message = "the best book ever";
 
     redisClusterListener.message(
-      RedisClusterNode.of(UUID.randomUUID().toString()),
+      RedisClusterNode.of(nodeId),
       channel,
       message);
 
     final RedisMessage expectedRedisMessage = RedisMessage.builder()
+      .nodeId(nodeId)
       .channel(channel)
       .message(message)
       .build();
@@ -40,17 +42,19 @@ class RedisClusterListenerTest {
     final ConcurrentLinkedQueue<RedisMessage> queue = new ConcurrentLinkedQueue<>();
     final RedisClusterListener redisClusterListener = new RedisClusterListener(queue);
 
+    final String nodeId = UUID.randomUUID().toString();
     final String pattern = "b*";
     final String channel = "books";
     final String message = "the best book ever";
 
     redisClusterListener.message(
-      RedisClusterNode.of(UUID.randomUUID().toString()),
+      RedisClusterNode.of(nodeId),
       pattern,
       channel,
       message);
 
     final RedisMessage expectedRedisMessage = RedisMessage.builder()
+      .nodeId(nodeId)
       .pattern(pattern)
       .channel(channel)
       .message(message)
