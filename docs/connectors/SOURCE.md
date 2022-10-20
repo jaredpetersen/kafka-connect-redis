@@ -94,4 +94,4 @@ Splitting the workload between multiple tasks is possible via the configuration 
 | `redis.uri`                       | string  |                | High       | Redis connection information provided via a URI string. |
 | `redis.cluster.enabled`           | boolean | false          | High       | Target Redis is running as a cluster.                   |
 | `redis.channels`                  | string  |                | High       | Redis channels to subscribe to separated by commas.     |
-| `redis.channels.patterns.enabled` | boolean |                | High       | Redis channels use patterns (PSUBSCRIBE).               |
+| `redis.channels.pattern.enabled`  | boolean |                | High       | Redis channels use patterns (PSUBSCRIBE).               |
