@@ -10,6 +10,9 @@ kubectl -n kcr-demo port-forward service/kafka-connect :rest
 Kubectl will choose an available port for you that you will need to use for the cURLs. Set this port to `$PORT`.
 
 ### Avro
+
+#### Cluster Mode
+
 ```bash
 curl --request POST \
     --url "localhost:$PORT/connectors" \
@@ -32,7 +35,38 @@ curl --request POST \
     }'
 ```
 
+
+
+#### Sentinel Mode
+
+```bash
+curl --request POST \
+    --url "localhost:$PORT/connectors" \
+    --header 'content-type: application/json' \
+    --data '{
+        "name": "demo-redis-sink-connector",
+        "config": {
+            "connector.class": "io.github.jaredpetersen.kafkaconnectredis.sink.RedisSinkConnector",
+            "key.converter": "io.confluent.connect.avro.AvroConverter",
+            "key.converter.schema.registry.url": "http://kafka-schema-registry:8081",
+            "key.converter.key.subject.name.strategy": "io.confluent.kafka.serializers.subject.TopicRecordNameStrategy",
+            "value.converter": "io.confluent.connect.avro.AvroConverter",
+            "value.converter.schema.registry.url": "http://kafka-schema-registry:8081",
+            "value.converter.value.subject.name.strategy": "io.confluent.kafka.serializers.subject.TopicRecordNameStrategy",
+            "tasks.max": "3",
+            "topics": "redis.commands",
+            "redis.uri": "redis-sentinel://redispassword@redis-sentinel:26379?sentinelMasterId=mymaster&sentinelAuth=sentinelpassword",
+            "redis.cluster.enabled": false
+        }
+    }'
+```
+
+
+
 ### Connect JSON
+
+#### Cluster Mode
+
 ```bash
 curl --request POST \
     --url "localhost:$PORT/connectors" \
@@ -51,7 +85,32 @@ curl --request POST \
     }'
 ```
 
+
+
+#### Sentinel Mode
+
+```bash
+curl --request POST \
+    --url "localhost:$PORT/connectors" \
+    --header 'content-type: application/json' \
+    --data '{
+        "name": "demo-redis-sink-connector",
+        "config": {
+            "connector.class": "io.github.jaredpetersen.kafkaconnectredis.sink.RedisSinkConnector",
+            "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+            "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+            "tasks.max": "1",
+            "topics": "redis.commands",
+            "redis.uri": "redis-sentinel://redispassword@redis-sentinel:26379?sentinelMasterId=mymaster&sentinelAuth=sentinelpassword",
+            "redis.cluster.enabled": false
+        }
+    }'
+```
+
+
+
 ## Write Records
+
 ### Avro
 Create an interactive ephemeral query pod:
 ```bash
