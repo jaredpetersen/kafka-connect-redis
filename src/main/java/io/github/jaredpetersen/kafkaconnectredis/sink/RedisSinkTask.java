@@ -84,7 +84,7 @@ public class RedisSinkTask extends SinkTask {
     else {
       // Add redis sentinel uri connect logic
       // If the sentinel is configured with a password, use the "sentinelAuth" parameter in the url
-      if (config.getRedisUri().startsWith("redis-sentinel")) {
+      if (config.getRedisUri().startsWith(RedisURI.URI_SCHEME_REDIS_SENTINEL)) {
         RedisURI redisUri = RedisURI.create(config.getRedisUri());
         URI uri = URI.create(config.getRedisUri());
         // Sentinel password configuration logic
